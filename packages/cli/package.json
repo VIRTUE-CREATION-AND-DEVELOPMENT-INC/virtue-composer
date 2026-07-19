@@ -1,6 +1,6 @@
 {
   "name": "@virtuecreation/composer-cli",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Initialize, inspect, and validate Virtue Composer projects.",
   "author": "Virtue Creation <info@virtuesoftware.ca>",
   "license": "MIT",
@@ -14,8 +14,16 @@
     "url": "https://github.com/VIRTUE-CREATION-AND-DEVELOPMENT-INC/virtue-composer/issues"
   },
   "type": "module",
-  "bin": { "virtue-composer": "./bin/virtue-composer.mjs" },
-  "files": ["bin", "src", "template", "README.md", "LICENSE"],
+  "bin": {
+    "virtue-composer": "bin/virtue-composer.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "template",
+    "README.md",
+    "LICENSE"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
@@ -24,5 +32,7 @@
     "test": "node --test test/*.test.mjs",
     "prepublishOnly": "npm test"
   },
-  "dependencies": { "@virtuecreation/composer-registry": "0.4.0" }
+  "dependencies": {
+    "@virtuecreation/composer-registry": "0.4.0"
+  }
 }
