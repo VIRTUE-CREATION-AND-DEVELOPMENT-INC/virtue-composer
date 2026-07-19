@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://virtue.inc/schemas/composer-config-v1.json",
+  "title": "Virtue Composer project configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion", "language", "sourceRoot", "wrapperRoot", "foundationCss", "importAlias", "enforcement"],
+  "properties": {
+    "contractVersion": { "const": 1 },
+    "packageName": { "const": "@virtuecreation/composer" },
+    "packageSource": { "enum": ["npm", "local"] },
+    "language": { "enum": ["jsx", "tsx"] },
+    "sourceRoot": { "type": "string" },
+    "wrapperRoot": { "type": "string" },
+    "foundationCss": { "type": "string" },
+    "importAlias": { "type": "string" },
+    "enforcement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["directPackageImports", "rawControls", "sectionVisualProps", "layoutDivs"],
+      "properties": {
+        "directPackageImports": { "enum": ["off", "warning", "error"] },
+        "rawControls": { "enum": ["off", "warning", "error"] },
+        "sectionVisualProps": { "enum": ["off", "warning", "error"] },
+        "layoutDivs": { "enum": ["off", "warning", "error"] }
+      }
+    }
+  }
+}

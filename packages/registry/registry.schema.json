@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Virtue Composer component registry",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "title",
+      "layer",
+      "packageImport",
+      "projectImport",
+      "client",
+      "props",
+      "states",
+      "accessibilityChecks",
+      "replaces",
+      "showcaseFixtures",
+      "doctorRules",
+      "contractVersion"
+    ],
+    "properties": {
+      "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+      "title": { "type": "string", "minLength": 1 },
+      "layer": { "enum": ["structure", "navigation", "action", "field", "choice", "disclosure", "data", "content", "media", "feedback", "loading", "overlay"] },
+      "packageImport": { "type": "string" },
+      "projectImport": { "type": "string" },
+      "client": { "type": "boolean" },
+      "props": { "type": "array", "items": { "type": "string" } },
+      "states": { "type": "array", "items": { "type": "string" } },
+      "accessibilityChecks": { "type": "array", "items": { "type": "string" } },
+      "replaces": { "type": "array", "items": { "type": "string" } },
+      "showcaseFixtures": { "type": "array", "items": { "type": "string" } },
+      "doctorRules": { "type": "array", "items": { "type": "string" } },
+      "contractVersion": { "const": 1 }
+    },
+    "additionalProperties": false
+  }
+}

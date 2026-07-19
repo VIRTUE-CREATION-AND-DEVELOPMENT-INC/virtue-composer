@@ -1,0 +1,57 @@
+{
+  "name": "virtue-composer-workspace",
+  "version": "0.4.0",
+  "description": "Composable React primitives, project scaffolding, and Codex guidance for consistent Next.js interfaces.",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VIRTUE-CREATION-AND-DEVELOPMENT-INC/virtue-composer.git"
+  },
+  "homepage": "https://github.com/VIRTUE-CREATION-AND-DEVELOPMENT-INC/virtue-composer#readme",
+  "bugs": {
+    "url": "https://github.com/VIRTUE-CREATION-AND-DEVELOPMENT-INC/virtue-composer/issues"
+  },
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "build": "npm run build --workspace @virtuecreation/composer && npm run build --workspace @virtuecreation/composer-showcase",
+    "build:showcase": "npm run build --workspace @virtuecreation/composer-showcase",
+    "dev": "npm run dev --workspace @virtuecreation/composer-showcase",
+    "doctor": "node packages/cli/bin/virtue-composer.mjs doctor apps/showcase-jsx",
+    "lint": "npm run lint --workspaces --if-present",
+    "registry:validate": "node packages/registry/scripts/validate-registry.mjs",
+    "registry:sync": "node packages/registry/scripts/sync-artifacts.mjs",
+    "registry:check": "node packages/registry/scripts/sync-artifacts.mjs --check",
+    "release:check": "npm run verify && npm run release:pack && npm run smoke:package && npm run smoke:cli-package",
+    "release:pack": "npm pack --workspace @virtuecreation/composer --dry-run",
+    "smoke:package": "node scripts/smoke-package.mjs",
+    "smoke:cli-package": "node scripts/smoke-cli-package.mjs",
+    "smoke:init": "node scripts/smoke-init.mjs",
+    "smoke:upgrade": "node scripts/smoke-upgrade.mjs",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "verify": "npm run registry:validate && npm run registry:check && npm run typecheck && npm run test && npm run lint && npm run build && npm run doctor && npm run smoke:init && npm run smoke:upgrade"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.52.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "eslint": "^9.25.1",
+    "eslint-config-next": "16.2.9",
+    "jsdom": "^26.1.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
+  }
+}

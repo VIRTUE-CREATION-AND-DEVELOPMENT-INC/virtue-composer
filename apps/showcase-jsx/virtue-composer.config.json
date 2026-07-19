@@ -1,0 +1,15 @@
+{
+  "$schema": "../../packages/registry/config.schema.json",
+  "contractVersion": 1,
+  "language": "jsx",
+  "sourceRoot": "src",
+  "wrapperRoot": "src/components/composer",
+  "foundationCss": "src/app/composer.css",
+  "importAlias": "@/components/composer",
+  "enforcement": {
+    "directPackageImports": "error",
+    "rawControls": "error",
+    "sectionVisualProps": "error",
+    "layoutDivs": "warning"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "@virtuecreation/composer-registry",
+  "version": "0.4.0",
+  "description": "Machine-readable component contracts for Virtue Composer.",
+  "author": "Virtue Creation <info@virtuesoftware.ca>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VIRTUE-CREATION-AND-DEVELOPMENT-INC/virtue-composer.git",
+    "directory": "packages/registry"
+  },
+  "homepage": "https://github.com/VIRTUE-CREATION-AND-DEVELOPMENT-INC/virtue-composer#readme",
+  "bugs": {
+    "url": "https://github.com/VIRTUE-CREATION-AND-DEVELOPMENT-INC/virtue-composer/issues"
+  },
+  "type": "module",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./components.json": "./components.json",
+    "./phase-3.json": "./components.phase-3.json",
+    "./phase-4.json": "./components.phase-4.json",
+    "./schema.json": "./registry.schema.json",
+    "./config.schema.json": "./config.schema.json"
+  },
+  "files": ["src", "components.json", "components.phase-3.json", "components.phase-4.json", "config.schema.json", "registry.schema.json"],
+  "scripts": {
+    "test": "node scripts/validate-registry.mjs && node scripts/sync-artifacts.mjs --check",
+    "prepublishOnly": "npm test"
+  }
+}

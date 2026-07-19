@@ -1,0 +1,16 @@
+{
+  "contractVersion": 1,
+  "packageName": "@virtuecreation/composer",
+  "packageSource": "npm",
+  "language": "jsx",
+  "sourceRoot": "src",
+  "wrapperRoot": "src/components/composer",
+  "foundationCss": "src/styles/composer.css",
+  "importAlias": "@/components/composer",
+  "enforcement": {
+    "directPackageImports": "error",
+    "rawControls": "error",
+    "sectionVisualProps": "error",
+    "layoutDivs": "warning"
+  }
+}

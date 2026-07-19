@@ -1,0 +1,5 @@
+interface:
+  display_name: "Virtue Composer"
+  short_description: "Compose Next.js UI through enforced project primitives"
+  brand_color: "#111111"
+  default_prompt: "Use $virtue-composer to implement this Next.js interface with the project Composer contract."

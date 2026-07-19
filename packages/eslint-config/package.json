@@ -1,0 +1,24 @@
+{
+  "name": "@virtuecreation/eslint-config-composer",
+  "version": "0.4.0",
+  "description": "ESLint boundaries for Virtue Composer projects.",
+  "author": "Virtue Creation <info@virtuesoftware.ca>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VIRTUE-CREATION-AND-DEVELOPMENT-INC/virtue-composer.git",
+    "directory": "packages/eslint-config"
+  },
+  "homepage": "https://github.com/VIRTUE-CREATION-AND-DEVELOPMENT-INC/virtue-composer#readme",
+  "bugs": {
+    "url": "https://github.com/VIRTUE-CREATION-AND-DEVELOPMENT-INC/virtue-composer/issues"
+  },
+  "type": "module",
+  "exports": { ".": "./index.js" },
+  "files": ["index.js", "README.md", "LICENSE"],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "peerDependencies": { "eslint": ">=9" }
+}

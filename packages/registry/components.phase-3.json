@@ -1,0 +1,222 @@
+[
+  {
+    "id": "app-shell", "title": "App Shell", "layer": "structure", "packageImport": "@virtuecreation/composer/app-shell", "projectImport": "@/components/composer/AppShell", "client": false,
+    "props": ["header", "navigation", "children", "footer", "mainId", "skipLinkLabel", "className"], "states": ["with-navigation", "with-footer"],
+    "accessibilityChecks": ["skip link targets main", "main is focusable", "landmarks are semantic"], "replaces": ["hand-built dashboard shell"], "showcaseFixtures": ["application shell"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "side-nav", "title": "Side Nav", "layer": "navigation", "packageImport": "@virtuecreation/composer/side-nav", "projectImport": "@/components/composer/SideNav", "client": false,
+    "props": ["groups", "ariaLabel", "className"], "states": ["current", "disabled", "badged"],
+    "accessibilityChecks": ["navigation is labeled", "current page is announced", "disabled items are not links"], "replaces": ["sidebar navigation lists"], "showcaseFixtures": ["grouped workspace navigation"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "top-nav", "title": "Top Nav", "layer": "navigation", "packageImport": "@virtuecreation/composer/top-nav", "projectImport": "@/components/composer/TopNav", "client": false,
+    "props": ["items", "ariaLabel", "actions", "className"], "states": ["current", "disabled", "with-actions"],
+    "accessibilityChecks": ["navigation is labeled", "current page is announced"], "replaces": ["header navigation lists"], "showcaseFixtures": ["primary navigation"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "mobile-nav", "title": "Mobile Nav", "layer": "navigation", "packageImport": "@virtuecreation/composer/mobile-nav", "projectImport": "@/components/composer/MobileNav", "client": true,
+    "props": ["trigger", "groups", "title", "description", "actions", "open", "defaultOpen", "onOpenChange", "className"], "states": ["closed", "open"],
+    "accessibilityChecks": ["focus is trapped while open", "escape closes navigation", "focus returns to trigger"], "replaces": ["custom mobile menu drawer"], "showcaseFixtures": ["mobile primary navigation"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "stepper", "title": "Stepper", "layer": "navigation", "packageImport": "@virtuecreation/composer/stepper", "projectImport": "@/components/composer/Stepper", "client": false,
+    "props": ["items", "orientation", "ariaLabel", "className"], "states": ["complete", "current", "upcoming", "error", "disabled"],
+    "accessibilityChecks": ["ordered progress is semantic", "current step is announced"], "replaces": ["onboarding progress lists"], "showcaseFixtures": ["three-step setup"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "anchor-nav", "title": "Anchor Nav", "layer": "navigation", "packageImport": "@virtuecreation/composer/anchor-nav", "projectImport": "@/components/composer/AnchorNav", "client": false,
+    "props": ["items", "ariaLabel", "className"], "states": ["default", "current"],
+    "accessibilityChecks": ["navigation is labeled", "anchors target valid ids"], "replaces": ["on-page link lists"], "showcaseFixtures": ["documentation anchors"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "back-link", "title": "Back Link", "layer": "navigation", "packageImport": "@virtuecreation/composer/back-link", "projectImport": "@/components/composer/BackLink", "client": false,
+    "props": ["href", "children", "icon"], "states": ["default", "with-icon"],
+    "accessibilityChecks": ["destination is a real link", "icon is decorative"], "replaces": ["button-based back navigation"], "showcaseFixtures": ["return to projects"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "segmented-control", "title": "Segmented Control", "layer": "navigation", "packageImport": "@virtuecreation/composer/segmented-control", "projectImport": "@/components/composer/SegmentedControl", "client": true,
+    "props": ["items", "value", "defaultValue", "onValueChange", "ariaLabel", "className"], "states": ["selected", "unselected", "disabled"],
+    "accessibilityChecks": ["arrow keys move selection", "selected value is announced"], "replaces": ["button groups used as modes"], "showcaseFixtures": ["view density modes"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "icon-button", "title": "Icon Button", "layer": "action", "packageImport": "@virtuecreation/composer/icon-button", "projectImport": "@/components/composer/IconButton", "client": true,
+    "props": ["label", "icon", "loading", "loadingLabel"], "states": ["default", "disabled", "loading"],
+    "accessibilityChecks": ["accessible name is required", "icon is not the only announced content"], "replaces": ["unlabeled icon controls"], "showcaseFixtures": ["settings action"], "doctorRules": ["replace-raw-button", "prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "copy-button", "title": "Copy Button", "layer": "action", "packageImport": "@virtuecreation/composer/copy-button", "projectImport": "@/components/composer/CopyButton", "client": true,
+    "props": ["value", "label", "copiedLabel", "icon", "resetAfter", "onCopy"], "states": ["idle", "copied", "disabled"],
+    "accessibilityChecks": ["copy result is announced", "clipboard action is keyboard operable"], "replaces": ["ad hoc clipboard handlers"], "showcaseFixtures": ["copy project id"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "split-button", "title": "Split Button", "layer": "action", "packageImport": "@virtuecreation/composer/split-button", "projectImport": "@/components/composer/SplitButton", "client": true,
+    "props": ["label", "onClick", "items", "onAction", "icon", "menuIcon", "menuLabel", "disabled", "loading", "className"], "states": ["default", "menu-open", "disabled", "loading"],
+    "accessibilityChecks": ["primary and secondary actions are separately named", "menu keyboard behavior is preserved"], "replaces": ["action buttons with nested menus"], "showcaseFixtures": ["publish and publish options"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "number-input", "title": "Number Input", "layer": "field", "packageImport": "@virtuecreation/composer/number-input", "projectImport": "@/components/composer/NumberInput", "client": true,
+    "props": ["label", "value", "defaultValue", "onValueChange", "min", "max", "step", "name", "disabled", "required", "description", "error", "className"], "states": ["default", "minimum", "maximum", "disabled", "invalid"],
+    "accessibilityChecks": ["step controls are named", "bounds are enforced", "errors are announced"], "replaces": ["raw numeric input with custom steppers"], "showcaseFixtures": ["seat count"], "doctorRules": ["replace-raw-input", "prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "password-input", "title": "Password Input", "layer": "field", "packageImport": "@virtuecreation/composer/password-input", "projectImport": "@/components/composer/PasswordInput", "client": true,
+    "props": ["label", "description", "error", "showLabel", "hideLabel", "showIcon", "hideIcon", "className"], "states": ["hidden", "visible", "disabled", "invalid"],
+    "accessibilityChecks": ["visibility toggle is pressed-state aware", "label and errors are associated"], "replaces": ["password field with ad hoc visibility control"], "showcaseFixtures": ["account password"], "doctorRules": ["replace-raw-input", "prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "otp-input", "title": "OTP Input", "layer": "field", "packageImport": "@virtuecreation/composer/otp-input", "projectImport": "@/components/composer/OtpInput", "client": true,
+    "props": ["label", "value", "defaultValue", "onChange", "length", "name", "disabled", "required", "pattern", "description", "error", "className"], "states": ["empty", "partial", "complete", "invalid", "disabled"],
+    "accessibilityChecks": ["single accessible input is exposed", "visual slots are hidden from assistive technology"], "replaces": ["multi-input verification codes"], "showcaseFixtures": ["six-digit verification"], "doctorRules": ["replace-raw-input", "prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "date-picker", "title": "Date Picker", "layer": "field", "packageImport": "@virtuecreation/composer/date-picker", "projectImport": "@/components/composer/DatePicker", "client": true,
+    "props": ["label", "value", "defaultValue", "onValueChange", "placeholder", "disabled", "required", "name", "min", "max", "className"], "states": ["empty", "selected", "open", "disabled"],
+    "accessibilityChecks": ["calendar keyboard navigation works", "selected date is named", "date bounds are unavailable"], "replaces": ["custom calendar popover"], "showcaseFixtures": ["release date"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "date-range-picker", "title": "Date Range Picker", "layer": "field", "packageImport": "@virtuecreation/composer/date-range-picker", "projectImport": "@/components/composer/DateRangePicker", "client": true,
+    "props": ["label", "value", "defaultValue", "onValueChange", "placeholder", "disabled", "required", "startName", "endName", "numberOfMonths", "className"], "states": ["empty", "start-selected", "complete", "open", "disabled"],
+    "accessibilityChecks": ["range endpoints are announced", "calendar keyboard navigation works"], "replaces": ["paired uncoordinated date inputs"], "showcaseFixtures": ["reporting period"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "time-input", "title": "Time Input", "layer": "field", "packageImport": "@virtuecreation/composer/time-input", "projectImport": "@/components/composer/TimeInput", "client": false,
+    "props": ["label", "description", "error", "className"], "states": ["default", "disabled", "invalid"],
+    "accessibilityChecks": ["native time semantics are retained", "label and errors are associated"], "replaces": ["raw time input"], "showcaseFixtures": ["meeting time"], "doctorRules": ["replace-raw-input", "prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "slider", "title": "Slider", "layer": "field", "packageImport": "@virtuecreation/composer/slider", "projectImport": "@/components/composer/Slider", "client": true,
+    "props": ["label", "value", "defaultValue", "onValueChange", "min", "max", "step", "disabled", "name", "showValue", "className"], "states": ["single", "range", "disabled"],
+    "accessibilityChecks": ["keyboard increments follow bounds", "each thumb is named"], "replaces": ["raw range input"], "showcaseFixtures": ["budget range"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "tag-input", "title": "Tag Input", "layer": "field", "packageImport": "@virtuecreation/composer/tag-input", "projectImport": "@/components/composer/TagInput", "client": true,
+    "props": ["label", "value", "defaultValue", "onValueChange", "placeholder", "name", "disabled", "maxTags", "allowDuplicates", "description", "className"], "states": ["empty", "populated", "maximum", "disabled"],
+    "accessibilityChecks": ["remove controls include tag names", "keyboard addition and deletion work"], "replaces": ["comma-separated tag fields"], "showcaseFixtures": ["project tags"], "doctorRules": ["replace-raw-input", "prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "alert-dialog", "title": "Alert Dialog", "layer": "overlay", "packageImport": "@virtuecreation/composer/alert-dialog", "projectImport": "@/components/composer/AlertDialog", "client": true,
+    "props": ["trigger", "title", "description", "confirmLabel", "cancelLabel", "onConfirm", "destructive", "open", "defaultOpen", "onOpenChange", "children", "className"], "states": ["closed", "open", "destructive"],
+    "accessibilityChecks": ["focus is trapped", "cancel receives safe focus", "description is required", "focus returns to trigger"], "replaces": ["window confirm", "destructive dialog"], "showcaseFixtures": ["delete project confirmation"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "context-menu", "title": "Context Menu", "layer": "overlay", "packageImport": "@virtuecreation/composer/context-menu", "projectImport": "@/components/composer/ContextMenu", "client": true,
+    "props": ["children", "items", "onAction", "ariaLabel", "className"], "states": ["closed", "open", "disabled-item", "destructive-item"],
+    "accessibilityChecks": ["context key and right click open menu", "roving focus works", "escape closes menu"], "replaces": ["custom right-click menus"], "showcaseFixtures": ["file actions"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "hover-card", "title": "Hover Card", "layer": "overlay", "packageImport": "@virtuecreation/composer/hover-card", "projectImport": "@/components/composer/HoverCard", "client": true,
+    "props": ["trigger", "children", "open", "defaultOpen", "onOpenChange", "openDelay", "closeDelay", "side", "align", "className"], "states": ["closed", "open"],
+    "accessibilityChecks": ["keyboard focus opens content", "content remains reachable"], "replaces": ["profile preview popovers"], "showcaseFixtures": ["owner preview"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "banner", "title": "Banner", "layer": "feedback", "packageImport": "@virtuecreation/composer/banner", "projectImport": "@/components/composer/Banner", "client": true,
+    "props": ["title", "children", "tone", "icon", "actions", "dismissLabel", "dismissible", "onDismiss", "className"], "states": ["neutral", "info", "success", "warning", "danger", "dismissed"],
+    "accessibilityChecks": ["urgent tone uses alert", "dismiss control is named"], "replaces": ["site notice bars"], "showcaseFixtures": ["maintenance notice"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "inline-message", "title": "Inline Message", "layer": "feedback", "packageImport": "@virtuecreation/composer/inline-message", "projectImport": "@/components/composer/InlineMessage", "client": false,
+    "props": ["children", "title", "tone", "icon", "live", "className"], "states": ["neutral", "info", "success", "warning", "danger"],
+    "accessibilityChecks": ["live priority matches tone", "meaning is not color-only"], "replaces": ["form status text"], "showcaseFixtures": ["saved status"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "loading-overlay", "title": "Loading Overlay", "layer": "loading", "packageImport": "@virtuecreation/composer/loading-overlay", "projectImport": "@/components/composer/LoadingOverlay", "client": false,
+    "props": ["active", "children", "label", "indicator", "inertContent", "className"], "states": ["idle", "active"],
+    "accessibilityChecks": ["busy state is announced", "covered content becomes inert"], "replaces": ["absolute loading masks"], "showcaseFixtures": ["saving panel"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "tree-view", "title": "Tree View", "layer": "data", "packageImport": "@virtuecreation/composer/tree-view", "projectImport": "@/components/composer/TreeView", "client": true,
+    "props": ["nodes", "selectedIds", "defaultSelectedIds", "onSelectedIdsChange", "onPrimaryAction", "defaultExpandedIds", "multiSelect", "ariaLabel", "indent", "className"], "states": ["collapsed", "expanded", "selected", "focused", "disabled"],
+    "accessibilityChecks": ["WAI-ARIA tree semantics are supplied", "arrow keys and typeahead work", "selection is announced"], "replaces": ["recursive folder lists"], "showcaseFixtures": ["content hierarchy"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "tree-select", "title": "Tree Select", "layer": "field", "packageImport": "@virtuecreation/composer/tree-select", "projectImport": "@/components/composer/TreeSelect", "client": true,
+    "props": ["label", "nodes", "value", "defaultValue", "onValueChange", "placeholder", "name", "disabled", "required", "className"], "states": ["empty", "selected", "open", "disabled"],
+    "accessibilityChecks": ["combobox expanded state is announced", "tree keyboard behavior is retained"], "replaces": ["nested category select"], "showcaseFixtures": ["content category"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "virtual-list", "title": "Virtual List", "layer": "data", "packageImport": "@virtuecreation/composer/virtual-list", "projectImport": "@/components/composer/VirtualList", "client": true,
+    "props": ["items", "renderItem", "getItemKey", "estimateSize", "height", "overscan", "ariaLabel", "empty", "className"], "states": ["populated", "empty", "scrolling"],
+    "accessibilityChecks": ["list semantics are retained", "stable keys are supported"], "replaces": ["large unbounded lists"], "showcaseFixtures": ["one thousand records"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "timeline", "title": "Timeline", "layer": "data", "packageImport": "@virtuecreation/composer/timeline", "projectImport": "@/components/composer/Timeline", "client": false,
+    "props": ["items", "ariaLabel", "className"], "states": ["complete", "current", "upcoming", "error"],
+    "accessibilityChecks": ["events are an ordered list", "dates use time semantics"], "replaces": ["activity feed markup"], "showcaseFixtures": ["project activity"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "data-grid", "title": "Data Grid", "layer": "data", "packageImport": "@virtuecreation/composer/data-grid", "projectImport": "@/components/composer/DataGrid", "client": true,
+    "props": ["rows", "columns", "caption", "selectable", "selectedIds", "defaultSelectedIds", "onSelectedIdsChange", "sorting", "defaultSorting", "onSortingChange", "globalFilter", "pinnedColumns", "empty", "className"], "states": ["populated", "empty", "sorted", "selected", "resizing", "pinned"],
+    "accessibilityChecks": ["table semantics are retained", "selection controls are named", "sort direction is announced", "resize separators are named"], "replaces": ["interactive admin tables"], "showcaseFixtures": ["selectable content grid"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "calendar", "title": "Calendar", "layer": "data", "packageImport": "@virtuecreation/composer/calendar", "projectImport": "@/components/composer/Calendar", "client": true,
+    "props": ["DayPicker props", "containerClassName", "ariaLabel"], "states": ["single", "multiple", "range", "disabled-days"],
+    "accessibilityChecks": ["month and day navigation is keyboard operable", "selected days are announced"], "replaces": ["hand-built calendar grids"], "showcaseFixtures": ["availability calendar"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "scheduler", "title": "Scheduler", "layer": "data", "packageImport": "@virtuecreation/composer/scheduler", "projectImport": "@/components/composer/Scheduler", "client": true,
+    "props": ["date", "events", "startHour", "endHour", "intervalMinutes", "onEventSelect", "ariaLabel", "empty", "className"], "states": ["populated", "empty", "disabled-event"],
+    "accessibilityChecks": ["schedule is labeled by date", "events are keyboard operable", "times use semantic values"], "replaces": ["booking day grids"], "showcaseFixtures": ["daily booking schedule"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "kanban-board", "title": "Kanban Board", "layer": "data", "packageImport": "@virtuecreation/composer/kanban-board", "projectImport": "@/components/composer/KanbanBoard", "client": true,
+    "props": ["columns", "onMove", "ariaLabel", "className"], "states": ["idle", "dragging", "disabled-item"],
+    "accessibilityChecks": ["keyboard dragging is available", "drag handles are named", "columns are semantic sections"], "replaces": ["pointer-only kanban board"], "showcaseFixtures": ["content workflow"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "chart-frame", "title": "Chart Frame", "layer": "data", "packageImport": "@virtuecreation/composer/chart-frame", "projectImport": "@/components/composer/ChartFrame", "client": false,
+    "props": ["title", "description", "children", "legend", "actions", "summary", "ariaLabel", "className"], "states": ["with-legend", "with-summary", "with-actions"],
+    "accessibilityChecks": ["chart has a caption", "text summary can accompany visuals"], "replaces": ["unlabeled chart containers"], "showcaseFixtures": ["traffic overview"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "chart-legend", "title": "Chart Legend", "layer": "data", "packageImport": "@virtuecreation/composer/chart-legend", "projectImport": "@/components/composer/ChartLegend", "client": false,
+    "props": ["items", "ariaLabel", "className"], "states": ["default", "hidden-series", "with-values"],
+    "accessibilityChecks": ["legend is a labeled list", "labels accompany color swatches"], "replaces": ["color-only legends"], "showcaseFixtures": ["channel legend"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "chart-tooltip", "title": "Chart Tooltip", "layer": "data", "packageImport": "@virtuecreation/composer/chart-tooltip", "projectImport": "@/components/composer/ChartTooltip", "client": false,
+    "props": ["label", "items", "active", "className"], "states": ["hidden", "active"],
+    "accessibilityChecks": ["values are expressed as definition data", "series labels accompany swatches"], "replaces": ["unstructured chart hover content"], "showcaseFixtures": ["point details"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "rich-text-editor", "title": "Rich Text Editor", "layer": "content", "packageImport": "@virtuecreation/composer/rich-text-editor", "projectImport": "@/components/composer/RichTextEditor", "client": true,
+    "props": ["label", "content", "onChange", "extensions", "placeholder", "editable", "autofocus", "toolbar", "className"], "states": ["loading", "editable", "readonly", "formatted-selection"],
+    "accessibilityChecks": ["editor is labeled", "toolbar controls expose pressed state", "SSR initialization is deferred"], "replaces": ["contenteditable implementations"], "showcaseFixtures": ["article body editor"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "markdown-editor", "title": "Markdown Editor", "layer": "content", "packageImport": "@virtuecreation/composer/markdown-editor", "projectImport": "@/components/composer/MarkdownEditor", "client": true,
+    "props": ["label", "value", "defaultValue", "onValueChange", "mode", "defaultMode", "onModeChange", "placeholder", "name", "disabled", "rows", "className"], "states": ["write", "preview", "split", "disabled"],
+    "accessibilityChecks": ["editor and preview are separately labeled", "view mode is keyboard operable"], "replaces": ["textarea-only markdown editors"], "showcaseFixtures": ["release notes editor"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "code-block", "title": "Code Block", "layer": "content", "packageImport": "@virtuecreation/composer/code-block", "projectImport": "@/components/composer/CodeBlock", "client": true,
+    "props": ["code", "language", "label", "copyLabel", "showLineNumbers", "className"], "states": ["default", "copied", "line-numbers"],
+    "accessibilityChecks": ["code region is keyboard scrollable", "copy result is announced"], "replaces": ["unlabeled pre blocks"], "showcaseFixtures": ["installation command"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "avatar", "title": "Avatar", "layer": "media", "packageImport": "@virtuecreation/composer/avatar", "projectImport": "@/components/composer/Avatar", "client": true,
+    "props": ["src", "alt", "fallback", "fallbackDelay", "className"], "states": ["loading", "loaded", "fallback"],
+    "accessibilityChecks": ["image has alternative text", "fallback retains identity label"], "replaces": ["profile image with broken fallback"], "showcaseFixtures": ["project owner"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "avatar-group", "title": "Avatar Group", "layer": "media", "packageImport": "@virtuecreation/composer/avatar-group", "projectImport": "@/components/composer/AvatarGroup", "client": false,
+    "props": ["items", "max", "overflowLabel", "ariaLabel", "className"], "states": ["complete", "overflow"],
+    "accessibilityChecks": ["group is named", "overflow count has an accessible label"], "replaces": ["overlapping profile image lists"], "showcaseFixtures": ["project collaborators"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "image-gallery", "title": "Image Gallery", "layer": "media", "packageImport": "@virtuecreation/composer/image-gallery", "projectImport": "@/components/composer/ImageGallery", "client": true,
+    "props": ["images", "selectedId", "defaultSelectedId", "onSelectedIdChange", "priority", "ariaLabel", "empty", "className"], "states": ["populated", "selected", "empty"],
+    "accessibilityChecks": ["gallery and thumbnail chooser are labeled", "thumbnails expose image names", "selected image is current"], "replaces": ["custom product and portfolio galleries"], "showcaseFixtures": ["project media gallery"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "lightbox", "title": "Lightbox", "layer": "media", "packageImport": "@virtuecreation/composer/lightbox", "projectImport": "@/components/composer/Lightbox", "client": true,
+    "props": ["images", "trigger", "initialId", "open", "defaultOpen", "onOpenChange", "ariaLabel", "className"], "states": ["closed", "open", "single", "multiple"],
+    "accessibilityChecks": ["focus is trapped", "escape closes viewer", "arrow keys navigate", "focus returns to trigger"], "replaces": ["custom full-screen image viewer"], "showcaseFixtures": ["gallery lightbox"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  },
+  {
+    "id": "video-player", "title": "Video Player", "layer": "media", "packageImport": "@virtuecreation/composer/video-player", "projectImport": "@/components/composer/VideoPlayer", "client": false,
+    "props": ["label", "sources", "tracks", "fallback", "className", "native video props"], "states": ["idle", "playing", "paused", "with-captions"],
+    "accessibilityChecks": ["player is labeled", "caption tracks are supported", "native controls remain keyboard operable"], "replaces": ["unlabeled video embeds"], "showcaseFixtures": ["project walkthrough"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+  }
+]
