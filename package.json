@@ -34,6 +34,7 @@
     "smoke:package": "node scripts/smoke-package.mjs",
     "smoke:cli-package": "node scripts/smoke-cli-package.mjs",
     "smoke:init": "node scripts/smoke-init.mjs",
+    "smoke:npm-release": "node scripts/smoke-npm-release.mjs",
     "smoke:upgrade": "node scripts/smoke-upgrade.mjs",
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
