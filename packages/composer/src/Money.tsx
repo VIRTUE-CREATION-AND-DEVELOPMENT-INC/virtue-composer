@@ -1,13 +1,22 @@
 import VisuallyHidden from "./VisuallyHidden";
 
-export type MoneyProps = { value: number; currency: string; locale?: string; minimumFractionDigits?: number; maximumFractionDigits?: number; originalValue?: number; rangeEnd?: number; className?: string };
+type MoneyBaseProps = { currency: string; locale?: string; minimumFractionDigits?: number; maximumFractionDigits?: number; className?: string };
+type MajorMoneyProps = MoneyBaseProps & { value: number; valueMinor?: never; originalValue?: number; originalValueMinor?: never; rangeEnd?: number; rangeEndMinor?: never };
+type MinorMoneyProps = MoneyBaseProps & { value?: never; valueMinor: number; originalValue?: never; originalValueMinor?: number; rangeEnd?: never; rangeEndMinor?: number };
+export type MoneyProps = MajorMoneyProps | MinorMoneyProps;
 
-export default function Money({ value, currency, locale = "en-US", minimumFractionDigits, maximumFractionDigits, originalValue, rangeEnd, className }: MoneyProps) {
+export default function Money({ value, valueMinor, currency, locale = "en-US", minimumFractionDigits, maximumFractionDigits, originalValue, originalValueMinor, rangeEnd, rangeEndMinor, className }: MoneyProps) {
+  const currencyDigits = new Intl.NumberFormat(locale, { style: "currency", currency }).resolvedOptions().maximumFractionDigits ?? 2;
   const formatter = new Intl.NumberFormat(locale, { style: "currency", currency, minimumFractionDigits, maximumFractionDigits });
-  const current = formatter.format(value);
-  const label = rangeEnd !== undefined ? `${current} to ${formatter.format(rangeEnd)}` : originalValue !== undefined ? `Sale price ${current}, originally ${formatter.format(originalValue)}` : current;
-  return <span className={className} data-vc-component="money" data-vc-sale={originalValue !== undefined || undefined}>
+  const divisor = 10 ** currencyDigits;
+  const amount = valueMinor !== undefined ? valueMinor / divisor : value;
+  if (amount === undefined) throw new Error("Virtue Composer: Money requires valueMinor or the legacy value prop.");
+  const originalAmount = originalValueMinor !== undefined ? originalValueMinor / divisor : originalValue;
+  const rangeAmount = rangeEndMinor !== undefined ? rangeEndMinor / divisor : rangeEnd;
+  const current = formatter.format(amount);
+  const label = rangeAmount !== undefined ? `${current} to ${formatter.format(rangeAmount)}` : originalAmount !== undefined ? `Sale price ${current}, originally ${formatter.format(originalAmount)}` : current;
+  return <span className={className} data-vc-component="money" data-vc-slot="root" data-vc-units={valueMinor !== undefined ? "minor" : "major"} data-vc-sale={originalAmount !== undefined || undefined}>
     <VisuallyHidden>{label}</VisuallyHidden>
-    <span aria-hidden="true">{rangeEnd !== undefined ? <>{current} – {formatter.format(rangeEnd)}</> : originalValue !== undefined ? <><s>{formatter.format(originalValue)}</s> {current}</> : current}</span>
+    <span aria-hidden="true">{rangeAmount !== undefined ? <>{current} – {formatter.format(rangeAmount)}</> : originalAmount !== undefined ? <><s>{formatter.format(originalAmount)}</s> {current}</> : current}</span>
   </span>;
 }

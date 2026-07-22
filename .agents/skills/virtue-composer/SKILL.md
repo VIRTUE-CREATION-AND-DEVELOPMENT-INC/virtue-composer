@@ -1,6 +1,6 @@
 ---
 name: virtue-composer
-description: Use for Next.js frontend creation unless the user opts out, and for any frontend edit in a project containing virtue-composer.config.json, virtue-composer.manifest.json, an @virtuecreation/composer dependency, or local components/composer wrappers. Routes Codex through approved local wrappers, layout-only Section composition, project-owned styling, Composer Doctor enforcement, browser QA, and a component usage report. Do not silently migrate established unmarked projects.
+description: Use for Next.js frontend creation unless the user opts out, and for frontend work in a project containing virtue-composer.config.json, virtue-composer.manifest.json, an @virtuecreation/composer dependency, or local components/composer wrappers. Routes meaningful component, layout, control, and behavior changes through approved local wrappers, explicit Section semantics, project-owned styling, Composer Doctor enforcement, browser QA, and component usage reporting. Do not silently migrate established unmarked projects.
 ---
 
 # Virtue Composer
@@ -19,13 +19,19 @@ Use this skill when any condition is true:
 
 Do not initialize or migrate an established project merely because it uses Next.js. If none of the project markers exist, follow existing project conventions unless the task is creating the project's frontend foundation. An explicit user opt-out always wins.
 
+## Choose The Workflow
+
+Use the **lightweight workflow** only when every change is limited to copy, content data, or project-owned CSS and does not alter component selection, JSX structure, layout behavior, controls, wrappers, routes, dependencies, accessibility behavior, or Composer configuration. Read local instructions and the touched files, preserve existing Composer hooks, run the relevant targeted project check, and report Composer usage in one line. Full registry inspection and Doctor are optional when no Composer contract surface can change.
+
+Use the **full workflow** for every component, JSX structure, layout, control, interaction, route, wrapper, dependency, accessibility, initialization, upgrade, or Composer configuration change. When uncertain, use the full workflow.
+
 ## First Reads
 
 Before meaningful edits:
 
 1. Find the project root and read `AGENTS.md` plus local instructions.
 2. Read `virtue-composer.config.json`, `virtue-composer.manifest.json`, and `package.json` when present.
-3. Run `virtue-composer inspect . --json` and read the relevant component records. Use the CLI resolution in [references/cli-and-contract.md](references/cli-and-contract.md).
+3. For the full workflow, run `virtue-composer inspect . --used --compact --json`, then request specific component records with `--component` or `--category` as needed. Use the CLI resolution in [references/cli-and-contract.md](references/cli-and-contract.md).
 4. Inspect the project wrappers and visual styling before choosing components.
 5. Read `skills/index.json` and applicable project skills when the Virtue skill matrix exists.
 
@@ -36,13 +42,15 @@ Before meaningful edits:
 For a new Next.js frontend without an opt-out:
 
 1. Establish the Next.js project first.
-2. Run `virtue-composer init .`.
-3. Install the pinned `@virtuecreation/composer` dependency with `npm install`.
+2. Run `virtue-composer init .`; pass explicit layout or alias options when project detection needs help.
+3. Install the pinned `@virtuecreation/composer` and `@virtuecreation/composer-cli` dependencies with `npm install`.
 4. Import the generated foundation CSS once from the root layout.
 5. Keep generated wrappers local and make application code import those wrappers only.
 6. Run Doctor before building the first page.
 
 Never overwrite an existing wrapper or project stylesheet without reading it. The initializer skips existing files unless `--force` is deliberately supplied.
+
+Full wrapper generation remains the compatibility default. For focused projects, initialize with `--components=Section,Button,...` and add later primitives with `virtue-composer add . --components=Money,...`; the manifest defines the installed wrapper set.
 
 ### Upgrade Composer Projects
 
@@ -52,14 +60,14 @@ When the installed package, manifest, or registry is behind the canonical Compos
 2. Run `virtue-composer upgrade .`.
 3. Run `npm install`. Use `--local=/absolute/path/to/packages/composer` and `npm install --install-links` only while testing unpublished Composer source.
 4. Run Doctor before editing feature code.
-5. Review newly available records with `inspect --json` and adopt components only where the task needs them.
+5. Review newly available records with focused `inspect` filters and adopt components only where the task needs them.
 
 Upgrade must preserve existing wrapper files. Never replace project wrapper customizations merely to match the template.
 
 ### Select Components
 
-- Use `Section` for semantic page regions and child layout: block, flex, grid, direction, alignment, justification, wrapping, columns, and registered gaps.
-- Nest `Section` when a page region and its inner content need distinct layout behavior.
+- Use `Section as="section"` for a semantic page region with an accessible heading, and choose `as="header"`, `as="main"`, `as="nav"`, `as="aside"`, or `as="footer"` when that landmark is correct.
+- Use `Section as="div"` for layout-only grouping. Nested layout Sections must declare `as="div"` unless they are independently meaningful regions.
 - Keep headings, paragraphs, labels, lists, and content as semantic project markup. Do not create shared text components.
 - Use local wrappers for actions, application navigation, form controls, choices, disclosure, overlays, feedback, loading, data presentation, filtering, resource states, commands, calendars, scheduling, trees, virtualized lists, data grids, editors, CMS/media selection, uploads, imports, audit history, advanced forms, search facets, and commerce infrastructure.
 - Read [references/cli-and-contract.md](references/cli-and-contract.md) for the current component inventory; do not rely on memory when selecting an API.
@@ -69,7 +77,7 @@ Upgrade must preserve existing wrapper files. Never replace project wrapper cust
 - Use `RichTextEditor` and `MarkdownEditor` for authoring behavior, while keeping rendered typography and toolbar styling in the project.
 - Use `ImageGallery`, `Lightbox`, and `VideoPlayer` for media behavior. Asset storage, transforms, editorial rules, and branded presentation remain project concerns.
 - Use `MediaPicker`, `UploadQueue`, and `MediaField` through project storage and upload adapters; never put provider credentials or transport policy into wrappers.
-- Use normalized Phase 4 values at the project boundary: E.164 phone numbers, integer currency minor units, minute durations, ISO date-times, and IANA timezone IDs.
+- Use normalized Phase 4 values at the project boundary: E.164 phone numbers, integer currency minor units, minute durations, ISO date-times, and IANA timezone IDs. Prefer the explicit `valueMinor` monetary props. Legacy `Money.value`, `originalValue`, and `rangeEnd` are major-unit compatibility props.
 - Use `SearchInput`, `FacetFilter`, `ActiveFilters`, and `SearchResultsSummary` for search behavior while keeping execution, ranking, URL state, and pagination project-owned.
 - Use commerce components for interaction and presentation only. Inventory, pricing, discounts, tax, checkout, and payment authority remain project/server concerns.
 - Use `ResourceBoundary` to make loading, error, empty, and ready states explicit around fetched content.
@@ -78,7 +86,7 @@ Upgrade must preserve existing wrapper files. Never replace project wrapper cust
 
 ### Preserve Styling Ownership
 
-`Section` may receive only registered layout props plus semantic element props and `className`. Never give it surface, width, height, min-height, padding, background, border, radius, shadow, or typography props.
+`Section` may receive only registered layout props plus semantic element props and `className`. Never give it `style`, surface, width, height, min-height, padding, background, border, radius, shadow, or typography props. Doctor must report these props rather than relying on the component to discard them.
 
 Put those decisions in project CSS, CSS modules, Tailwind classes, or the project's established styling layer. Wrappers may adapt class names, variants, analytics, and project defaults while continuing to delegate behavior to Composer.
 
@@ -93,7 +101,7 @@ Put those decisions in project CSS, CSS modules, Tailwind classes, or the projec
 
 ## Enforcement
 
-Run these after meaningful frontend edits:
+For the full workflow, run these after meaningful frontend edits:
 
 ```bash
 virtue-composer doctor .
@@ -104,6 +112,8 @@ npm run build
 ```
 
 Use the scripts that actually exist in `package.json`; do not invent missing commands. Doctor errors block completion. Address warnings when relevant or explain why the project intentionally keeps them.
+
+Doctor's source rules are contract checks, not proof that every style-induced layout has been discovered. A `layout-div` result is advisory and CSS Module detection is best effort; a clean Doctor report means no findings within the reported scan coverage.
 
 For route-level, responsive, visual, overlay, or interaction work, run browser QA at desktop and mobile widths. Check text fit, focus order, keyboard operation, dialog dismissal/focus return, loading and disabled states, and accessibility violations.
 

@@ -28,7 +28,7 @@ export default function CurrencyInput({ label, currency, locale, value, defaultV
     onValueChange?.(bounded);
   };
   const minor = parse(text);
-  return <div className={className} data-vc-component="currency-input" data-vc-invalid={Boolean(error) || undefined}>
+  return <div className={className} data-vc-component="currency-input" data-vc-slot="root" data-vc-invalid={Boolean(error) || undefined}>
     <label htmlFor={id}>{label} ({currency}){required && <span aria-hidden="true"> *</span>}</label>
     {description && <p id={`${id}-description`}>{description}</p>}
     <input id={id} type="text" inputMode="decimal" value={text} onChange={(event) => change(event.currentTarget.value)} onBlur={() => setText(format(parse(text)))} required={required} disabled={disabled} aria-describedby={[description ? `${id}-description` : "", error ? `${id}-error` : ""].filter(Boolean).join(" ") || undefined} aria-invalid={Boolean(error) || undefined} />

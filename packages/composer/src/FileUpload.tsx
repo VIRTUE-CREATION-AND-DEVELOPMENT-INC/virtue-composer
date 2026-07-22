@@ -23,7 +23,7 @@ export default function FileUpload({ label, description, dropLabel = "Choose fil
   };
 
   return (
-    <div className={className} data-vc-component="file-upload" data-vc-dragging={dragging || undefined} data-vc-invalid={Boolean(error) || undefined}>
+    <div className={className} data-vc-component="file-upload" data-vc-slot="root" data-vc-dragging={dragging || undefined} data-vc-invalid={Boolean(error) || undefined}>
       <span data-vc-file-upload-label>{label}</span>
       {description && <p id={descriptionId} data-vc-file-upload-description>{description}</p>}
       <label htmlFor={controlId} onDragEnter={(event) => { event.preventDefault(); setDragging(true); }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={onDrop} data-vc-file-upload-dropzone>

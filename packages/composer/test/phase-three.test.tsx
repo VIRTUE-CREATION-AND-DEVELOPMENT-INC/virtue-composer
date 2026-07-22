@@ -92,11 +92,20 @@ describe("Phase 3A application structure and navigation", () => {
 
   it("renders progress, anchor, and back navigation states", () => {
     render(<>
-      <Stepper items={[{ id: "details", label: "Details", status: "complete", href: "/details" }, { id: "review", label: "Review", status: "current" }]} />
+      <Stepper ariaLabel="Horizontal progress" items={[{ id: "details", label: "Details", status: "complete", href: "/details" }, { id: "review", label: "Review", status: "current" }]} />
+      <Stepper ariaLabel="Vertical progress" orientation="vertical" items={[{ id: "details", label: "Details", status: "complete" }, { id: "review", label: "Review", status: "current" }]} />
       <AnchorNav items={[{ id: "overview", label: "Overview", href: "#overview", current: true }]} />
       <BackLink href="/projects">Projects</BackLink>
     </>);
-    expect(screen.getByText("Review").closest("div")).toHaveAttribute("aria-current", "step");
+    const horizontal = screen.getByRole("navigation", { name: "Horizontal progress" });
+    const vertical = screen.getByRole("navigation", { name: "Vertical progress" });
+    expect(horizontal).toHaveAttribute("data-vc-orientation", "horizontal");
+    expect(vertical).toHaveAttribute("data-vc-orientation", "vertical");
+    expect(horizontal.querySelector("[data-vc-stepper-list]")).toHaveAttribute("tabindex", "0");
+    expect(vertical.querySelector("[data-vc-stepper-list]")).not.toHaveAttribute("tabindex");
+    expect(horizontal.querySelectorAll("[data-vc-stepper-connector]")).toHaveLength(1);
+    expect(vertical.querySelectorAll("[data-vc-stepper-connector]")).toHaveLength(1);
+    expect(within(vertical).getByText("Review").closest("div")).toHaveAttribute("aria-current", "step");
     expect(screen.getByRole("link", { name: "Overview" })).toHaveAttribute("aria-current", "location");
     expect(screen.getByRole("link", { name: "Projects" })).toHaveAttribute("href", "/projects");
   });

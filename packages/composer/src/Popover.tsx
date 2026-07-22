@@ -20,7 +20,7 @@ export default function Popover({ trigger, children, title, open, defaultOpen, o
     <PopoverPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
       <PopoverPrimitive.Trigger asChild>{trigger}</PopoverPrimitive.Trigger>
       <PopoverPrimitive.Portal>
-        <PopoverPrimitive.Content side={side} align={align} sideOffset={8} className={className} data-vc-component="popover">
+        <PopoverPrimitive.Content side={side} align={align} sideOffset={8} className={className} data-vc-component="popover" data-vc-slot="root">
           {title && <div data-vc-popover-title>{title}</div>}
           <div data-vc-popover-body>{children}</div>
           <PopoverPrimitive.Arrow data-vc-popover-arrow />

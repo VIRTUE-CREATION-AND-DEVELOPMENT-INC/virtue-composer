@@ -24,7 +24,7 @@ export default function DateTimePicker({ label, value, defaultValue, onValueChan
     next.setHours(hours, minutes, 0, 0);
     commit(next);
   };
-  return <fieldset className={className} data-vc-component="date-time-picker">
+  return <fieldset className={className} data-vc-component="date-time-picker" data-vc-slot="root">
     <legend>{label}{required && <span aria-hidden="true"> *</span>}</legend>
     {timezone && <p data-vc-timezone>Timezone: {timezone}</p>}
     <div data-vc-date-time-controls>

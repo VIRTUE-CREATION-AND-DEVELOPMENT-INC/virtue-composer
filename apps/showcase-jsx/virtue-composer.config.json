@@ -10,6 +10,9 @@
     "directPackageImports": "error",
     "rawControls": "error",
     "sectionVisualProps": "error",
-    "layoutDivs": "warning"
+    "sectionSemantics": "warning",
+    "layoutDivs": "warning",
+    "sourceAnalysis": "warning",
+    "exceptions": {}
   }
 }

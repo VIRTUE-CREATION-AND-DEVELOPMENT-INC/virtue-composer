@@ -9,7 +9,7 @@ export type ButtonLinkProps = LinkProps &
 
 export default function ButtonLink({ children, icon, iconPosition = "start", ...props }: ButtonLinkProps) {
   return (
-    <Link data-vc-component="button-link" {...props}>
+    <Link data-vc-component="button-link" data-vc-slot="root" {...props}>
       {icon && iconPosition === "start" && <span data-vc-button-icon>{icon}</span>}
       {children && <span data-vc-button-label>{children}</span>}
       {icon && iconPosition === "end" && <span data-vc-button-icon>{icon}</span>}

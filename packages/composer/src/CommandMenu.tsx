@@ -21,7 +21,7 @@ export default function CommandMenu({ open, onOpenChange, groups, onSelect, labe
   }, [onOpenChange, open, shortcutKey]);
 
   return (
-    <Command.Dialog open={open} onOpenChange={onOpenChange} label={label} className={className} data-vc-component="command-menu">
+    <Command.Dialog open={open} onOpenChange={onOpenChange} label={label} className={className} data-vc-component="command-menu" data-vc-slot="root">
       <Command.Input placeholder={placeholder} aria-label={placeholder} data-vc-command-input />
       <Command.List data-vc-command-list>
         <Command.Empty>{emptyText}</Command.Empty>

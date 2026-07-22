@@ -19,16 +19,20 @@ export default function InlineEdit({ label, value, onSave, renderValue, validate
     setInternalPending(true);
     try { await onSave(draft); setEditing(false); queueMicrotask(() => triggerRef.current?.focus()); } finally { setInternalPending(false); }
   };
-  return <div className={className} data-vc-component="inline-edit" data-vc-editing={editing || undefined}>
-    {editing ? <div role="group" aria-labelledby={`${id}-label`}>
-      <label id={`${id}-label`} htmlFor={id}>{label}</label>
-      <input id={id} autoFocus value={draft} onChange={(event) => { setDraft(event.currentTarget.value); setError(undefined); }} aria-invalid={Boolean(error) || undefined} aria-describedby={error ? `${id}-error` : undefined} disabled={pending} />
-      {error && <span id={`${id}-error`} role="alert">{error}</span>}
-      <button type="button" onClick={save} disabled={pending}>{pending ? "Saving…" : "Save"}</button>
-      <button type="button" onClick={cancel} disabled={pending}>Cancel</button>
-    </div> : <div>
-      <span>{renderValue ? renderValue(value) : value}</span>
-      <button ref={triggerRef} type="button" onClick={() => { setDraft(value); setEditing(true); }} disabled={disabled}>Edit {label}</button>
+  return <div className={className} data-vc-component="inline-edit" data-vc-slot="root" data-vc-editing={editing || undefined}>
+    {editing ? <div role="group" aria-labelledby={`${id}-label`} data-vc-inline-edit-form data-vc-slot="form">
+      <div data-vc-inline-edit-field data-vc-slot="field">
+        <label id={`${id}-label`} htmlFor={id}>{label}</label>
+        <input id={id} autoFocus value={draft} onChange={(event) => { setDraft(event.currentTarget.value); setError(undefined); }} aria-invalid={Boolean(error) || undefined} aria-describedby={error ? `${id}-error` : undefined} disabled={pending} />
+        {error && <span id={`${id}-error`} role="alert">{error}</span>}
+      </div>
+      <div data-vc-inline-edit-actions data-vc-slot="actions">
+        <button type="button" onClick={save} disabled={pending}>{pending ? "Saving…" : "Save"}</button>
+        <button type="button" onClick={cancel} disabled={pending}>Cancel</button>
+      </div>
+    </div> : <div data-vc-inline-edit-view data-vc-slot="view">
+      <span data-vc-inline-edit-value data-vc-slot="value">{renderValue ? renderValue(value) : value}</span>
+      <button ref={triggerRef} type="button" onClick={() => { setDraft(value); setEditing(true); }} disabled={disabled} data-vc-slot="edit">Edit {label}</button>
     </div>}
   </div>;
 }

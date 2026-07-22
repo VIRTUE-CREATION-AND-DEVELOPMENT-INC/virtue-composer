@@ -12,7 +12,7 @@ export type AppShellProps = {
 
 export default function AppShell({ header, navigation, children, footer, mainId = "main-content", skipLinkLabel = "Skip to main content", className }: AppShellProps) {
   return (
-    <div className={className} data-vc-component="app-shell">
+    <div className={className} data-vc-component="app-shell" data-vc-slot="root">
       <a href={`#${mainId}`} data-vc-app-shell-skip>{skipLinkLabel}</a>
       {header && <header data-vc-app-shell-header>{header}</header>}
       <div data-vc-app-shell-body>

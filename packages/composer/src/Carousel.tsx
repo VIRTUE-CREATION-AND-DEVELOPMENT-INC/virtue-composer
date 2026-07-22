@@ -28,7 +28,7 @@ export default function Carousel({ slides, options, ariaLabel = "Carousel", prev
   }, [api, sync]);
 
   return (
-    <section aria-roledescription="carousel" aria-label={ariaLabel} className={className} data-vc-component="carousel">
+    <section aria-roledescription="carousel" aria-label={ariaLabel} className={className} data-vc-component="carousel" data-vc-slot="root">
       <div ref={viewportRef} data-vc-carousel-viewport>
         <div data-vc-carousel-track>
           {slides.map((slide, index) => <div key={slide.id} role="group" aria-roledescription="slide" aria-label={slide.label ?? `${index + 1} of ${slides.length}`} data-vc-carousel-slide>{slide.content}</div>)}

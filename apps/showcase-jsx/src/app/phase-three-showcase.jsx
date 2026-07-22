@@ -77,6 +77,7 @@ const media = [
 const scheduleDate = new Date(2026, 6, 18);
 const scheduleEvents = [
   { id: "standup", title: "Project standup", start: new Date(2026, 6, 18, 9, 30), end: new Date(2026, 6, 18, 10), status: "confirmed" },
+  { id: "planning", title: "Release planning", start: new Date(2026, 6, 18, 9, 45), end: new Date(2026, 6, 18, 10, 45), description: "Northstar", status: "planning" },
   { id: "review", title: "Design review", start: new Date(2026, 6, 18, 13), end: new Date(2026, 6, 18, 14, 30), description: "Atlas release", status: "review" },
 ];
 
@@ -86,7 +87,7 @@ export default function PhaseThreeShowcase() {
   const [board, setBoard] = useState([
     { id: "planned", title: "Planned", items: [{ id: "brief", content: "Write launch brief" }, { id: "assets", content: "Collect campaign assets" }] },
     { id: "active", title: "Active", items: [{ id: "review", content: "Review responsive layouts" }] },
-    { id: "done", title: "Done", items: [{ id: "tokens", content: "Approve design tokens" }] },
+    { id: "done", title: "Done", description: "Approved work", items: [] },
   ]);
 
   const moveCard = ({ itemId, fromColumnId, toColumnId, toIndex }) => {
@@ -118,7 +119,16 @@ export default function PhaseThreeShowcase() {
       <MobileNav trigger={<Button icon={<MenuIcon size={16} />}>Open navigation</Button>} groups={navGroups} />
     </Demo>
     <Demo id="stepper" title="Stepper" detail="Workflow progress exposes complete, current, upcoming, and error states." phase="3A">
-      <Stepper items={[{ id: "brief", label: "Brief", status: "complete" }, { id: "compose", label: "Compose", description: "Current step", status: "current" }, { id: "review", label: "Review", status: "upcoming" }, { id: "publish", label: "Publish", status: "upcoming" }]} />
+      <Section as="div" layout="grid" className="stepper-examples">
+        <section className="stepper-example" aria-labelledby="horizontal-stepper-label">
+          <h3 id="horizontal-stepper-label">Horizontal</h3>
+          <Stepper ariaLabel="Horizontal publishing progress" items={[{ id: "brief", label: "Brief", status: "complete" }, { id: "compose", label: "Compose", description: "Current step", status: "current" }, { id: "review", label: "Review", status: "upcoming" }, { id: "publish", label: "Publish", status: "upcoming" }]} />
+        </section>
+        <section className="stepper-example stepper-example-vertical" aria-labelledby="vertical-stepper-label">
+          <h3 id="vertical-stepper-label">Vertical</h3>
+          <Stepper orientation="vertical" ariaLabel="Vertical publishing progress" items={[{ id: "brief", label: "Brief", description: "Project goals and scope", status: "complete" }, { id: "compose", label: "Compose", description: "Current step", status: "current" }, { id: "review", label: "Review", description: "Editorial approval", status: "upcoming" }, { id: "publish", label: "Publish", description: "Release to readers", status: "upcoming" }]} />
+        </section>
+      </Section>
     </Demo>
     <Demo id="anchor-nav" title="Anchor Nav" detail="In-page landmarks retain current-location semantics." phase="3A">
       <AnchorNav items={[{ id: "overview", label: "Overview", href: "#app-shell", current: true }, { id: "fields", label: "Fields", href: "#number-input" }, { id: "media", label: "Media", href: "#image-gallery" }]} />
@@ -130,7 +140,7 @@ export default function PhaseThreeShowcase() {
       <SegmentedControl ariaLabel="Project view" value={view} onValueChange={setView} items={[{ value: "grid", label: "Grid" }, { value: "list", label: "List" }, { value: "timeline", label: "Timeline" }]} /><p className="fixture-value">Current view: {view}</p>
     </Demo>
     <Demo id="icon-button" title="Icon Button" detail="Compact actions require an explicit accessible label." phase="3A">
-      <Section layout="flex" gap="small"><IconButton label="Add item" icon={<Plus size={18} />} /><IconButton label="Delete item" icon={<Trash2 size={18} />} /><IconButton label="More actions" icon={<MoreHorizontal size={18} />} /></Section>
+      <Section as="div" layout="flex" gap="small"><IconButton label="Add item" icon={<Plus size={18} />} /><IconButton label="Delete item" icon={<Trash2 size={18} />} /><IconButton label="More actions" icon={<MoreHorizontal size={18} />} /></Section>
     </Demo>
     <Demo id="copy-button" title="Copy Button" detail="Clipboard writing includes a temporary announced confirmation state." phase="3A">
       <CopyButton value="npm install @virtuecreation/composer" icon={<Copy size={16} />} />
@@ -169,16 +179,16 @@ export default function PhaseThreeShowcase() {
       <ContextMenu items={[{ id: "open", label: "Open" }, { id: "duplicate", label: "Duplicate" }, { id: "separator", separator: true }, { id: "archive", label: "Archive", destructive: true }]}><div className="context-target">Right-click this project row</div></ContextMenu>
     </Demo>
     <Demo id="hover-card" title="Hover Card" detail="Supplemental previews open from hover or keyboard focus without becoming dialogs." phase="3A">
-      <HoverCard trigger={<a href="#avatar">Maya Chen</a>} openDelay={100}><Section className="person-preview" layout="flex" gap="small" align="center"><Avatar alt="Maya Chen" fallback="MC" fallbackDelay={0} /><span><strong>Maya Chen</strong><small>Design systems</small></span></Section></HoverCard>
+      <HoverCard trigger={<a href="#avatar">Maya Chen</a>} openDelay={100}><Section as="div" className="person-preview" layout="flex" gap="small" align="center"><Avatar alt="Maya Chen" fallback="MC" fallbackDelay={0} /><span><strong>Maya Chen</strong><small>Design systems</small></span></Section></HoverCard>
     </Demo>
     <Demo id="banner" title="Banner" detail="Page-level notices support actions, tones, and optional local dismissal." phase="3A">
       <Banner title="Scheduled maintenance" dismissible actions={<Button>View status</Button>}>Publishing will pause for ten minutes tonight.</Banner>
     </Demo>
     <Demo id="inline-message" title="Inline Message" detail="Compact contextual feedback adopts the correct live-region behavior." phase="3A">
-      <Section layout="grid" gap="small"><InlineMessage tone="success" title="Saved">The project brief is current.</InlineMessage><InlineMessage tone="danger" title="Could not publish">Resolve the required fields.</InlineMessage></Section>
+      <Section as="div" layout="grid" gap="small"><InlineMessage tone="success" title="Saved">The project brief is current.</InlineMessage><InlineMessage tone="danger" title="Could not publish">Resolve the required fields.</InlineMessage></Section>
     </Demo>
     <Demo id="loading-overlay" title="Loading Overlay" detail="A busy layer can temporarily make underlying work inert without unmounting it." phase="3A">
-      <LoadingOverlay active={loading} label="Refreshing projects"><Section className="loading-sample" layout="grid" gap="small"><h3>Atlas workspace</h3><p>Project data remains mounted while refreshing.</p></Section></LoadingOverlay><Button onClick={() => setLoading((current) => !current)}>{loading ? "Show content" : "Show loading"}</Button>
+      <LoadingOverlay active={loading} label="Refreshing projects"><Section as="div" className="loading-sample" layout="grid" gap="small"><h3>Atlas workspace</h3><p>Project data remains mounted while refreshing.</p></Section></LoadingOverlay><Button onClick={() => setLoading((current) => !current)}>{loading ? "Show content" : "Show loading"}</Button>
     </Demo>
 
     <Demo id="tree-view" title="Tree View" detail="Hierarchical resources support expansion, selection, hotkeys, and primary actions." phase="3B">
@@ -194,16 +204,16 @@ export default function PhaseThreeShowcase() {
       <Timeline items={[{ id: "created", title: "Project created", date: "09:12", description: "Maya started Atlas.", status: "complete" }, { id: "review", title: "Review requested", date: "11:40", description: "Three collaborators notified.", status: "current" }, { id: "publish", title: "Publish", date: "Pending", status: "upcoming" }]} />
     </Demo>
     <Demo id="data-grid" title="Data Grid" detail="TanStack Table supplies sorting, selection, resizing, filtering, and pinning state." phase="3B">
-      <DataGrid caption="Workspace projects" rows={gridRows} selectable columns={[{ id: "project", header: "Project", accessorKey: "project", sortable: true }, { id: "owner", header: "Owner", accessorKey: "owner", sortable: true }, { id: "status", header: "Status", accessorKey: "status" }]} defaultSorting={[{ id: "project", desc: false }]} />
+      <DataGrid caption="Workspace projects" rows={gridRows} selectable pinnedColumns={{ left: ["__select__", "project"] }} columns={[{ id: "project", header: "Project", accessorKey: "project", sortable: true, minSize: 140 }, { id: "owner", header: "Owner", accessorKey: "owner", sortable: true }, { id: "status", header: "Status", accessorKey: "status" }]} defaultSorting={[{ id: "project", desc: false }]} />
     </Demo>
-    <Demo id="calendar" title="Calendar" detail="React DayPicker remains available directly for inline single, multiple, and range modes." phase="3B">
-      <Calendar mode="single" defaultMonth={scheduleDate} selected={scheduleDate} ariaLabel="Editorial calendar" />
+    <Demo id="calendar" title="Calendar" detail="A shared DayPicker contract exposes stable navigation, day, selection, range, and responsive month hooks." phase="3B">
+      <Calendar mode="single" defaultMonth={scheduleDate} selected={scheduleDate} fixedWeeks showOutsideDays ariaLabel="Editorial calendar" />
     </Demo>
-    <Demo id="scheduler" title="Scheduler" detail="Time slots and positioned event descriptors form a project-stylable day schedule." phase="3B">
-      <Scheduler date={scheduleDate} events={scheduleEvents} startHour={8} endHour={17} ariaLabel="Friday schedule" />
+    <Demo id="scheduler" title="Scheduler" detail="Scaled time slots, compact events, collision lanes, and current-time context form a project-stylable day schedule." phase="3B">
+      <Scheduler date={scheduleDate} events={scheduleEvents} startHour={8} endHour={17} pixelsPerMinute={0.8} currentTime={new Date(2026, 6, 18, 11, 20)} ariaLabel="Friday schedule" />
     </Demo>
-    <Demo id="kanban-board" title="Kanban Board" detail="Pointer and keyboard drag sensors move descriptor cards across project-owned columns." phase="3B">
-      <KanbanBoard columns={board} onMove={moveCard} />
+    <Demo id="kanban-board" title="Kanban Board" detail="Pointer and keyboard drag sensors move cards across semantic columns, including empty drop targets." phase="3B">
+      <KanbanBoard columns={board} onMove={moveCard} empty="Drop items here" />
     </Demo>
     <Demo id="chart-frame" title="Chart Frame" detail="Titles, summaries, actions, legends, and plots gain one semantic figure boundary." phase="3B">
       <ChartFrame title="Weekly completions" description="Last six weeks" actions={<IconButton label="Chart options" icon={<MoreHorizontal size={16} />} />} summary="Completion volume increased 18%."><div className="bar-chart" role="img" aria-label="Weekly completion bars">{[42, 58, 50, 76, 68, 88].map((value, index) => <span key={index} style={{ height: `${value}%` }} />)}</div></ChartFrame>
@@ -225,7 +235,7 @@ export default function PhaseThreeShowcase() {
       <CodeBlock label="Component import" language="jsx" showLineNumbers code={'import { AppShell } from "@/components/composer";\n\nexport default function Page() {\n  return <AppShell>Workspace</AppShell>;\n}'} />
     </Demo>
     <Demo id="avatar" title="Avatar" detail="Images fall back predictably to project-provided initials or icons." phase="3C">
-      <Section layout="flex" gap="small" align="center"><Avatar src="/media/reading-together.jpg" alt="Maya Chen" fallback="MC" /><Avatar alt="Jon Bell" fallback="JB" fallbackDelay={0} /></Section>
+      <Section as="div" layout="flex" gap="small" align="center"><Avatar src="/media/reading-together.jpg" alt="Maya Chen" fallback="MC" /><Avatar alt="Jon Bell" fallback="JB" fallbackDelay={0} /></Section>
     </Demo>
     <Demo id="avatar-group" title="Avatar Group" detail="Overlapping people remain a labeled group with deterministic overflow." phase="3C">
       <AvatarGroup max={3} items={[{ id: "maya", src: "/media/reading-together.jpg", alt: "Maya Chen", fallback: "MC" }, { id: "jon", alt: "Jon Bell", fallback: "JB", fallbackDelay: 0 }, { id: "ari", alt: "Ari Lane", fallback: "AL", fallbackDelay: 0 }, { id: "sora", alt: "Sora Kim", fallback: "SK", fallbackDelay: 0 }]} />

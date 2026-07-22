@@ -32,7 +32,7 @@ export default function ToastProvider({ children, duration = 5000, swipeDirectio
       <ToastPrimitive.Provider duration={duration} swipeDirection={swipeDirection}>
         {children}
         {toasts.map((item) => (
-          <ToastPrimitive.Root key={item.id} open duration={item.duration} onOpenChange={(open) => { if (!open) dismiss(item.id); }} className={className} data-vc-component="toast" data-vc-tone={item.tone ?? "neutral"}>
+          <ToastPrimitive.Root key={item.id} open duration={item.duration} onOpenChange={(open) => { if (!open) dismiss(item.id); }} className={className} data-vc-component="toast" data-vc-slot="root" data-vc-tone={item.tone ?? "neutral"}>
             <ToastPrimitive.Title>{item.title}</ToastPrimitive.Title>
             {item.description && <ToastPrimitive.Description>{item.description}</ToastPrimitive.Description>}
             {item.action && <ToastPrimitive.Action altText={item.action.altText} onClick={item.action.onAction}>{item.action.label}</ToastPrimitive.Action>}

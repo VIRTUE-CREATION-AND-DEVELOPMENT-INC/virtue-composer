@@ -283,16 +283,29 @@
 :where([data-vc-component="data-grid"]) { max-width: 100%; overflow: auto; width: 100%; }
 :where([data-vc-component="data-grid"] table) { border-collapse: collapse; }
 :where([data-vc-column-resizer]) { cursor: col-resize; touch-action: none; }
+:where([data-vc-component="calendar"]) { --vc-calendar-day-size: 2.75rem; max-width: 100%; overflow-x: auto; }
+:where(.vc-calendar-months) { display: flex; gap: var(--vc-gap-medium); }
+:where(.vc-calendar-month) { flex: 1 0 calc(7 * var(--vc-calendar-day-size)); min-width: calc(7 * var(--vc-calendar-day-size)); }
+:where(.vc-calendar-nav) { align-items: center; display: flex; justify-content: space-between; }
+:where(.vc-calendar-caption) { align-items: center; display: flex; justify-content: center; min-height: var(--vc-calendar-day-size); }
+:where(.vc-calendar-grid) { border-collapse: collapse; table-layout: fixed; width: 100%; }
+:where(.vc-calendar-weekday) { text-align: center; }
+:where(.vc-calendar-day) { block-size: var(--vc-calendar-day-size); inline-size: calc(100% / 7); }
+:where(.vc-calendar-day-button) { align-items: center; block-size: var(--vc-calendar-day-size); display: inline-flex; inline-size: 100%; justify-content: center; max-inline-size: var(--vc-calendar-day-size); }
 :where([data-vc-component="scheduler"]),
 :where([data-vc-scheduler-grid]),
 :where([data-vc-scheduler-events]) { position: relative; }
+:where([data-vc-scheduler-slot]) { height: calc(var(--vc-scheduler-slot-minutes) * var(--vc-scheduler-scale) * 1px); }
 :where([data-vc-scheduler-event]) {
-  height: calc(var(--vc-scheduler-duration) * 1px);
+  height: max(calc(var(--vc-scheduler-duration) * var(--vc-scheduler-scale) * 1px), calc(var(--vc-scheduler-min-height) * 1px));
+  left: calc(var(--vc-scheduler-lane-left) + 0.25rem);
   position: absolute;
-  top: calc(var(--vc-scheduler-offset) * 1px);
+  top: calc(var(--vc-scheduler-offset) * var(--vc-scheduler-scale) * 1px);
+  width: calc(var(--vc-scheduler-lane-width) - 0.5rem);
 }
-:where([data-vc-component="kanban-board"]) { display: grid; grid-auto-columns: minmax(16rem, 1fr); grid-auto-flow: column; max-width: 100%; overflow-x: auto; width: 100%; }
-:where([data-vc-kanban-list]) { display: grid; }
+:where([data-vc-scheduler-now]) { left: 0; position: absolute; right: 0; top: calc(var(--vc-scheduler-offset) * var(--vc-scheduler-scale) * 1px); }
+:where([data-vc-component="kanban-board"]) { display: grid; grid-auto-columns: var(--vc-kanban-column-width, minmax(16rem, 1fr)); grid-auto-flow: column; max-width: 100%; overflow-x: auto; width: 100%; }
+:where([data-vc-kanban-list]) { align-content: start; display: grid; min-height: 4rem; }
 
 :where([data-vc-component="chart-frame"]) { margin: 0; min-width: 0; }
 :where([data-vc-chart-caption]),
@@ -321,6 +334,11 @@
 :where([data-vc-component="video-player"] video) { height: auto; max-width: 100%; }
 :where([data-vc-gallery-thumbnail]) { min-width: 0; }
 :where([data-vc-component="lightbox"]) { z-index: 51; }
+
+@media (max-width: 48rem) {
+  :where(.vc-calendar-months) { flex-direction: column; }
+  :where(.vc-calendar-month) { flex: 0 0 auto; min-width: 0; width: 100%; }
+}
 
 @media (min-width: 48rem) {
   :where([data-vc-component="markdown-editor"][data-vc-mode="split"] [data-vc-markdown-panes]) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -397,6 +415,8 @@
   max-width: 100%;
   width: 100%;
 }
+:where([data-vc-component="document-preview"] [data-vc-slot="preview"]) { min-width: 0; overflow: hidden; }
+:where([data-vc-component="document-preview"] figcaption) { align-items: center; display: flex; flex-wrap: wrap; justify-content: space-between; }
 :where([data-vc-crop-region]) { min-width: 0; overflow: hidden; position: relative; width: 100%; }
 
 :where([data-vc-component="import-panel"] [data-vc-import-preview]),

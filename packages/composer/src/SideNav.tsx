@@ -7,7 +7,7 @@ export type SideNavProps = { groups: SideNavGroup[]; ariaLabel?: string; classNa
 
 export default function SideNav({ groups, ariaLabel = "Primary", className }: SideNavProps) {
   return (
-    <nav aria-label={ariaLabel} className={className} data-vc-component="side-nav">
+    <nav aria-label={ariaLabel} className={className} data-vc-component="side-nav" data-vc-slot="root">
       {groups.map((group) => (
         <div key={group.id} data-vc-side-nav-group>
           {group.label && <div data-vc-side-nav-label>{group.label}</div>}

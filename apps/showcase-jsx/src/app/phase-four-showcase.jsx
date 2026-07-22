@@ -130,7 +130,7 @@ export default function PhaseFourShowcase() {
       <StatusSelect label="Publishing status" value={status} onValueChange={setStatus} options={[{ value: "draft", label: "Draft", tone: "neutral" }, { value: "review", label: "In review", tone: "warning" }, { value: "published", label: "Published", tone: "success" }, { value: "archived", label: "Archived", disabled: true, description: "Requires approval" }]} />
     </Demo>
     <Demo id="filter-chip" title="Filter Chip" detail="Compact filters expose pressed, count, disabled, and removable states." phase="4B">
-      <Section layout="flex" gap="small" wrap><FilterChip label="Published" defaultPressed count={18} /><FilterChip label="Draft" count={6} /><FilterChip label="Owner: Maya" pressed removable onRemove={() => undefined} /></Section>
+      <Section as="div" layout="flex" gap="small" wrap><FilterChip label="Published" defaultPressed count={18} /><FilterChip label="Draft" count={6} /><FilterChip label="Owner: Maya" pressed removable onRemove={() => undefined} /></Section>
     </Demo>
     <Demo id="resource-toolbar" title="Resource Toolbar" detail="Search, filtering, view controls, result status, and actions gain one predictable toolbar order." phase="4B">
       <ResourceToolbar search={<SearchInput label="Search records" value={search} onValueChange={setSearch} />} filters={<FilterChip label="Published" defaultPressed />} resultCount={18} actions={<Button>New article</Button>} />
@@ -193,7 +193,7 @@ export default function PhaseFourShowcase() {
       <QuantityInput label="Atlas print" value={quantity} onValueChange={setQuantity} max={4} allowRemove onRemove={() => setQuantity(0)} stockMessage="Four available" />
     </Demo>
     <Demo id="money" title="Money" detail="Locale and currency formatting support sale, range, and spoken-value output." phase="4E">
-      <Section layout="flex" gap="large" wrap><Money value={80} originalValue={100} currency="CAD" locale="en-CA" /><Money value={45} rangeEnd={75} currency="CAD" locale="en-CA" /></Section>
+      <Section as="div" layout="flex" gap="large" wrap><Money valueMinor={8000} originalValueMinor={10000} currency="CAD" locale="en-CA" /><Money valueMinor={4500} rangeEndMinor={7500} currency="CAD" locale="en-CA" /></Section>
     </Demo>
     <Demo id="currency-select" title="Currency Select" detail="Currency codes, symbols, names, and regions support compact or complete project displays." phase="4E">
       <CurrencySelect label="Store currency" options={currencyOptions} defaultValue="CAD" name="currency" />
@@ -202,10 +202,10 @@ export default function PhaseFourShowcase() {
       <ProductOptionSelect label="Print size" defaultValue="medium" options={[{ value: "small", label: "12 × 16", price: "$45" }, { value: "medium", label: "18 × 24", price: "$80" }, { value: "large", label: "24 × 36", price: "$120", available: false, description: "Restocking soon" }]} />
     </Demo>
     <Demo id="cart-line" title="Cart Line" detail="Product content, media, price, quantity, actions, and mutation status form a behavior-first cart row." phase="4E">
-      <CartLine id="atlas-print" product="Atlas campus print" details={<><p>18 × 24 · Matte</p><Badge>In stock</Badge></>} media={<img src="/media/campus-walk.jpg" alt="Atlas campus print" />} price={<Money value={80} currency="CAD" locale="en-CA" />} quantity={<QuantityInput label="Atlas print quantity" value={quantity} onValueChange={setQuantity} max={4} />} actions={<Button>Remove</Button>} />
+      <CartLine id="atlas-print" product="Atlas campus print" details={<><p>18 × 24 · Matte</p><Badge>In stock</Badge></>} media={<img src="/media/campus-walk.jpg" alt="Atlas campus print" />} price={<Money valueMinor={8000} currency="CAD" locale="en-CA" />} quantity={<QuantityInput label="Atlas print quantity" value={quantity} onValueChange={setQuantity} max={4} />} actions={<Button>Remove</Button>} />
     </Demo>
     <Demo id="cart-summary" title="Cart Summary" detail="Project-calculated subtotal, discounts, delivery, tax, and total retain semantic relationships." phase="4E">
-      <CartSummary rows={[{ id: "subtotal", label: "Subtotal", value: <Money value={80} currency="CAD" /> }, { id: "discount", label: "Studio discount", value: <Money value={-12} currency="CAD" />, tone: "discount" }, { id: "shipping", label: "Shipping", value: "Free" }]} total={<Money value={68} currency="CAD" />} actions={<Button>Continue to checkout</Button>} note="Taxes calculated at checkout." />
+      <CartSummary rows={[{ id: "subtotal", label: "Subtotal", value: <Money valueMinor={8000} currency="CAD" /> }, { id: "discount", label: "Studio discount", value: <Money valueMinor={-1200} currency="CAD" />, tone: "discount" }, { id: "shipping", label: "Shipping", value: "Free" }]} total={<Money valueMinor={6800} currency="CAD" />} actions={<Button>Continue to checkout</Button>} note="Taxes calculated at checkout." />
     </Demo>
     <Demo id="discount-code-input" title="Discount Code Input" detail="Apply, pending, success, error, and removal states stay announced and duplicate-safe." phase="4E">
       <DiscountCodeInput label="Discount code" onApply={(code) => setDiscount(code)} appliedCode={discount} onRemove={() => setDiscount(undefined)} success={discount ? "Discount applied." : undefined} />

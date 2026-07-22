@@ -146,7 +146,7 @@
   },
   {
     "id": "money", "title": "Money", "layer": "content", "packageImport": "@virtuecreation/composer/money", "projectImport": "@/components/composer/Money", "client": false,
-    "props": ["value", "currency", "locale", "minimumFractionDigits", "maximumFractionDigits", "originalValue", "rangeEnd", "className"], "states": ["single", "range", "sale"],
+    "props": ["valueMinor", "originalValueMinor", "rangeEndMinor", "value", "originalValue", "rangeEnd", "currency", "locale", "minimumFractionDigits", "maximumFractionDigits", "className"], "states": ["single", "range", "sale", "minor-units", "legacy-major-units"],
     "accessibilityChecks": ["currency value has spoken text", "sale and original values are distinguishable"], "replaces": ["manual currency formatting"], "showcaseFixtures": ["sale price"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
   },
   {

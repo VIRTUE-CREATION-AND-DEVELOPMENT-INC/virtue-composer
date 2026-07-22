@@ -4,5 +4,5 @@ export type AnchorNavItem = { id: string; label: ReactNode; href: `#${string}`; 
 export type AnchorNavProps = { items: AnchorNavItem[]; ariaLabel?: string; className?: string };
 
 export default function AnchorNav({ items, ariaLabel = "On this page", className }: AnchorNavProps) {
-  return <nav aria-label={ariaLabel} className={className} data-vc-component="anchor-nav"><ul>{items.map((item) => <li key={item.id}><a href={item.href} aria-current={item.current ? "location" : undefined}>{item.label}</a></li>)}</ul></nav>;
+  return <nav aria-label={ariaLabel} className={className} data-vc-component="anchor-nav" data-vc-slot="root"><ul>{items.map((item) => <li key={item.id}><a href={item.href} aria-current={item.current ? "location" : undefined}>{item.label}</a></li>)}</ul></nav>;
 }

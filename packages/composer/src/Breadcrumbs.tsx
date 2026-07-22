@@ -6,7 +6,7 @@ export type BreadcrumbsProps = { items: BreadcrumbItem[]; separator?: ReactNode;
 
 export default function Breadcrumbs({ items, separator = "/", ariaLabel = "Breadcrumb", className }: BreadcrumbsProps) {
   return (
-    <nav aria-label={ariaLabel} className={className} data-vc-component="breadcrumbs">
+    <nav aria-label={ariaLabel} className={className} data-vc-component="breadcrumbs" data-vc-slot="root">
       <ol data-vc-breadcrumb-list>
         {items.map((item, index) => {
           const current = item.current ?? index === items.length - 1;

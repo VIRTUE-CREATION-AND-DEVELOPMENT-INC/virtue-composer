@@ -16,7 +16,7 @@ export type FilterBarProps = { filters: FilterDescriptor[]; values: FilterValues
 export default function FilterBar({ filters, values, onValuesChange, onReset, actions, ariaLabel = "Filters", className }: FilterBarProps) {
   const set = (id: string, value: string | boolean) => onValuesChange({ ...values, [id]: value });
   return (
-    <div role="search" aria-label={ariaLabel} className={className} data-vc-component="filter-bar">
+    <div role="search" aria-label={ariaLabel} className={className} data-vc-component="filter-bar" data-vc-slot="root">
       <div data-vc-filter-controls>
         {filters.map((filter) => filter.type === "search"
           ? <label key={filter.id} data-vc-filter><span>{filter.label}</span><Input type="search" value={String(values[filter.id] ?? "")} placeholder={filter.placeholder} onChange={(event) => set(filter.id, event.currentTarget.value)} /></label>

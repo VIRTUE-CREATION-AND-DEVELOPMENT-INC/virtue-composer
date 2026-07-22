@@ -13,7 +13,7 @@ export default function DurationInput({ label, value, defaultValue = 0, onValueC
   const commit = (next: number) => { const bounded = clamp(next); if (value === undefined) setInternal(bounded); onValueChange?.(bounded); };
   const hours = Math.floor(total / 60);
   const minutes = total % 60;
-  return <fieldset className={className} aria-describedby={[description ? `${id}-description` : "", error ? `${id}-error` : ""].filter(Boolean).join(" ") || undefined} data-vc-component="duration-input">
+  return <fieldset className={className} aria-describedby={[description ? `${id}-description` : "", error ? `${id}-error` : ""].filter(Boolean).join(" ") || undefined} data-vc-component="duration-input" data-vc-slot="root">
     <legend>{label}{required && <span aria-hidden="true"> *</span>}</legend>
     {description && <p id={`${id}-description`}>{description}</p>}
     <div data-vc-duration-controls>

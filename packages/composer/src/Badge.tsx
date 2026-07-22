@@ -5,5 +5,5 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
 };
 
 export default function Badge({ tone = "neutral", ...props }: BadgeProps) {
-  return <span data-vc-component="badge" data-vc-tone={tone} {...props} />;
+  return <span data-vc-component="badge" data-vc-slot="root" data-vc-tone={tone} {...props} />;
 }

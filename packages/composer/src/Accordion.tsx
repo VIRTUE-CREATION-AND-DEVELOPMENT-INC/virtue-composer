@@ -19,7 +19,7 @@ function Items({ items }: { items: AccordionItem[] }) {
 
 export default function Accordion({ items, type = "single", value, defaultValue, onValueChange, collapsible = true, className }: AccordionProps) {
   if (type === "multiple") {
-    return <AccordionPrimitive.Root type="multiple" value={value as string[] | undefined} defaultValue={defaultValue as string[] | undefined} onValueChange={onValueChange} className={className} data-vc-component="accordion"><Items items={items} /></AccordionPrimitive.Root>;
+    return <AccordionPrimitive.Root type="multiple" value={value as string[] | undefined} defaultValue={defaultValue as string[] | undefined} onValueChange={onValueChange} className={className} data-vc-component="accordion" data-vc-slot="root"><Items items={items} /></AccordionPrimitive.Root>;
   }
-  return <AccordionPrimitive.Root type="single" value={value as string | undefined} defaultValue={defaultValue as string | undefined} onValueChange={onValueChange} collapsible={collapsible} className={className} data-vc-component="accordion"><Items items={items} /></AccordionPrimitive.Root>;
+  return <AccordionPrimitive.Root type="single" value={value as string | undefined} defaultValue={defaultValue as string | undefined} onValueChange={onValueChange} collapsible={collapsible} className={className} data-vc-component="accordion" data-vc-slot="root"><Items items={items} /></AccordionPrimitive.Root>;
 }

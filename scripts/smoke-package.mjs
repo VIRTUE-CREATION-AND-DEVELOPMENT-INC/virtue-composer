@@ -27,7 +27,7 @@ try {
   }, null, 2)}\n`);
   await init(project, { source: "npm", dependency: `file:${tarball}` });
   await writeFile(path.join(project, "src/app/layout.jsx"), 'import "../styles/composer.css";\nexport default function Layout({ children }) { return <html lang="en"><body>{children}</body></html>; }\n');
-  await writeFile(path.join(project, "src/app/page.jsx"), 'import { Button, Money, Section } from "@/components/composer";\nexport default function Page() { return <Section layout="flex" direction="column" gap="medium"><h1>Published package rehearsal</h1><Money value={40} currency="CAD" /><Button>Ready</Button></Section>; }\n');
+  await writeFile(path.join(project, "src/app/page.jsx"), 'import { Button, Checkbox, CodeBlock, Field, Input, Money, ResourceBoundary, Section } from "@/components/composer";\nexport default function Page() { return <Section as="main" layout="flex" direction="column" gap="medium"><h1>Published package rehearsal</h1><Money valueMinor={4000} currency="CAD" /><Field label="Email"><Input name="email" /></Field><Checkbox label="Subscribe" /><CodeBlock code="npm install @virtuecreation/composer" /><ResourceBoundary><Button>Ready</Button></ResourceBoundary></Section>; }\n');
   await writeFile(path.join(project, "jsconfig.json"), '{"compilerOptions":{"baseUrl":".","paths":{"@/*":["./src/*"]}}}\n');
 
   await exec("npm", ["install", "--no-audit", "--no-fund"], { cwd: project, maxBuffer: 10 * 1024 * 1024 });

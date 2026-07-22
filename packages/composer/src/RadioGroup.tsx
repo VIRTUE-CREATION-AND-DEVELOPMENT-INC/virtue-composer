@@ -19,7 +19,7 @@ export default function RadioGroup({ label, description, options, value, default
   const descriptionId = description ? `${labelId}-description` : undefined;
 
   return (
-    <div data-vc-component="radio-group" {...props}>
+    <div data-vc-component="radio-group" data-vc-slot="root" {...props}>
       <p id={labelId} data-vc-choice-heading>{label}</p>
       {description && <p id={descriptionId} data-vc-choice-description>{description}</p>}
       <RadioGroupPrimitive.Root

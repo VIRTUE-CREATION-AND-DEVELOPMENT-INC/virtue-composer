@@ -14,7 +14,7 @@ export default function NumberInput({ label, value, defaultValue, onValueChange,
     onValueChange?.(bounded);
   };
   const change = (event: ChangeEvent<HTMLInputElement>) => commit(event.currentTarget.value === "" ? undefined : event.currentTarget.valueAsNumber);
-  return <div className={className} data-vc-component="number-input" data-vc-invalid={Boolean(error) || undefined}>
+  return <div className={className} data-vc-component="number-input" data-vc-slot="root" data-vc-invalid={Boolean(error) || undefined}>
     <label htmlFor={id}>{label}{required && <span aria-hidden="true"> *</span>}</label>
     {description && <p id={`${id}-description`}>{description}</p>}
     <div data-vc-number-control>

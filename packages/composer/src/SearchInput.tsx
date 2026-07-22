@@ -15,7 +15,7 @@ export default function SearchInput({ label, value, defaultValue = "", onValueCh
   }, [current, debounceMs, onSearch]);
   const update = (next: string) => { if (value === undefined) setInternal(next); onValueChange?.(next); };
   const submit = (event: FormEvent) => { event.preventDefault(); onSearch?.(current); };
-  return <form role="search" aria-label={label} className={className} onSubmit={submit} data-vc-component="search-input">
+  return <form role="search" aria-label={label} className={className} onSubmit={submit} data-vc-component="search-input" data-vc-slot="root">
     <label htmlFor={id}>{label}</label>
     <div data-vc-search-control>
       <input id={id} type="search" name={name} value={current} onChange={(event) => update(event.currentTarget.value)} placeholder={placeholder} disabled={disabled} aria-busy={loading || undefined} />

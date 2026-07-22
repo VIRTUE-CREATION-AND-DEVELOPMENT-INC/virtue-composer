@@ -16,5 +16,5 @@ export default function CopyButton({ value, label = "Copy", copiedLabel = "Copie
     if (timeout.current) clearTimeout(timeout.current);
     timeout.current = setTimeout(() => setCopied(false), resetAfter);
   };
-  return <Button {...props} icon={icon} onClick={copy} data-vc-component="copy-button" data-vc-copied={copied || undefined}><span aria-live="polite">{copied ? copiedLabel : label}</span></Button>;
+  return <Button {...props} icon={icon} onClick={copy} data-vc-component="copy-button" data-vc-slot="root" data-vc-copied={copied || undefined}><span aria-live="polite">{copied ? copiedLabel : label}</span></Button>;
 }

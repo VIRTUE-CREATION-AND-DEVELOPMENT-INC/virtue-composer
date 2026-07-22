@@ -27,7 +27,7 @@ export default function DataTable<Row extends { id: string }>({ rows, columns, c
   };
 
   return (
-    <div className={className} data-vc-component="data-table">
+    <div className={className} data-vc-component="data-table" data-vc-slot="root">
       <table>
         {caption && <caption>{caption}</caption>}
         <thead><tr>{columns.map((column) => <th key={column.id} scope="col" aria-sort={currentSort?.columnId === column.id ? currentSort.direction : undefined} data-vc-align={column.align}>{column.sortable ? <button type="button" onClick={() => changeSort(column.id)}>{column.header}<span aria-hidden="true" data-vc-sort-indicator /></button> : column.header}</th>)}</tr></thead>

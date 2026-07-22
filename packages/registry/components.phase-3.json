@@ -22,7 +22,7 @@
   {
     "id": "stepper", "title": "Stepper", "layer": "navigation", "packageImport": "@virtuecreation/composer/stepper", "projectImport": "@/components/composer/Stepper", "client": false,
     "props": ["items", "orientation", "ariaLabel", "className"], "states": ["complete", "current", "upcoming", "error", "disabled"],
-    "accessibilityChecks": ["ordered progress is semantic", "current step is announced"], "replaces": ["onboarding progress lists"], "showcaseFixtures": ["three-step setup"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+    "accessibilityChecks": ["ordered progress is semantic", "current step is announced", "horizontal and vertical orientations preserve reading order", "overflowing horizontal progress is keyboard scrollable"], "replaces": ["onboarding progress lists"], "showcaseFixtures": ["horizontal publishing progress", "vertical publishing progress"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
   },
   {
     "id": "anchor-nav", "title": "Anchor Nav", "layer": "navigation", "packageImport": "@virtuecreation/composer/anchor-nav", "projectImport": "@/components/composer/AnchorNav", "client": false,
@@ -72,12 +72,12 @@
   {
     "id": "date-picker", "title": "Date Picker", "layer": "field", "packageImport": "@virtuecreation/composer/date-picker", "projectImport": "@/components/composer/DatePicker", "client": true,
     "props": ["label", "value", "defaultValue", "onValueChange", "placeholder", "disabled", "required", "name", "min", "max", "className"], "states": ["empty", "selected", "open", "disabled"],
-    "accessibilityChecks": ["calendar keyboard navigation works", "selected date is named", "date bounds are unavailable"], "replaces": ["custom calendar popover"], "showcaseFixtures": ["release date"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+    "accessibilityChecks": ["calendar keyboard navigation works", "selected date is named", "date bounds are unavailable", "focus is trapped and returns to the trigger"], "replaces": ["custom calendar dialog"], "showcaseFixtures": ["release date"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
   },
   {
     "id": "date-range-picker", "title": "Date Range Picker", "layer": "field", "packageImport": "@virtuecreation/composer/date-range-picker", "projectImport": "@/components/composer/DateRangePicker", "client": true,
     "props": ["label", "value", "defaultValue", "onValueChange", "placeholder", "disabled", "required", "startName", "endName", "numberOfMonths", "className"], "states": ["empty", "start-selected", "complete", "open", "disabled"],
-    "accessibilityChecks": ["range endpoints are announced", "calendar keyboard navigation works"], "replaces": ["paired uncoordinated date inputs"], "showcaseFixtures": ["reporting period"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+    "accessibilityChecks": ["range endpoints are announced", "calendar keyboard navigation works", "the dialog remains open until the second endpoint is selected", "focus is trapped and returns to the trigger"], "replaces": ["paired uncoordinated date inputs", "custom date range dialog"], "showcaseFixtures": ["reporting period"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
   },
   {
     "id": "time-input", "title": "Time Input", "layer": "field", "packageImport": "@virtuecreation/composer/time-input", "projectImport": "@/components/composer/TimeInput", "client": false,
@@ -147,7 +147,7 @@
   {
     "id": "data-grid", "title": "Data Grid", "layer": "data", "packageImport": "@virtuecreation/composer/data-grid", "projectImport": "@/components/composer/DataGrid", "client": true,
     "props": ["rows", "columns", "caption", "selectable", "selectedIds", "defaultSelectedIds", "onSelectedIdsChange", "sorting", "defaultSorting", "onSortingChange", "globalFilter", "pinnedColumns", "empty", "className"], "states": ["populated", "empty", "sorted", "selected", "resizing", "pinned"],
-    "accessibilityChecks": ["table semantics are retained", "selection controls are named", "sort direction is announced", "resize separators are named"], "replaces": ["interactive admin tables"], "showcaseFixtures": ["selectable content grid"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+    "accessibilityChecks": ["table semantics are retained", "selection controls are named", "sort direction is announced", "resize separators are named and keyboard adjustable"], "replaces": ["interactive admin tables"], "showcaseFixtures": ["selectable content grid"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
   },
   {
     "id": "calendar", "title": "Calendar", "layer": "data", "packageImport": "@virtuecreation/composer/calendar", "projectImport": "@/components/composer/Calendar", "client": true,
@@ -156,13 +156,13 @@
   },
   {
     "id": "scheduler", "title": "Scheduler", "layer": "data", "packageImport": "@virtuecreation/composer/scheduler", "projectImport": "@/components/composer/Scheduler", "client": true,
-    "props": ["date", "events", "startHour", "endHour", "intervalMinutes", "onEventSelect", "ariaLabel", "empty", "className"], "states": ["populated", "empty", "disabled-event"],
+    "props": ["date", "events", "startHour", "endHour", "intervalMinutes", "pixelsPerMinute", "minimumEventHeight", "currentTime", "onEventSelect", "ariaLabel", "empty", "className"], "states": ["populated", "empty", "compact-event", "overlapping-events", "disabled-event"],
     "accessibilityChecks": ["schedule is labeled by date", "events are keyboard operable", "times use semantic values"], "replaces": ["booking day grids"], "showcaseFixtures": ["daily booking schedule"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
   },
   {
     "id": "kanban-board", "title": "Kanban Board", "layer": "data", "packageImport": "@virtuecreation/composer/kanban-board", "projectImport": "@/components/composer/KanbanBoard", "client": true,
-    "props": ["columns", "onMove", "ariaLabel", "className"], "states": ["idle", "dragging", "disabled-item"],
-    "accessibilityChecks": ["keyboard dragging is available", "drag handles are named", "columns are semantic sections"], "replaces": ["pointer-only kanban board"], "showcaseFixtures": ["content workflow"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
+    "props": ["columns", "onMove", "ariaLabel", "empty", "className"], "states": ["idle", "dragging", "over-column", "empty-column", "disabled-item"],
+    "accessibilityChecks": ["keyboard dragging is available", "drag handles are named", "columns are semantic sections and empty drop targets"], "replaces": ["pointer-only kanban board"], "showcaseFixtures": ["content workflow"], "doctorRules": ["prefer-local-wrapper"], "contractVersion": 1
   },
   {
     "id": "chart-frame", "title": "Chart Frame", "layer": "data", "packageImport": "@virtuecreation/composer/chart-frame", "projectImport": "@/components/composer/ChartFrame", "client": false,

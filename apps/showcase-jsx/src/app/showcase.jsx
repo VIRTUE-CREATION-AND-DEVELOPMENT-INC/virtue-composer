@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Check, Command as CommandIcon, Folder, Inbox, MoreHorizontal, Plus, Search, Settings, Upload, X } from "lucide-react";
 import {
   Accordion,
@@ -74,14 +74,14 @@ export function Demo({ id, title, detail, phase = 1, children }) {
   return (
     <Section as="article" id={id} className="component-demo" layout="grid" gap="large">
       <Section as="header" className="component-heading" layout="flex" justify="between" align="start" gap="medium" wrap>
-        <Section layout="grid" gap="small">
+        <Section as="div" layout="grid" gap="small">
           <p className="eyebrow">Phase {phase} primitive</p>
           <h2>{title}</h2>
           <p>{detail}</p>
         </Section>
         <Badge tone="success">Ready</Badge>
       </Section>
-      <Section className="fixture" layout="flex" direction="column" gap="medium">{children}</Section>
+      <Section as="div" className="fixture" layout="flex" direction="column" gap="medium">{children}</Section>
     </Section>
   );
 }
@@ -96,18 +96,22 @@ export default function Showcase({ components }) {
   const [filters, setFilters] = useState({ query: "", status: "active", archived: false });
   const [commandOpen, setCommandOpen] = useState(false);
   const byLayer = Object.fromEntries(layers.map((layer) => [layer, components.filter((component) => component.layer === layer)]));
+  useEffect(() => {
+    document.documentElement.dataset.vcShowcaseHydrated = "true";
+    return () => { delete document.documentElement.dataset.vcShowcaseHydrated; };
+  }, []);
   return (
     <AppShell className="shell" navigation={
       <Section as="div" className="sidebar" layout="flex" direction="column" justify="between" gap="large">
-        <Section layout="grid" gap="large">
-          <Section layout="grid" gap="small">
+        <Section as="div" layout="grid" gap="large">
+          <Section as="div" layout="grid" gap="small">
             <p className="wordmark">Virtue Composer</p>
             <p className="muted">Contract v1 · {components.length} components</p>
           </Section>
           <nav aria-label="Component layers">
-            <Section layout="grid" gap="medium">
+            <Section as="div" layout="grid" gap="medium">
               {layers.map((layer) => (
-                <Section key={layer} layout="grid" gap="small">
+                <Section as="div" key={layer} layout="grid" gap="small">
                   <p className="nav-label">{layer}</p>
                   {byLayer[layer].map((component) => <a key={component.id} href={`#${component.id}`}>{component.title}</a>)}
                 </Section>
@@ -118,9 +122,9 @@ export default function Showcase({ components }) {
         <p className="muted">JSX consumer · TSX internals</p>
       </Section>
     }>
-      <Section className="workspace" layout="flex" direction="column">
+      <Section as="div" className="workspace" layout="flex" direction="column">
         <Section as="header" className="workbench-header" layout="flex" justify="between" align="center" gap="medium" wrap>
-          <Section layout="grid" gap="small">
+          <Section as="div" layout="grid" gap="small">
             <p className="eyebrow">Component workbench</p>
             <h1>Virtue Composer</h1>
             <p>One hundred twenty composable contracts. Behavior comes from Composer; every visible decision comes from this project.</p>
@@ -128,9 +132,9 @@ export default function Showcase({ components }) {
           <ButtonLink href="#section" icon={<ArrowRight size={16} />} iconPosition="end">Browse primitives</ButtonLink>
         </Section>
 
-        <Section className="content" layout="flex" direction="column">
+        <Section as="div" className="content" layout="flex" direction="column">
           <Demo id="section" title="Section" detail="Layout composition without surface, spacing, or visual ownership.">
-            <Section className="section-sample" layout="flex" direction="column" align="center" justify="center" gap="small">
+            <Section as="div" className="section-sample" layout="flex" direction="column" align="center" justify="center" gap="small">
               <p className="eyebrow">Nested composition</p><h3>Centered content stays structural</h3><p>Project classes control the dimensions and finish.</p>
             </Section>
           </Demo>
@@ -138,7 +142,7 @@ export default function Showcase({ components }) {
             <Tooltip content="Settings"><Button aria-label="Open settings" icon={<Settings size={18} />}><VisuallyHidden>Open settings</VisuallyHidden></Button></Tooltip>
           </Demo>
           <Demo id="button" title="Button" detail="Default, disabled, loading, and icon states share one behavioral contract.">
-            <Section layout="flex" align="center" gap="small" wrap>
+            <Section as="div" layout="flex" align="center" gap="small" wrap>
               <Button icon={<Plus size={16} />}>Create item</Button><Button disabled>Unavailable</Button><Button loading loadingLabel="Saving">Save</Button><Button aria-label="Dismiss" icon={<X size={18} />}><VisuallyHidden>Dismiss</VisuallyHidden></Button>
             </Section>
           </Demo>
@@ -150,13 +154,13 @@ export default function Showcase({ components }) {
           </Demo>
           <Section id="fields" as="div" />
           <Demo id="field" title="Field" detail="Labels, supporting copy, required state, and errors remain correctly associated.">
-            <Section className="form-grid" layout="grid" columns={2} gap="medium">
+            <Section as="div" className="form-grid" layout="grid" columns={2} gap="medium">
               <Field label="Project name" description="Visible to your team." required><Input placeholder="Atlas" /></Field>
               <Field label="Workspace slug" error="This slug is already in use."><Input defaultValue="atlas" invalid /></Field>
             </Section>
           </Demo>
           <Demo id="input" title="Input" detail="A native text input with stable invalid and disabled semantics.">
-            <Section className="form-grid" layout="grid" columns={2} gap="medium"><Field label="Email"><Input type="email" placeholder="name@company.com" /></Field><Field label="Disabled"><Input disabled defaultValue="Locked" /></Field></Section>
+            <Section as="div" className="form-grid" layout="grid" columns={2} gap="medium"><Field label="Email"><Input type="email" placeholder="name@company.com" /></Field><Field label="Disabled"><Input disabled defaultValue="Locked" /></Field></Section>
           </Demo>
           <Demo id="textarea" title="Textarea" detail="Native multiline input composed through the same Field contract.">
             <Field label="Project brief" description="Describe the intended outcome."><Textarea rows={4} placeholder="A focused internal tool for..." /></Field>
@@ -174,7 +178,7 @@ export default function Showcase({ components }) {
             <Toggle label="Automatic publishing" description="Publish approved revisions immediately." defaultChecked />
           </Demo>
           <Demo id="badge" title="Badge" detail="Status text remains meaningful beyond its color.">
-            <Section layout="flex" gap="small" wrap>{["neutral", "info", "success", "warning", "danger"].map((tone) => <Badge key={tone} tone={tone}>{tone}</Badge>)}</Section>
+            <Section as="div" layout="flex" gap="small" wrap>{["neutral", "info", "success", "warning", "danger"].map((tone) => <Badge key={tone} tone={tone}>{tone}</Badge>)}</Section>
           </Demo>
           <Demo id="callout" title="Callout" detail="Contextual feedback supports appropriate live-region roles.">
             <Callout title="Ready for review" tone="success" actions={<Button>Review changes</Button>}>All required checks passed.</Callout>
@@ -183,10 +187,10 @@ export default function Showcase({ components }) {
             <EmptyState title="No saved views" message="Save a filter set to return to it quickly." icon={<Inbox size={24} />} actions={<Button icon={<Plus size={16} />}>Save this view</Button>} />
           </Demo>
           <Demo id="spinner" title="Spinner" detail="A labeled status indicator with reduced-motion support.">
-            <Section layout="flex" align="center" gap="large"><Spinner size="small" /><Spinner /><Spinner size="large" /></Section>
+            <Section as="div" layout="flex" align="center" gap="large"><Spinner size="small" /><Spinner /><Spinner size="large" /></Section>
           </Demo>
           <Demo id="skeleton" title="Skeleton" detail="Decorative loading geometry leaves status announcements to its parent.">
-            <Section className="skeleton-stack" layout="grid" gap="small"><Skeleton shape="line" /><Skeleton shape="line" /><Skeleton shape="block" /></Section>
+            <Section as="div" className="skeleton-stack" layout="grid" gap="small"><Skeleton shape="line" /><Skeleton shape="line" /><Skeleton shape="block" /></Section>
           </Demo>
           <Demo id="dialog" title="Dialog" detail="Focus management, dismissal, and labeling are supplied by Radix.">
             <Dialog trigger={<Button>Open dialog</Button>} title="Publish revision?" description="This will make the latest approved revision visible." actions={<ActionGroup align="end" actions={[{ id: "publish", label: "Publish" }]} />}><p>You can create another revision after publishing.</p></Dialog>
@@ -226,7 +230,7 @@ export default function Showcase({ components }) {
               description="Update ownership without leaving the current view."
               actions={<ActionGroup align="end" actions={[{ id: "save-drawer", label: "Save changes" }]} />}
             >
-              <Section layout="grid" gap="medium"><Field label="Project name"><Input defaultValue="Atlas" /></Field><SearchSelect label="Owner" defaultValue="maya" options={ownerOptions} /></Section>
+              <Section as="div" layout="grid" gap="medium"><Field label="Project name"><Input defaultValue="Atlas" /></Field><SearchSelect label="Owner" defaultValue="maya" options={ownerOptions} /></Section>
             </Drawer>
           </Demo>
           <Demo id="toast" title="Toast" detail="Transient feedback is announced and dismissible without coupling it to page layout." phase={2}>
@@ -288,11 +292,11 @@ export default function Showcase({ components }) {
           <Demo id="master-detail-layout" title="Master Detail Layout" detail="A responsive two-pane relationship leaves pane surfaces and dimensions to the project." phase={2}>
             <MasterDetailLayout
               master={<ListView items={projectRows.map((project) => ({ id: project.id, title: project.name, description: project.owner, trailing: <Badge tone={project.id === "atlas" ? "success" : "neutral"}>{project.status}</Badge> }))} />}
-              detail={<Section className="detail-panel" layout="grid" gap="medium"><Section layout="grid" gap="small"><p className="eyebrow">Selected project</p><h3>Atlas</h3><p>Foundation components for internal publishing tools.</p></Section><DetailRows items={[{ id: "owner", label: "Owner", value: "Maya Chen" }, { id: "release", label: "Release", value: "v2.4.0" }]} /></Section>}
+              detail={<Section as="div" className="detail-panel" layout="grid" gap="medium"><Section as="div" layout="grid" gap="small"><p className="eyebrow">Selected project</p><h3>Atlas</h3><p>Foundation components for internal publishing tools.</p></Section><DetailRows items={[{ id: "owner", label: "Owner", value: "Maya Chen" }, { id: "release", label: "Release", value: "v2.4.0" }]} /></Section>}
             />
           </Demo>
           <Demo id="resource-boundary" title="Resource Boundary" detail="Loading, error, empty, and ready states remain interchangeable around project content." phase={2}>
-            <Section className="resource-grid" layout="grid" columns={2} gap="medium">
+            <Section as="div" className="resource-grid" layout="grid" columns={2} gap="medium">
               <ResourceBoundary status="loading" loadingLabel="Loading projects" />
               <ResourceBoundary status="error" errorMessage="The project service did not respond." onRetry={() => undefined} />
               <ResourceBoundary status="empty" emptyTitle="No matching projects" emptyMessage="Try a broader filter." />
@@ -300,7 +304,7 @@ export default function Showcase({ components }) {
             </Section>
           </Demo>
           <Demo id="progress-bar" title="Progress Bar" detail="Determinate and indeterminate progress expose native progress semantics." phase={2}>
-            <Section layout="grid" gap="medium"><ProgressBar label="Component migration" value={28} max={40} showValue /><ProgressBar label="Preparing preview" showValue /></Section>
+            <Section as="div" layout="grid" gap="medium"><ProgressBar label="Component migration" value={28} max={40} showValue /><ProgressBar label="Preparing preview" showValue /></Section>
           </Demo>
           <Demo id="command-menu" title="Command Menu" detail="A searchable command surface opens from an explicit trigger or the platform shortcut." phase={2}>
             <Button icon={<CommandIcon size={16} />} onClick={() => setCommandOpen(true)}>Open command menu</Button>
@@ -315,7 +319,7 @@ export default function Showcase({ components }) {
             />
           </Demo>
           <Demo id="carousel" title="Carousel" detail="Embla supplies touch, drag, snap, and navigation behavior while slides remain project content." phase={2}>
-            <Carousel ariaLabel="Featured projects" options={{ align: "start" }} slides={projectRows.map((project, index) => ({ id: project.id, label: `${project.name}, slide ${index + 1} of ${projectRows.length}`, content: <Section className="carousel-slide" layout="grid" gap="small"><p className="eyebrow">{project.status}</p><h3>{project.name}</h3><p>Owned by {project.owner}</p><Badge tone={project.status === "Active" ? "success" : "neutral"}>Updated {project.updated}</Badge></Section> }))} />
+            <Carousel ariaLabel="Featured projects" options={{ align: "start" }} slides={projectRows.map((project, index) => ({ id: project.id, label: `${project.name}, slide ${index + 1} of ${projectRows.length}`, content: <Section as="div" className="carousel-slide" layout="grid" gap="small"><p className="eyebrow">{project.status}</p><h3>{project.name}</h3><p>Owned by {project.owner}</p><Badge tone={project.status === "Active" ? "success" : "neutral"}>Updated {project.updated}</Badge></Section> }))} />
           </Demo>
           <PhaseThreeShowcase />
           <PhaseFourShowcase />

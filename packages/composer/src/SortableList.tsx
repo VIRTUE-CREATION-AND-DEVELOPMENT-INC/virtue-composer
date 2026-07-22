@@ -27,7 +27,7 @@ export default function SortableList({ items, onReorder, ariaLabel = "Sortable i
   };
   return <DndContext id={id} sensors={sensors} collisionDetection={closestCenter} onDragEnd={finish}>
     <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
-      <ol aria-label={ariaLabel} className={className} data-vc-component="sortable-list">{items.map((item) => <SortableRow key={item.id} item={item} />)}</ol>
+      <ol aria-label={ariaLabel} className={className} data-vc-component="sortable-list" data-vc-slot="root">{items.map((item) => <SortableRow key={item.id} item={item} />)}</ol>
     </SortableContext>
   </DndContext>;
 }

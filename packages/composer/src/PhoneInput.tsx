@@ -25,7 +25,7 @@ export default function PhoneInput({ label, value, defaultValue = "", onValueCha
     const parsed = parsePhoneNumberFromString(formatted, nextCountry);
     onValueChange?.(parsed?.number ?? formatted, Boolean(parsed?.isValid()));
   };
-  return <div className={className} data-vc-component="phone-input" data-vc-valid={current ? valid : undefined} data-vc-invalid={Boolean(error) || undefined}>
+  return <div className={className} data-vc-component="phone-input" data-vc-slot="root" data-vc-valid={current ? valid : undefined} data-vc-invalid={Boolean(error) || undefined}>
     <label htmlFor={id}>{label}{required && <span aria-hidden="true"> *</span>}</label>
     {description && <p id={`${id}-description`}>{description}</p>}
     <div data-vc-phone-controls>

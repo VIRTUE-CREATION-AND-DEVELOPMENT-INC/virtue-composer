@@ -14,7 +14,7 @@ export default function QuantityInput({ label, value, defaultValue = 1, onValueC
     onValueChange?.(bounded, reason);
   };
   const blocked = disabled || pending;
-  return <div className={className} aria-busy={pending || undefined} data-vc-component="quantity-input">
+  return <div className={className} aria-busy={pending || undefined} data-vc-component="quantity-input" data-vc-slot="root">
     <label htmlFor={id}>{label}</label>
     <div data-vc-quantity-controls>
       {allowRemove && current <= min ? <button type="button" onClick={onRemove} disabled={blocked}>Remove {label}</button> : <button type="button" aria-label={`Decrease ${label}`} onClick={() => commit(current - 1, "decrement")} disabled={blocked || current <= min}>−</button>}

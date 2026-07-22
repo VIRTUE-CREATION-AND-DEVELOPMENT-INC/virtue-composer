@@ -11,7 +11,7 @@ export default function FieldArray<Item extends FieldArrayItem>({ label, items, 
     if (target < 0 || target >= items.length) return;
     const next = [...items]; [next[index], next[target]] = [next[target], next[index]]; onItemsChange(next);
   };
-  return <fieldset className={className} data-vc-component="field-array">
+  return <fieldset className={className} data-vc-component="field-array" data-vc-slot="root">
     <legend>{label}</legend>
     <ol>{items.map((item, index) => <li key={item.id}>
       <div>{renderItem(item, index)}</div>

@@ -9,6 +9,7 @@ const components = [...coreComponents, ...phaseThreeComponents, ...phaseFourComp
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const composerPackage = JSON.parse(await readFile(path.join(root, "packages/composer/package.json"), "utf8"));
+const cliPackage = JSON.parse(await readFile(path.join(root, "packages/cli/package.json"), "utf8"));
 const check = process.argv.includes("--check");
 const cliTemplateRoot = path.join(root, "packages/cli/template/next-jsx");
 const wrapperRoots = [path.join(root, "templates/next-jsx/src/components/composer"), path.join(root, "apps/showcase-jsx/src/components/composer"), path.join(cliTemplateRoot, "src/components/composer")];
@@ -53,7 +54,7 @@ for (const wrapperRoot of wrapperRoots) await emit(path.join(wrapperRoot, "index
 await emit(composerIndexFile, `${composerExports.join("\n")}\n`);
 await emit(composerPackageFile, `${JSON.stringify({ ...composerPackage, exports: packageExports }, null, 2)}\n`);
 
-const manifest = `${JSON.stringify({ contractVersion: 1, composerVersion: composerPackage.version, template: "next-jsx", components: components.map((component) => component.id) }, null, 2)}\n`;
+const manifest = `${JSON.stringify({ contractVersion: 1, composerVersion: composerPackage.version, cliVersion: cliPackage.version, installationMode: "full", template: "next-jsx", components: components.map((component) => component.id) }, null, 2)}\n`;
 for (const manifestFile of manifestFiles) await emit(manifestFile, manifest);
 for (const foundationTarget of foundationTargets) await emit(foundationTarget, await readFile(foundationSource, "utf8"));
 await emit(configTarget, await readFile(configSource, "utf8"));

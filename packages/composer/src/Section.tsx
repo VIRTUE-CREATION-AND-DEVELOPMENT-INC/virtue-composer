@@ -35,6 +35,9 @@ export default function Section<T extends ElementType = "section">({
   style: _projectStyle,
   ...props
 }: SectionProps<T>) {
+  if (_projectStyle !== undefined) {
+    console.error("Virtue Composer: Section does not accept style. Move visual and dimensional styling to the project styling layer.");
+  }
   const element = as ?? "section";
   const layoutStyle = layout === "grid" && columns
     ? ({ "--vc-section-columns": typeof columns === "number" ? `repeat(${columns}, minmax(0, 1fr))` : columns } as CSSProperties)
@@ -45,6 +48,7 @@ export default function Section<T extends ElementType = "section">({
     className,
     style: layoutStyle,
     "data-vc-component": "section",
+    "data-vc-slot": "root",
     "data-vc-layout": layout,
     "data-vc-direction": layout === "flex" ? direction : undefined,
     "data-vc-align": align,

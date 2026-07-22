@@ -10,7 +10,7 @@ export default function Callout({ title, tone = "neutral", actions, children, ro
   const resolvedRole = role ?? (tone === "danger" ? "alert" : tone === "success" || tone === "warning" ? "status" : undefined);
 
   return (
-    <div role={resolvedRole} data-vc-component="callout" data-vc-tone={tone} {...props}>
+    <div role={resolvedRole} data-vc-component="callout" data-vc-slot="root" data-vc-tone={tone} {...props}>
       <div data-vc-callout-copy>
         <h3>{title}</h3>
         {children}

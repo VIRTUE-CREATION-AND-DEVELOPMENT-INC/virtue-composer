@@ -8,7 +8,7 @@ export default function Disclosure({ summary, children, open, defaultOpen = fals
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const resolvedOpen = open ?? internalOpen;
   return (
-    <details open={resolvedOpen} className={className} data-vc-component="disclosure" onToggle={(event) => {
+    <details open={resolvedOpen} className={className} data-vc-component="disclosure" data-vc-slot="root" onToggle={(event) => {
       const nextOpen = event.currentTarget.open;
       if (open === undefined) setInternalOpen(nextOpen);
       onOpenChange?.(nextOpen);

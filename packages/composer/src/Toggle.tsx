@@ -17,7 +17,7 @@ export default function Toggle({ label, description, checked, defaultChecked, on
   const descriptionId = description ? `${id}-description` : undefined;
 
   return (
-    <div data-vc-component="toggle" {...props}>
+    <div data-vc-component="toggle" data-vc-slot="root" {...props}>
       <div>
         <label htmlFor={id}>{label}</label>
         {description && <p id={descriptionId}>{description}</p>}

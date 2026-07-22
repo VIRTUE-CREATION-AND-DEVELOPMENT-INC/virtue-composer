@@ -14,7 +14,7 @@ export default function PriceRangeInput({ label, value, defaultValue = [0, 100],
     if (value === undefined) setInternal(ordered);
     onValueChange?.(ordered);
   };
-  return <fieldset className={className} data-vc-component="price-range-input"><legend>{label}</legend>
+  return <fieldset className={className} data-vc-component="price-range-input" data-vc-slot="root"><legend>{label}</legend>
     <Slider label={label} value={current} onValueChange={(next) => commit([next[0], next[1]])} min={min} max={max} step={step} disabled={disabled} />
     <div data-vc-price-fields>
       <label>Minimum ({currency})<input type="number" name={minName} min={min} max={current[1]} step={step} value={current[0]} onChange={(event) => commit([Number(event.currentTarget.value), current[1]])} disabled={disabled} /></label>

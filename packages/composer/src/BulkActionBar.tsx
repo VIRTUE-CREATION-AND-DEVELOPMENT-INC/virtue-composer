@@ -7,7 +7,7 @@ export type BulkActionBarProps = { selectedCount: number; actions: BulkAction[];
 
 export default function BulkActionBar({ selectedCount, actions, onAction, onClear, pendingActionId, ariaLabel = "Bulk actions", className }: BulkActionBarProps) {
   if (selectedCount <= 0) return null;
-  return <div role="toolbar" aria-label={ariaLabel} className={className} aria-busy={Boolean(pendingActionId) || undefined} data-vc-component="bulk-action-bar">
+  return <div role="toolbar" aria-label={ariaLabel} className={className} aria-busy={Boolean(pendingActionId) || undefined} data-vc-component="bulk-action-bar" data-vc-slot="root">
     <span aria-live="polite">{selectedCount} selected</span>
     <div>{actions.map((action) => <button key={action.id} type="button" onClick={() => onAction?.(action.id)} disabled={action.disabled || Boolean(pendingActionId)} data-vc-destructive={action.destructive || undefined}>
       {action.icon && <span aria-hidden="true">{action.icon}</span>}{pendingActionId === action.id ? `${action.label}…` : action.label}

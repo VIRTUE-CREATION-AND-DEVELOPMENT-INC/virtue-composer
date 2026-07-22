@@ -4,7 +4,7 @@ export type AuditLogItem = { id: string; actor: ReactNode; action: ReactNode; ti
 export type AuditLogProps = { items: AuditLogItem[]; ariaLabel?: string; empty?: ReactNode; className?: string };
 
 export default function AuditLog({ items, ariaLabel = "Audit log", empty = "No activity recorded", className }: AuditLogProps) {
-  return <section aria-label={ariaLabel} className={className} data-vc-component="audit-log">
+  return <section aria-label={ariaLabel} className={className} data-vc-component="audit-log" data-vc-slot="root">
     {items.length === 0 ? <p data-vc-audit-empty>{empty}</p> : <ol>{items.map((item) => <li key={item.id}>
       <header><strong>{item.actor}</strong> <span>{item.action}</span> <time dateTime={item.dateTime}>{item.timestamp}</time></header>
       {item.summary && <p>{item.summary}</p>}

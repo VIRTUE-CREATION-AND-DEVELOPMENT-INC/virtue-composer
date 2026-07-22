@@ -1,17 +1,30 @@
 import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { applyEdits, modify, parse as parseJsonc } from "jsonc-parser";
+import { minimatch } from "minimatch";
 import { componentRegistry, composerVersion, contractVersion } from "@virtuecreation/composer-registry";
+import { analyzeSource, componentName } from "./analysis.js";
 
 const cliRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const templateRoot = path.join(cliRoot, "template/next-jsx");
 const defaultLocalComposerPath = path.resolve(cliRoot, "../composer");
 const composerPackageName = "@virtuecreation/composer";
 const legacyComposerPackageName = "@virtue/composer";
+const cliPackageName = "@virtuecreation/composer-cli";
+const cliVersion = JSON.parse(readFileSync(path.join(cliRoot, "package.json"), "utf8")).version;
 const sourceExtensions = new Set([".js", ".jsx", ".ts", ".tsx"]);
 const ignoredDirectories = new Set([".git", ".next", "dist", "node_modules", "coverage"]);
-const visualSectionProps = ["surface", "width", "minWidth", "maxWidth", "height", "minHeight", "maxHeight", "padding", "background", "border", "radius", "shadow"];
+const enforcementDefaults = {
+  directPackageImports: "error",
+  rawControls: "error",
+  sectionVisualProps: "error",
+  sectionSemantics: "warning",
+  layoutDivs: "warning",
+  sourceAnalysis: "warning",
+};
+const enforcementSeverities = new Set(["off", "warning", "error"]);
 
 async function readJson(file) {
   return JSON.parse(await readFile(file, "utf8"));
@@ -29,10 +42,10 @@ async function collectSourceFiles(directory) {
   return files;
 }
 
-function findInstalledComposer(root) {
+function findInstalledPackage(root, packageNames) {
   let current = root;
   while (true) {
-    for (const packageName of [composerPackageName, legacyComposerPackageName]) {
+    for (const packageName of packageNames) {
       const candidate = path.join(current, "node_modules", packageName, "package.json");
       if (existsSync(candidate)) return candidate;
     }
@@ -42,43 +55,35 @@ function findInstalledComposer(root) {
   }
 }
 
-function position(source, index) {
-  return source.slice(0, index).split("\n").length;
-}
-
 function finding(severity, rule, file, line, message) {
   return { severity, rule, file, line, message };
 }
 
-function inspectSource(source, relativeFile, isWrapper) {
+function configuredFinding(raw, config) {
+  const enforcement = config?.enforcement ?? {};
+  const severity = enforcement[raw.group] ?? enforcementDefaults[raw.group] ?? "warning";
+  const exceptions = enforcement.exceptions?.[raw.group] ?? [];
+  if (severity === "off" || exceptions.some((pattern) => minimatch(raw.file, pattern, { dot: true }))) return null;
+  return finding(severity, raw.rule, raw.file, raw.line, raw.message);
+}
+
+function validateEnforcement(config) {
   const findings = [];
-  if (!isWrapper) {
-    for (const match of source.matchAll(/from\s+["']@virtue(?:creation)?\/composer(?:\/[\w-]+)?["']/g)) {
-      findings.push(finding("error", "direct-package-import", relativeFile, position(source, match.index), "Import Composer through the project wrapper layer."));
-    }
-
-    const rawControls = [
-      [/<button\b/g, "button"],
-      [/<textarea\b/g, "textarea"],
-      [/<select\b/g, "select"],
-      [/<input\b/g, "input"],
-    ];
-    for (const [pattern, element] of rawControls) {
-      for (const match of source.matchAll(pattern)) {
-        findings.push(finding("error", `raw-${element}`, relativeFile, position(source, match.index), `Use the local Composer ${element} wrapper.`));
+  const enforcement = config?.enforcement;
+  if (!enforcement || typeof enforcement !== "object") return findings;
+  for (const [key, value] of Object.entries(enforcement)) {
+    if (key === "exceptions") continue;
+    if (!(key in enforcementDefaults)) findings.push(finding("warning", "unknown-enforcement-rule", "virtue-composer.config.json", 1, `Unknown enforcement group "${key}".`));
+    else if (!enforcementSeverities.has(value)) findings.push(finding("error", "invalid-enforcement-severity", "virtue-composer.config.json", 1, `Enforcement group "${key}" must be off, warning, or error.`));
+  }
+  if (enforcement.exceptions !== undefined) {
+    if (!enforcement.exceptions || typeof enforcement.exceptions !== "object" || Array.isArray(enforcement.exceptions)) {
+      findings.push(finding("error", "invalid-enforcement-exceptions", "virtue-composer.config.json", 1, "Enforcement exceptions must map rule groups to path glob arrays."));
+    } else {
+      for (const [key, patterns] of Object.entries(enforcement.exceptions)) {
+        if (!(key in enforcementDefaults)) findings.push(finding("warning", "unknown-enforcement-exception", "virtue-composer.config.json", 1, `Unknown enforcement exception group "${key}".`));
+        if (!Array.isArray(patterns) || patterns.some((pattern) => typeof pattern !== "string")) findings.push(finding("error", "invalid-enforcement-exceptions", "virtue-composer.config.json", 1, `Enforcement exceptions for "${key}" must be an array of path globs.`));
       }
-    }
-
-    for (const match of source.matchAll(/<Section\b([^>]*)>/gs)) {
-      for (const prop of visualSectionProps) {
-        if (new RegExp(`\\b${prop}\\s*=`).test(match[1])) {
-          findings.push(finding("error", "section-visual-prop", relativeFile, position(source, match.index), `Section cannot own visual prop \"${prop}\"; move it to project CSS.`));
-        }
-      }
-    }
-
-    for (const match of source.matchAll(/<div\b[^>]*(?:className\s*=\s*["'][^"']*\b(?:flex|grid)[^"']*["']|style\s*=\s*\{\{[^}]*display\s*:\s*["'](?:flex|grid)["'])[^>]*>/gs)) {
-      findings.push(finding("warning", "layout-div", relativeFile, position(source, match.index), "Consider Section for this layout-bearing div."));
     }
   }
   return findings;
@@ -99,40 +104,61 @@ export async function doctor(projectDirectory = ".") {
 
   if (config?.contractVersion !== contractVersion) findings.push(finding("error", "contract-version", "virtue-composer.config.json", 1, `Expected contractVersion ${contractVersion}.`));
   if (manifest?.contractVersion !== contractVersion) findings.push(finding("error", "manifest-version", "virtue-composer.manifest.json", 1, `Expected contractVersion ${contractVersion}.`));
+  findings.push(...validateEnforcement(config));
 
   const wrapperRoot = config?.wrapperRoot ?? "src/components/composer";
   const foundationCss = config?.foundationCss ?? "src/styles/composer.css";
   const wrapperDirectory = path.join(root, wrapperRoot);
+  const installedIds = new Set(manifest?.components ?? componentRegistry.map((component) => component.id));
   if (!existsSync(wrapperDirectory)) findings.push(finding("error", "missing-wrappers", wrapperRoot, 1, "Composer wrapper directory is missing."));
   else {
-    for (const component of componentRegistry) {
+    for (const component of componentRegistry.filter((record) => installedIds.has(record.id))) {
       const wrapperName = component.projectImport.split("/").at(-1);
       const hasWrapper = [".js", ".jsx", ".ts", ".tsx"].some((extension) => existsSync(path.join(wrapperDirectory, `${wrapperName}${extension}`)));
       if (!hasWrapper) findings.push(finding("error", "missing-wrapper", wrapperRoot, 1, `Missing local wrapper for ${component.title}.`));
     }
   }
   if (manifest) {
-    for (const component of componentRegistry) {
-      if (!manifest.components?.includes(component.id)) findings.push(finding("error", "missing-manifest-component", "virtue-composer.manifest.json", 1, `Manifest is missing ${component.id}.`));
-    }
+    const knownIds = new Set(componentRegistry.map((component) => component.id));
+    for (const id of manifest.components ?? []) if (!knownIds.has(id)) findings.push(finding("error", "unknown-manifest-component", "virtue-composer.manifest.json", 1, `Manifest references unknown component ${id}.`));
   }
-  const installedPackage = findInstalledComposer(root);
+  const installedPackage = findInstalledPackage(root, [composerPackageName, legacyComposerPackageName]);
   if (installedPackage && manifest?.composerVersion) {
     const installedVersion = (await readJson(installedPackage)).version;
     if (installedVersion !== manifest.composerVersion) findings.push(finding("error", "composer-version", path.relative(root, installedPackage), 1, `Installed Composer ${installedVersion} does not match manifest ${manifest.composerVersion}.`));
+  }
+  const installedCli = findInstalledPackage(root, [cliPackageName]);
+  if (installedCli && manifest?.cliVersion) {
+    const installedVersion = (await readJson(installedCli)).version;
+    if (installedVersion !== manifest.cliVersion) findings.push(finding("error", "cli-version", path.relative(root, installedCli), 1, `Installed Composer CLI ${installedVersion} does not match manifest ${manifest.cliVersion}.`));
+  }
+  const packageFile = path.join(root, "package.json");
+  if (existsSync(packageFile) && manifest?.cliVersion) {
+    const packageJson = await readJson(packageFile);
+    if (packageJson.devDependencies?.[cliPackageName] !== manifest.cliVersion && !packageJson.devDependencies?.[cliPackageName]?.startsWith("file:")) {
+      findings.push(finding("error", "cli-dependency", "package.json", 1, `Declare ${cliPackageName} ${manifest.cliVersion} as a dev dependency so the local virtue-composer binary is available.`));
+    }
   }
   if (!existsSync(path.join(root, foundationCss))) findings.push(finding("error", "missing-foundation-css", foundationCss, 1, "Composer foundation CSS is missing."));
 
   const sourceRoot = path.join(root, config?.sourceRoot ?? "src");
   const files = await collectSourceFiles(sourceRoot);
   let foundationReferenced = false;
+  let parsedFiles = 0;
+  const usedNames = new Set();
   for (const file of files) {
     const source = await readFile(file, "utf8");
     const relative = path.relative(root, file).split(path.sep).join("/");
     const normalizedWrapper = wrapperRoot.split(path.sep).join("/");
     const isWrapper = relative === normalizedWrapper || relative.startsWith(`${normalizedWrapper}/`);
     if (source.includes(path.basename(foundationCss))) foundationReferenced = true;
-    findings.push(...inspectSource(source, relative, isWrapper));
+    const analysis = await analyzeSource({ source, absoluteFile: file, relativeFile: relative, isWrapper, importAlias: config?.importAlias ?? "@/components/composer" });
+    if (analysis.parsed) parsedFiles += 1;
+    for (const name of analysis.usedNames) usedNames.add(name);
+    for (const raw of analysis.findings) {
+      const configured = configuredFinding(raw, config);
+      if (configured) findings.push(configured);
+    }
   }
   if (files.length > 0 && existsSync(path.join(root, foundationCss)) && !foundationReferenced) {
     findings.push(finding("warning", "foundation-css-import", foundationCss, 1, "Import the Composer foundation CSS once from the app root."));
@@ -143,6 +169,8 @@ export async function doctor(projectDirectory = ".") {
     project: root,
     contractVersion,
     scannedFiles: files.length,
+    coverage: { parsedFiles, skippedFiles: files.length - parsedFiles, layoutDetection: "AST with advisory CSS Module resolution" },
+    usage: { usedComponents: [...usedNames].sort(), count: usedNames.size },
     summary: {
       errors: findings.filter((item) => item.severity === "error").length,
       warnings: findings.filter((item) => item.severity === "warning").length,
@@ -166,46 +194,162 @@ async function writePackageSourceConfig(root, source) {
   const configFile = path.join(root, "virtue-composer.config.json");
   if (!existsSync(configFile)) return;
   const config = await readJson(configFile);
-  await writeFile(configFile, `${JSON.stringify({ ...config, packageName: composerPackageName, packageSource: source }, null, 2)}\n`);
+  const enforcement = { ...enforcementDefaults, ...config.enforcement, exceptions: config.enforcement?.exceptions ?? {} };
+  await writeFile(configFile, `${JSON.stringify({ ...config, packageName: composerPackageName, packageSource: source, enforcement }, null, 2)}\n`);
 }
 
-export async function init(projectDirectory = ".", { force = false, source = "npm", localPath, dependency } = {}) {
-  const root = path.resolve(projectDirectory);
-  await mkdir(root, { recursive: true });
-  const entries = ["virtue-composer.config.json", "virtue-composer.manifest.json", "src/components/composer", "src/styles/composer.css"];
+function projectPath(value, label) {
+  const normalized = value.split(path.sep).join("/").replace(/^\.\//, "").replace(/\/$/, "") || ".";
+  if (path.isAbsolute(value) || normalized === ".." || normalized.startsWith("../")) throw new Error(`${label} must stay within the project root.`);
+  return normalized;
+}
+
+function detectStructure(root, options = {}) {
+  const hasRootRouter = existsSync(path.join(root, "app")) || existsSync(path.join(root, "pages"));
+  const hasSrcRouter = existsSync(path.join(root, "src/app")) || existsSync(path.join(root, "src/pages"));
+  const sourceRoot = projectPath(options.sourceRoot ?? (hasRootRouter && !hasSrcRouter ? "." : "src"), "sourceRoot");
+  const prefix = sourceRoot === "." ? "" : `${sourceRoot}/`;
+  return {
+    sourceRoot,
+    wrapperRoot: projectPath(options.wrapperRoot ?? `${prefix}components/composer`, "wrapperRoot"),
+    foundationCss: projectPath(options.foundationCss ?? `${prefix}styles/composer.css`, "foundationCss"),
+    importAlias: options.importAlias ?? "@/components/composer",
+    language: options.language ?? (existsSync(path.join(root, "tsconfig.json")) ? "tsx" : "jsx"),
+  };
+}
+
+function resolveComponents(value, { allByDefault = true } = {}) {
+  if (!value) return allByDefault ? [...componentRegistry] : [];
+  const requested = Array.isArray(value) ? value : value.split(",").map((item) => item.trim()).filter(Boolean);
+  const resolved = [];
+  for (const query of requested) {
+    const normalized = query.toLowerCase();
+    const component = componentRegistry.find((record) => [record.id, record.title, componentName(record)].some((candidate) => candidate.toLowerCase() === normalized));
+    if (!component) throw new Error(`Unknown Composer component "${query}". Run virtue-composer inspect --compact to list available components.`);
+    if (!resolved.some((record) => record.id === component.id)) resolved.push(component);
+  }
+  return resolved;
+}
+
+async function writeWrappers(root, wrapperRoot, components, { force = false, append = false } = {}) {
+  const destination = path.join(root, wrapperRoot);
+  await mkdir(destination, { recursive: true });
   const written = [];
   const skipped = [];
-  for (const entry of entries) {
-    const source = path.join(templateRoot, entry);
-    const destination = path.join(root, entry);
-    if (existsSync(destination) && !force) {
-      skipped.push(entry);
-      continue;
+  for (const component of components) {
+    const name = componentName(component);
+    const target = path.join(destination, `${name}.js`);
+    if (existsSync(target) && !force) skipped.push(`${name} wrapper`);
+    else {
+      await cp(path.join(templateRoot, "src/components/composer", `${name}.js`), target, { force: true });
+      written.push(`${name} wrapper`);
     }
-    await mkdir(path.dirname(destination), { recursive: true });
-    await cp(source, destination, { recursive: true, force: true });
-    written.push(entry);
+  }
+  const templateIndex = await readFile(path.join(templateRoot, "src/components/composer/index.js"), "utf8");
+  const selectedNames = new Set(components.map(componentName));
+  const selectedExports = templateIndex.split("\n").filter((line) => {
+    const name = line.match(/from "\.\/(.*)"/)?.[1];
+    return name && selectedNames.has(name);
+  });
+  const indexFile = path.join(destination, "index.js");
+  const currentIndex = append && existsSync(indexFile) ? await readFile(indexFile, "utf8") : "";
+  const missing = selectedExports.filter((line) => !currentIndex.includes(line));
+  if (!existsSync(indexFile) || !append || missing.length > 0) {
+    const next = append ? `${currentIndex.trimEnd()}${currentIndex.trim() && missing.length ? "\n" : ""}${missing.join("\n")}\n` : `${selectedExports.join("\n")}\n`;
+    await writeFile(indexFile, next);
+    written.push("wrapper index exports");
+  }
+  return { written, skipped };
+}
+
+async function ensureImportAlias(root, importAlias, wrapperRoot) {
+  const configName = existsSync(path.join(root, "tsconfig.json")) ? "tsconfig.json" : existsSync(path.join(root, "jsconfig.json")) ? "jsconfig.json" : "jsconfig.json";
+  const configFile = path.join(root, configName);
+  let source = existsSync(configFile) ? await readFile(configFile, "utf8") : "{}\n";
+  const current = parseJsonc(source) ?? {};
+  const entries = [
+    [["compilerOptions", "baseUrl"], current.compilerOptions?.baseUrl ?? "."],
+    [["compilerOptions", "paths", importAlias], [`./${wrapperRoot}/index.js`]],
+    [["compilerOptions", "paths", `${importAlias}/*`], [`./${wrapperRoot}/*`]],
+  ];
+  for (const [jsonPath, value] of entries) {
+    const edits = modify(source, jsonPath, value, { formattingOptions: { insertSpaces: true, tabSize: 2, eol: "\n" } });
+    source = applyEdits(source, edits);
+  }
+  await writeFile(configFile, source.endsWith("\n") ? source : `${source}\n`);
+  return configName;
+}
+
+function cliDependency(source) {
+  return source === "local" ? `file:${cliRoot}` : cliVersion;
+}
+
+export async function init(projectDirectory = ".", { force = false, source = "npm", localPath, dependency, sourceRoot, wrapperRoot, foundationCss, importAlias, language, components } = {}) {
+  const root = path.resolve(projectDirectory);
+  await mkdir(root, { recursive: true });
+  const written = [];
+  const skipped = [];
+  const configFile = path.join(root, "virtue-composer.config.json");
+  const existingConfig = existsSync(configFile) && !force ? await readJson(configFile) : null;
+  const structure = existingConfig ?? detectStructure(root, { sourceRoot, wrapperRoot, foundationCss, importAlias, language });
+  const templateConfig = await readJson(path.join(templateRoot, "virtue-composer.config.json"));
+  const config = { ...templateConfig, ...structure, packageName: composerPackageName, packageSource: source };
+  const selectedComponents = resolveComponents(components);
+
+  if (existingConfig) skipped.push("virtue-composer.config.json");
+  else {
+    await writeFile(configFile, `${JSON.stringify(config, null, 2)}\n`);
+    written.push("virtue-composer.config.json");
+  }
+
+  const manifestFile = path.join(root, "virtue-composer.manifest.json");
+  if (existsSync(manifestFile) && !force) skipped.push("virtue-composer.manifest.json");
+  else {
+    const manifest = await readJson(path.join(templateRoot, "virtue-composer.manifest.json"));
+    await writeFile(manifestFile, `${JSON.stringify({ ...manifest, cliVersion, installationMode: components ? "selected" : "full", components: selectedComponents.map((component) => component.id) }, null, 2)}\n`);
+    written.push("virtue-composer.manifest.json");
+  }
+
+  const wrappers = await writeWrappers(root, structure.wrapperRoot, selectedComponents, { force, append: !force && existsSync(path.join(root, structure.wrapperRoot, "index.js")) });
+  written.push(...wrappers.written);
+  skipped.push(...wrappers.skipped);
+  const foundationDestination = path.join(root, structure.foundationCss);
+  if (existsSync(foundationDestination) && !force) skipped.push(structure.foundationCss);
+  else {
+    await mkdir(path.dirname(foundationDestination), { recursive: true });
+    await cp(path.join(templateRoot, "src/styles/composer.css"), foundationDestination, { force: true });
+    written.push(structure.foundationCss);
   }
   await writePackageSourceConfig(root, source);
+  const aliasConfig = await ensureImportAlias(root, structure.importAlias, structure.wrapperRoot);
+  written.push(`${aliasConfig} Composer alias`);
 
   const packageFile = path.join(root, "package.json");
   if (existsSync(packageFile)) {
     const packageJson = await readJson(packageFile);
     packageJson.dependencies ??= {};
+    packageJson.devDependencies ??= {};
     delete packageJson.dependencies[legacyComposerPackageName];
     packageJson.dependencies[composerPackageName] ??= dependencySpec({ source, localPath, dependency });
+    packageJson.devDependencies[cliPackageName] ??= cliDependency(source);
     await writeFile(packageFile, `${JSON.stringify(packageJson, null, 2)}\n`);
-    written.push("package.json dependency");
+    written.push("package.json dependencies");
   }
   const install = source === "local" ? "Run npm install --install-links." : "Run npm install.";
-  return { ok: true, project: root, source, dependency: dependencySpec({ source, localPath, dependency }), written, skipped, next: ["Import src/styles/composer.css from the app root.", install, "Run virtue-composer doctor."] };
+  return { ok: true, project: root, source, dependency: dependencySpec({ source, localPath, dependency }), cliDependency: cliDependency(source), structure, written, skipped, next: [`Import ${structure.foundationCss} from the app root.`, install, "Run virtue-composer doctor."] };
 }
 
-export async function upgrade(projectDirectory = ".", { source, localPath, dependency } = {}) {
+export async function upgrade(projectDirectory = ".", { source, localPath, dependency, components, all = false } = {}) {
   const root = path.resolve(projectDirectory);
   const configFile = path.join(root, "virtue-composer.config.json");
   if (!existsSync(configFile)) throw new Error("Virtue Composer is not initialized. Run virtue-composer init first.");
   const config = await readJson(configFile);
+  const manifestFile = path.join(root, "virtue-composer.manifest.json");
+  const manifest = existsSync(manifestFile) ? await readJson(manifestFile) : {};
+  const requestedComponents = resolveComponents(components, { allByDefault: false });
+  const fullInstallation = all || manifest.installationMode !== "selected";
+  const targetIds = new Set(fullInstallation ? componentRegistry.map((component) => component.id) : [...(manifest.components ?? []), ...requestedComponents.map((component) => component.id)]);
+  const targetComponents = componentRegistry.filter((component) => targetIds.has(component.id));
   const wrapperRoot = path.join(root, config.wrapperRoot ?? "src/components/composer");
   const foundationFile = path.join(root, config.foundationCss ?? "src/styles/composer.css");
   const written = [];
@@ -213,7 +357,7 @@ export async function upgrade(projectDirectory = ".", { source, localPath, depen
   await mkdir(wrapperRoot, { recursive: true });
   let migratedWrapperImports = false;
 
-  for (const component of componentRegistry) {
+  for (const component of targetComponents) {
     const wrapperName = component.projectImport.split("/").at(-1);
     const existingFile = [".js", ".jsx", ".ts", ".tsx"].map((extension) => path.join(wrapperRoot, `${wrapperName}${extension}`)).find(existsSync);
     const exists = Boolean(existingFile);
@@ -235,7 +379,11 @@ export async function upgrade(projectDirectory = ".", { source, localPath, depen
   const sourceIndex = await readFile(path.join(templateRoot, "src/components/composer/index.js"), "utf8");
   const targetIndex = path.join(wrapperRoot, "index.js");
   let targetIndexSource = existsSync(targetIndex) ? await readFile(targetIndex, "utf8") : "";
-  const missingExports = sourceIndex.split("\n").filter((line) => line && !targetIndexSource.includes(line.match(/from "(.*)"/)?.[1] ?? line));
+  const targetNames = new Set(targetComponents.map(componentName));
+  const missingExports = sourceIndex.split("\n").filter((line) => {
+    const name = line.match(/from "\.\/(.*)"/)?.[1];
+    return name && targetNames.has(name) && !targetIndexSource.includes(`./${name}`);
+  });
   if (missingExports.length > 0) {
     targetIndexSource = `${targetIndexSource.trimEnd()}${targetIndexSource.trim() ? "\n" : ""}${missingExports.join("\n")}\n`;
     await writeFile(targetIndex, targetIndexSource);
@@ -261,10 +409,8 @@ export async function upgrade(projectDirectory = ".", { source, localPath, depen
     await writeFile(foundationFile, nextFoundation);
   }
 
-  const manifestFile = path.join(root, "virtue-composer.manifest.json");
   const templateManifest = await readJson(path.join(templateRoot, "virtue-composer.manifest.json"));
-  const manifest = existsSync(manifestFile) ? await readJson(manifestFile) : {};
-  const nextManifest = { ...manifest, contractVersion, composerVersion: templateManifest.composerVersion, template: manifest.template ?? "next-jsx", components: componentRegistry.map((component) => component.id) };
+  const nextManifest = { ...manifest, contractVersion, composerVersion: templateManifest.composerVersion, cliVersion, installationMode: fullInstallation ? "full" : "selected", template: manifest.template ?? "next-jsx", components: targetComponents.map((component) => component.id) };
   await writeFile(manifestFile, `${JSON.stringify(nextManifest, null, 2)}\n`);
   written.push("virtue-composer.manifest.json");
 
@@ -272,27 +418,88 @@ export async function upgrade(projectDirectory = ".", { source, localPath, depen
   if (existsSync(packageFile)) {
     const packageJson = await readJson(packageFile);
     packageJson.dependencies ??= {};
+    packageJson.devDependencies ??= {};
     const currentDependency = packageJson.dependencies[composerPackageName] ?? packageJson.dependencies[legacyComposerPackageName];
     const resolvedSource = source ?? config.packageSource ?? (currentDependency?.startsWith("file:") ? "local" : "npm");
     const nextDependency = dependency ?? (resolvedSource === "local" && currentDependency?.startsWith("file:") ? currentDependency : dependencySpec({ source: resolvedSource, localPath }));
     delete packageJson.dependencies[legacyComposerPackageName];
     packageJson.dependencies[composerPackageName] = nextDependency;
+    packageJson.devDependencies[cliPackageName] = cliDependency(resolvedSource);
     await writeFile(packageFile, `${JSON.stringify(packageJson, null, 2)}\n`);
     await writePackageSourceConfig(root, resolvedSource);
-    written.push("package.json dependency");
+    written.push("package.json dependencies");
   }
+  const aliasConfig = await ensureImportAlias(root, config.importAlias ?? "@/components/composer", config.wrapperRoot ?? "src/components/composer");
+  written.push(`${aliasConfig} Composer alias`);
   return { ok: true, project: root, written, skipped, next: ["Run npm install.", "Run virtue-composer doctor.", "Run the project lint, typecheck, tests, and build."] };
 }
 
-export async function inspect(projectDirectory = ".") {
+export async function add(projectDirectory = ".", components) {
+  const selected = resolveComponents(components, { allByDefault: false });
+  if (selected.length === 0) throw new Error("Pass one or more components with --components=Button,Section.");
+  return upgrade(projectDirectory, { components: selected.map((component) => component.id) });
+}
+
+function wrapperExists(wrapperDirectory, component) {
+  const name = componentName(component);
+  return [".js", ".jsx", ".ts", ".tsx"].some((extension) => existsSync(path.join(wrapperDirectory, `${name}${extension}`)));
+}
+
+async function inspectUsage(root, config) {
+  const sourceRoot = path.join(root, config?.sourceRoot ?? "src");
+  const wrapperRoot = config?.wrapperRoot ?? "src/components/composer";
+  const normalizedWrapper = wrapperRoot.split(path.sep).join("/");
+  const names = new Set();
+  let scannedFiles = 0;
+  let parsedFiles = 0;
+  for (const file of await collectSourceFiles(sourceRoot)) {
+    const relative = path.relative(root, file).split(path.sep).join("/");
+    const isWrapper = relative === normalizedWrapper || relative.startsWith(`${normalizedWrapper}/`);
+    if (isWrapper) continue;
+    scannedFiles += 1;
+    const analysis = await analyzeSource({ source: await readFile(file, "utf8"), absoluteFile: file, relativeFile: relative, isWrapper: false, importAlias: config?.importAlias ?? "@/components/composer" });
+    if (analysis.parsed) parsedFiles += 1;
+    for (const name of analysis.usedNames) names.add(name);
+  }
+  return { names, scannedFiles, parsedFiles };
+}
+
+export async function inspect(projectDirectory = ".", { component, category, used = false, compact = false } = {}) {
   const root = path.resolve(projectDirectory);
   const configFile = path.join(root, "virtue-composer.config.json");
+  const manifestFile = path.join(root, "virtue-composer.manifest.json");
+  const config = existsSync(configFile) ? await readJson(configFile) : null;
+  const manifest = existsSync(manifestFile) ? await readJson(manifestFile) : null;
+  const usage = await inspectUsage(root, config);
+  const wrapperDirectory = path.join(root, config?.wrapperRoot ?? "src/components/composer");
+  const query = component?.toLowerCase();
+  let records = componentRegistry.filter((record) => {
+    const matchesComponent = !query || [record.id, record.title, componentName(record)].some((value) => value.toLowerCase() === query);
+    const matchesCategory = !category || record.layer.toLowerCase() === category.toLowerCase();
+    const matchesUsage = !used || usage.names.has(componentName(record));
+    return matchesComponent && matchesCategory && matchesUsage;
+  }).map((record) => {
+    const status = { available: true, installed: Boolean(manifest?.components?.includes(record.id)), wrapped: wrapperExists(wrapperDirectory, record), used: usage.names.has(componentName(record)) };
+    return compact ? { id: record.id, title: record.title, layer: record.layer, projectImport: record.projectImport, status } : { ...record, status };
+  });
+
+  const allStatuses = componentRegistry.map((record) => ({ record, wrapped: wrapperExists(wrapperDirectory, record), used: usage.names.has(componentName(record)) }));
   return {
     project: root,
     composerProject: existsSync(configFile),
-    config: existsSync(configFile) ? await readJson(configFile) : null,
+    config,
     contractVersion,
-    components: componentRegistry,
+    filters: { component: component ?? null, category: category ?? null, used, compact },
+    summary: {
+      available: componentRegistry.length,
+      installed: manifest?.components?.length ?? 0,
+      wrapped: allStatuses.filter((item) => item.wrapped).length,
+      used: allStatuses.filter((item) => item.used).length,
+      scannedFiles: usage.scannedFiles,
+      parsedFiles: usage.parsedFiles,
+      returned: records.length,
+    },
+    components: records,
   };
 }
 
@@ -300,35 +507,49 @@ function printHuman(command, result) {
   if (command === "doctor") {
     console.log(`Virtue Composer Doctor: ${result.ok ? "PASS" : "FAIL"}`);
     console.log(`${result.scannedFiles} files | ${result.summary.errors} errors | ${result.summary.warnings} warnings`);
+    console.log(`Coverage: ${result.coverage.parsedFiles}/${result.scannedFiles} source files parsed | ${result.coverage.layoutDetection}`);
     for (const item of result.findings) console.log(`${item.severity.toUpperCase()} ${item.rule} ${item.file}:${item.line} ${item.message}`);
     return;
   }
-  if (command === "inspect") {
+  if (command === "inspect" || command === "report") {
     console.log(`Virtue Composer ${result.composerProject ? "detected" : "not detected"} at ${result.project}`);
-    console.log(`${result.components.length} registered components | contract v${result.contractVersion}`);
-    for (const component of result.components) console.log(`${component.id.padEnd(18)} ${component.projectImport}`);
+    console.log(`${result.summary.available} available | ${result.summary.installed} installed | ${result.summary.wrapped} wrapped | ${result.summary.used} used | ${result.summary.returned} returned | contract v${result.contractVersion}`);
+    for (const component of result.components) console.log(`${component.id.padEnd(22)} ${component.status.used ? "used" : component.status.wrapped ? "wrapped" : "available"}  ${component.projectImport}`);
     return;
   }
-  console.log(`Virtue Composer ${command === "upgrade" ? "upgraded" : "initialized"} at ${result.project}`);
+  console.log(`Virtue Composer ${command === "init" ? "initialized" : "updated"} at ${result.project}`);
   if (result.written.length) console.log(`Written: ${result.written.join(", ")}`);
   if (result.skipped.length) console.log(`Skipped: ${result.skipped.join(", ")}`);
   for (const step of result.next) console.log(`Next: ${step}`);
 }
 
 export async function run(argv) {
-  const command = argv.find((arg) => !arg.startsWith("-")) ?? "help";
-  const commandIndex = argv.indexOf(command);
-  const directory = argv.slice(commandIndex + 1).find((arg) => !arg.startsWith("-")) ?? ".";
+  const command = argv[0] ?? "help";
+  const valueOptions = new Set(["--component", "--components", "--category", "--source-root", "--wrapper-root", "--foundation-css", "--import-alias", "--language"]);
+  const option = (name) => {
+    const inline = argv.find((arg) => arg.startsWith(`${name}=`));
+    if (inline) return inline.slice(name.length + 1);
+    const index = argv.indexOf(name);
+    return index >= 0 ? argv[index + 1] : undefined;
+  };
+  let directory = ".";
+  for (let index = 1; index < argv.length; index += 1) {
+    const argument = argv[index];
+    if (valueOptions.has(argument)) { index += 1; continue; }
+    if (!argument.startsWith("-")) { directory = argument; break; }
+  }
   const json = argv.includes("--json");
   const force = argv.includes("--force");
   const localOption = argv.find((arg) => arg === "--local" || arg.startsWith("--local="));
   const localPath = localOption?.includes("=") ? localOption.slice(localOption.indexOf("=") + 1) : undefined;
   const source = localOption ? "local" : argv.includes("--npm") ? "npm" : undefined;
-  if (!["init", "upgrade", "inspect", "doctor"].includes(command)) {
-    console.log("Usage: virtue-composer <init|upgrade|inspect|doctor> [project] [--npm|--local[=/path]] [--json] [--force]");
+  if (!["init", "add", "upgrade", "inspect", "report", "doctor"].includes(command)) {
+    console.log("Usage: virtue-composer <init|add|upgrade|inspect|report|doctor> [project] [--npm|--local[=/path]] [--components=Button,Section] [--all] [--component=value] [--category=value] [--used] [--compact] [--source-root=path] [--wrapper-root=path] [--foundation-css=path] [--import-alias=alias] [--json] [--force]");
     return;
   }
-  const result = command === "init" ? await init(directory, { force, source: source ?? "npm", localPath }) : command === "upgrade" ? await upgrade(directory, { source, localPath }) : command === "inspect" ? await inspect(directory) : await doctor(directory);
+  const inspectOptions = { component: option("--component"), category: option("--category"), used: argv.includes("--used") || command === "report", compact: argv.includes("--compact") || command === "report" };
+  const initOptions = { force, source: source ?? "npm", localPath, sourceRoot: option("--source-root"), wrapperRoot: option("--wrapper-root"), foundationCss: option("--foundation-css"), importAlias: option("--import-alias"), language: option("--language"), components: option("--components") };
+  const result = command === "init" ? await init(directory, initOptions) : command === "add" ? await add(directory, option("--components")) : command === "upgrade" ? await upgrade(directory, { source, localPath, components: option("--components"), all: argv.includes("--all") }) : command === "inspect" || command === "report" ? await inspect(directory, inspectOptions) : await doctor(directory);
   if (json) console.log(JSON.stringify(result, null, 2));
   else printHuman(command, result);
   if (command === "doctor" && !result.ok) process.exitCode = 1;

@@ -1,5 +1,3 @@
-"use client";
-
 import { useId, type InputHTMLAttributes } from "react";
 
 export type CheckboxProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
@@ -13,13 +11,13 @@ export default function Checkbox({ label, description, id, ...props }: CheckboxP
   const descriptionId = description ? `${controlId}-description` : undefined;
 
   return (
-    <div data-vc-component="checkbox">
-      <label htmlFor={controlId} data-vc-choice-label>
-        <input id={controlId} type="checkbox" aria-describedby={descriptionId} {...props} />
-        <span data-vc-checkbox-mark aria-hidden="true" />
-        <span>{label}</span>
+    <div data-vc-component="checkbox" data-vc-slot="root">
+      <label htmlFor={controlId} data-vc-choice-label data-vc-slot="label">
+        <input id={controlId} type="checkbox" aria-describedby={descriptionId} data-vc-slot="control" {...props} />
+        <span data-vc-checkbox-mark data-vc-slot="indicator" aria-hidden="true" />
+        <span data-vc-slot="text">{label}</span>
       </label>
-      {description && <p id={descriptionId} data-vc-choice-description>{description}</p>}
+      {description && <p id={descriptionId} data-vc-choice-description data-vc-slot="description">{description}</p>}
     </div>
   );
 }

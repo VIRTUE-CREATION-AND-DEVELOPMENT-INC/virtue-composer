@@ -17,7 +17,7 @@ export default function Tooltip({ content, children, side = "top", delayDuration
       <TooltipPrimitive.Root>
         <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
         <TooltipPrimitive.Portal>
-          <TooltipPrimitive.Content side={side} className={className} data-vc-component="tooltip" sideOffset={8}>
+          <TooltipPrimitive.Content side={side} className={className} data-vc-component="tooltip" data-vc-slot="root" sideOffset={8}>
             {content}
             <TooltipPrimitive.Arrow data-vc-tooltip-arrow />
           </TooltipPrimitive.Content>

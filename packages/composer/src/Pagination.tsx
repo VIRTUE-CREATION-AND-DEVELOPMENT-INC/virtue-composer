@@ -35,7 +35,7 @@ export default function Pagination({ page, pageCount, onPageChange, getHref, sib
     : <Button disabled={disabled} aria-current={current ? "page" : undefined} aria-label={current ? `Page ${target}, current page` : typeof label === "number" ? `Page ${label}` : undefined} onClick={() => onPageChange?.(target)}>{label}</Button>;
 
   return (
-    <nav aria-label={ariaLabel} className={className} data-vc-component="pagination">
+    <nav aria-label={ariaLabel} className={className} data-vc-component="pagination" data-vc-slot="root">
       <ol data-vc-pagination-list>
         <li>{renderControl(boundedPage - 1, previousLabel, false, boundedPage <= 1)}</li>
         {pageItems(boundedPage, pageCount, siblingCount).map((item) => typeof item === "number"

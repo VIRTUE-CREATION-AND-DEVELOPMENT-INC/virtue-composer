@@ -18,7 +18,7 @@ try {
   }, null, 2)}\n`);
   await init(root, { source: "local" });
   await writeFile(path.join(root, "src/app/layout.jsx"), 'import "../styles/composer.css";\nexport default function Layout({ children }) { return <html lang="en"><body>{children}</body></html>; }\n');
-  await writeFile(path.join(root, "src/app/page.jsx"), 'import { AppShell, Button, Field, InlineMessage, Input, Money, Section, Stepper } from "@/components/composer";\nexport default function Page() { return <AppShell header={<strong>Composer</strong>}><Section layout="flex" direction="column" gap="medium"><h1>Smoke fixture</h1><Stepper items={[{ id: "one", label: "Install", status: "current" }]} /><Field label="Name"><Input /></Field><Money value={40} currency="CAD" /><InlineMessage tone="success">Ready</InlineMessage><Button>Submit</Button></Section></AppShell>; }\n');
+  await writeFile(path.join(root, "src/app/page.jsx"), 'import { AppShell, Button, Field, InlineMessage, Input, Money, Section, Stepper } from "@/components/composer";\nexport default function Page() { return <AppShell header={<strong>Composer</strong>}><Section as="div" layout="flex" direction="column" gap="medium"><h1>Smoke fixture</h1><Stepper items={[{ id: "one", label: "Install", status: "current" }]} /><Field label="Name"><Input /></Field><Money valueMinor={4000} currency="CAD" /><InlineMessage tone="success">Ready</InlineMessage><Button>Submit</Button></Section></AppShell>; }\n');
   await writeFile(path.join(root, "jsconfig.json"), '{"compilerOptions":{"baseUrl":".","paths":{"@/*":["./src/*"]}}}\n');
   await exec("npm", ["install", "--install-links", "--no-audit", "--no-fund"], { cwd: root });
   const report = await doctor(root);

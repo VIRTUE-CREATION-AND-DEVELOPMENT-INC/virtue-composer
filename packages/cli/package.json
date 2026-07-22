@@ -33,6 +33,10 @@
     "prepublishOnly": "npm test"
   },
   "dependencies": {
-    "@virtuecreation/composer-registry": "0.4.0"
+    "@babel/parser": "^7.28.0",
+    "@virtuecreation/composer-registry": "0.4.0",
+    "jsonc-parser": "^3.3.1",
+    "minimatch": "^10.0.3",
+    "postcss": "^8.5.6"
   }
 }

@@ -23,7 +23,7 @@ export default function Drawer({ trigger, title, description, children, actions,
       <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay data-vc-drawer-overlay />
-        <DialogPrimitive.Content className={className} data-vc-component="drawer" data-vc-drawer-side={side}>
+        <DialogPrimitive.Content className={className} data-vc-component="drawer" data-vc-slot="root" data-vc-drawer-side={side}>
           <div data-vc-drawer-header>
             <div>
               <DialogPrimitive.Title>{title}</DialogPrimitive.Title>

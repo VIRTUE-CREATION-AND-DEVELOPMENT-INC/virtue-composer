@@ -51,14 +51,17 @@ try {
   const packageJsonFile = path.join(consumer, "package.json");
   const packageJson = JSON.parse(await readFile(packageJsonFile, "utf8"));
   if (packageJson.dependencies["@virtuecreation/composer"] !== "0.4.0") throw new Error("Packed CLI did not select Composer 0.4.0.");
+  if (packageJson.devDependencies["@virtuecreation/composer-cli"] !== "0.4.1") throw new Error("Packed CLI did not pin its local binary dependency.");
   packageJson.dependencies["@virtuecreation/composer"] = `file:${composerTarball}`;
+  packageJson.devDependencies["@virtuecreation/composer-cli"] = `file:${cliTarball}`;
   await writeFile(packageJsonFile, `${JSON.stringify(packageJson, null, 2)}\n`);
 
   await writeFile(path.join(consumer, "src/app/layout.jsx"), 'import "../styles/composer.css";\nexport default function Layout({ children }) { return <html lang="en"><body>{children}</body></html>; }\n');
-  await writeFile(path.join(consumer, "src/app/page.jsx"), 'import { Button, Section } from "@/components/composer";\nexport default function Page() { return <Section layout="flex" direction="column" align="center"><h1>CLI package rehearsal</h1><Button>Ready</Button></Section>; }\n');
+  await writeFile(path.join(consumer, "src/app/page.jsx"), 'import { Button, Section } from "@/components/composer";\nexport default function Page() { return <Section as="main" layout="flex" direction="column" align="center"><h1>CLI package rehearsal</h1><Button>Ready</Button></Section>; }\n');
   await writeFile(path.join(consumer, "jsconfig.json"), '{"compilerOptions":{"baseUrl":".","paths":{"@/*":["./src/*"]}}}\n');
 
   await exec("npm", ["install", "--no-audit", "--no-fund"], { cwd: consumer, maxBuffer: 10 * 1024 * 1024 });
+  if (!existsSync(path.join(consumer, "node_modules/.bin/virtue-composer"))) throw new Error("Consumer did not receive the local virtue-composer binary.");
   const doctor = await exec(cli, ["doctor", consumer], { cwd: root, maxBuffer: 10 * 1024 * 1024 });
   if (!doctor.stdout.includes("Doctor: PASS") || !doctor.stdout.includes("0 warnings")) throw new Error(`Packed CLI Doctor failed:\n${doctor.stdout}`);
   await exec("npm", ["run", "build"], { cwd: consumer, maxBuffer: 10 * 1024 * 1024 });

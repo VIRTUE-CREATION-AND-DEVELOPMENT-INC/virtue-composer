@@ -1,5 +1,3 @@
-"use client";
-
 import { cloneElement, isValidElement, useId, type HTMLAttributes, type ReactElement } from "react";
 
 export type FieldProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
@@ -22,18 +20,19 @@ export default function Field({ label, description, error, required, children, .
         required,
         "aria-describedby": describedBy,
         "aria-invalid": error ? true : children.props["aria-invalid"],
+        "data-vc-slot": children.props["data-vc-slot"] ?? "control",
       })
     : children;
 
   return (
-    <div data-vc-component="field" data-vc-invalid={Boolean(error) || undefined} {...props}>
-      <label htmlFor={controlId} data-vc-field-label>
+    <div data-vc-component="field" data-vc-slot="root" data-vc-invalid={Boolean(error) || undefined} {...props}>
+      <label htmlFor={controlId} data-vc-field-label data-vc-slot="label">
         {label}
         {required && <span aria-hidden="true"> *</span>}
       </label>
-      {description && <p id={descriptionId} data-vc-field-description>{description}</p>}
+      {description && <p id={descriptionId} data-vc-field-description data-vc-slot="description">{description}</p>}
       {control}
-      {error && <p id={errorId} data-vc-field-error>{error}</p>}
+      {error && <p id={errorId} data-vc-field-error data-vc-slot="error">{error}</p>}
     </div>
   );
 }

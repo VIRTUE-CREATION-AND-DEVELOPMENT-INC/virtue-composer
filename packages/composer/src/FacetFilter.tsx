@@ -12,7 +12,7 @@ export default function FacetFilter({ label, options, value, defaultValue = [], 
   const selected = value ?? internal;
   const update = (next: string[]) => { if (value === undefined) setInternal(next); onValueChange?.(next); };
   const choose = (id: string) => update(multiple ? (selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id]) : [id]);
-  return <fieldset className={className} data-vc-component="facet-filter">
+  return <fieldset className={className} data-vc-component="facet-filter" data-vc-slot="root">
     <legend id={id}>{label}</legend>
     {collapsible && <button type="button" aria-expanded={open} aria-controls={`${id}-options`} onClick={() => setOpen((current) => !current)}>{open ? "Hide" : "Show"} {label}</button>}
     {open && <div id={`${id}-options`}>

@@ -10,7 +10,7 @@ export type ImportPanelProps = { title: string; description?: string; accept?: s
 export default function ImportPanel({ title, description, accept = ".csv,text/csv", file, onFileChange, columns = [], rows = [], errors = [], onCommit, onReset, pending, className }: ImportPanelProps) {
   const id = useId();
   const valid = Boolean(file) && errors.length === 0;
-  return <section aria-labelledby={id} className={className} aria-busy={pending || undefined} data-vc-component="import-panel">
+  return <section aria-labelledby={id} className={className} aria-busy={pending || undefined} data-vc-component="import-panel" data-vc-slot="root">
     <header><h3 id={id}>{title}</h3>{description && <p>{description}</p>}</header>
     <label>Import file <input type="file" accept={accept} onChange={(event) => onFileChange?.(event.currentTarget.files?.[0])} /></label>
     {file && <p data-vc-import-file>{file.name}</p>}

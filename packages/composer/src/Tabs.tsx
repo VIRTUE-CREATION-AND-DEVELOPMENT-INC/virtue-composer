@@ -18,7 +18,7 @@ export type TabsProps = {
 export default function Tabs({ items, value, defaultValue, onValueChange, orientation = "horizontal", activationMode = "automatic", ariaLabel = "Sections", className }: TabsProps) {
   const initialValue = defaultValue ?? items.find((item) => !item.disabled)?.id;
   return (
-    <TabsPrimitive.Root value={value} defaultValue={initialValue} onValueChange={onValueChange} orientation={orientation} activationMode={activationMode} className={className} data-vc-component="tabs">
+    <TabsPrimitive.Root value={value} defaultValue={initialValue} onValueChange={onValueChange} orientation={orientation} activationMode={activationMode} className={className} data-vc-component="tabs" data-vc-slot="root">
       <TabsPrimitive.List aria-label={ariaLabel} data-vc-tabs-list>
         {items.map((item) => <TabsPrimitive.Trigger key={item.id} value={item.id} disabled={item.disabled} data-vc-tabs-trigger>{item.label}</TabsPrimitive.Trigger>)}
       </TabsPrimitive.List>

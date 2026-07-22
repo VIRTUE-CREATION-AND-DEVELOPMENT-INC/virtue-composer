@@ -10,7 +10,7 @@ export default function ProductOptionSelect({ label, options, value, defaultValu
   const [internal, setInternal] = useState(defaultValue);
   const selected = value ?? internal;
   const change = (next: string) => { if (value === undefined) setInternal(next); onValueChange?.(next); };
-  return <fieldset className={className} data-vc-component="product-option-select"><legend>{label}</legend><div>
+  return <fieldset className={className} data-vc-component="product-option-select" data-vc-slot="root"><legend>{label}</legend><div>
     {options.map((option) => { const unavailable = option.available === false; const descriptionId = option.description || unavailable ? `${id}-${option.value}-description` : undefined; return <label key={option.value} data-vc-unavailable={unavailable || undefined}>
       <input type="radio" name={name ?? id} value={option.value} checked={selected === option.value} onChange={() => change(option.value)} disabled={unavailable} required={required} aria-describedby={descriptionId} />
       <span>{option.label}{option.price && <small>{option.price}</small>}</span>

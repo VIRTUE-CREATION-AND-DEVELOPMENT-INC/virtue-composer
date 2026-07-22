@@ -37,7 +37,7 @@ export default function TreeView({ nodes, selectedIds, defaultSelectedIds = [], 
     features: [syncDataLoaderFeature, selectionFeature, hotkeysCoreFeature],
   });
 
-  return <div {...tree.getContainerProps(ariaLabel)} className={className} aria-multiselectable={multiSelect || undefined} data-vc-component="tree-view">{tree.getItems().map((item) => {
+  return <div {...tree.getContainerProps(ariaLabel)} className={className} aria-multiselectable={multiSelect || undefined} data-vc-component="tree-view" data-vc-slot="root">{tree.getItems().map((item) => {
     const node = item.getItemData();
     const props = item.getProps();
     return <button {...props} key={item.getId()} type="button" disabled={node.disabled} style={{ paddingInlineStart: `${item.getItemMeta().level * indent}px` }} data-vc-tree-item data-vc-folder={item.isFolder() || undefined} data-vc-expanded={item.isExpanded() || undefined} data-vc-selected={item.isSelected() || undefined} data-vc-focused={item.isFocused() || undefined}>

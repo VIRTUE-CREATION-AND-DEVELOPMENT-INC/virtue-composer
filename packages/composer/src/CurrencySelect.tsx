@@ -9,7 +9,7 @@ export default function CurrencySelect({ label, options, value, defaultValue = "
   const [internal, setInternal] = useState(defaultValue);
   const selected = value ?? internal;
   const change = (next: string) => { if (value === undefined) setInternal(next); onValueChange?.(next); };
-  return <label className={className} data-vc-component="currency-select" data-vc-compact={compact || undefined}>
+  return <label className={className} data-vc-component="currency-select" data-vc-slot="root" data-vc-compact={compact || undefined}>
     <span>{label}</span>
     <select name={name} value={selected} onChange={(event) => change(event.currentTarget.value)} disabled={disabled} required={required}>
       {!required && <option value="">Select currency</option>}

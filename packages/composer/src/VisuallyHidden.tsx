@@ -19,5 +19,6 @@ export default function VisuallyHidden<T extends ElementType = "span">({ as, sty
     ...props,
     style: { ...hiddenStyle, ...(style as CSSProperties) },
     "data-vc-component": "visually-hidden",
+    "data-vc-slot": "root",
   });
 }

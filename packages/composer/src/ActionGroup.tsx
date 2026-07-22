@@ -39,7 +39,7 @@ export default function ActionGroup({ actions = [], onAction, align = "start", w
       role="group"
       aria-label={ariaLabel}
       className={className}
-      data-vc-component="action-group"
+      data-vc-component="action-group" data-vc-slot="root"
       style={{ display: "flex", alignItems: "center", justifyContent: alignment[align], flexWrap: wrap ? "wrap" : "nowrap", gap: "var(--vc-gap-small)" }}
     >
       {actions.map((action) =>

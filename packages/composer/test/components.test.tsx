@@ -18,6 +18,15 @@ describe("Virtue Composer foundations", () => {
     expect(section).toHaveAttribute("data-vc-gap", "medium");
   });
 
+  it("reports an inline style passed by a JavaScript consumer", () => {
+    const report = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    // @ts-expect-error Verifies the runtime guard for untyped JSX consumers.
+    render(<Section as="div" style={{ padding: 12 }}>Content</Section>);
+    expect(report).toHaveBeenCalledWith(expect.stringContaining("Section does not accept style"));
+    expect(screen.getByText("Content")).not.toHaveAttribute("style");
+    report.mockRestore();
+  });
+
   it("exposes button loading semantics", () => {
     render(<Button loading loadingLabel="Saving">Save</Button>);
     const button = screen.getByRole("button", { name: /saving/i });

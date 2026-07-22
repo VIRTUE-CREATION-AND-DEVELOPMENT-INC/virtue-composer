@@ -9,8 +9,8 @@ export type RichTextEditorProps = { label: string; content?: Content; onChange?:
 
 export default function RichTextEditor({ label, content = "", onChange, extensions = [], editable = true, autofocus = false, toolbar, className }: RichTextEditorProps) {
   const editor = useEditor({ extensions: [StarterKit, ...extensions], content, editable, autofocus, immediatelyRender: false, editorProps: { attributes: { "aria-label": label, role: "textbox" } }, onUpdate: ({ editor: instance }) => onChange?.({ html: instance.getHTML(), json: instance.getJSON() }) });
-  if (!editor) return <div aria-busy="true" className={className} data-vc-component="rich-text-editor" data-vc-loading />;
-  return <div className={className} data-vc-component="rich-text-editor"><div role="toolbar" aria-label={`${label} formatting`} data-vc-editor-toolbar>{toolbar ?? <>
+  if (!editor) return <div aria-busy="true" className={className} data-vc-component="rich-text-editor" data-vc-slot="root" data-vc-loading />;
+  return <div className={className} data-vc-component="rich-text-editor" data-vc-slot="root"><div role="toolbar" aria-label={`${label} formatting`} data-vc-editor-toolbar>{toolbar ?? <>
     <button type="button" aria-label="Bold" aria-pressed={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()}>B</button>
     <button type="button" aria-label="Italic" aria-pressed={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()}>I</button>
     <button type="button" aria-label="Heading" aria-pressed={editor.isActive("heading", { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>H2</button>

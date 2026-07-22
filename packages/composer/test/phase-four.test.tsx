@@ -49,9 +49,11 @@ describe("Phase 4A CMS and media", () => {
     const user = userEvent.setup();
     render(<MediaPicker label="Choose media" items={media} onValueChange={change} name="media" />);
     await user.click(screen.getByRole("button", { name: "Choose media" }));
+    expect(await screen.findByRole("dialog", { name: "Choose media" })).toBeInTheDocument();
     await user.click(await screen.findByRole("option", { name: /Campus walk/ }));
     expect(change).toHaveBeenCalledWith(["campus"]);
     expect(document.querySelector("input[name='media']")).toHaveValue("campus");
+    expect(screen.queryByRole("dialog", { name: "Choose media" })).not.toBeInTheDocument();
   });
 
   it("announces upload progress and runs queue actions", async () => {
@@ -170,7 +172,10 @@ describe("Phase 4B admin workflows", () => {
     const save = vi.fn();
     const user = userEvent.setup();
     render(<InlineEdit label="Project title" value="Atlas" onSave={save} validate={(value) => value.length < 3 ? "Too short" : undefined} />);
+    expect(document.querySelector("[data-vc-inline-edit-view]")).toHaveTextContent("Atlas");
     await user.click(screen.getByRole("button", { name: "Edit Project title" }));
+    expect(document.querySelector("[data-vc-inline-edit-field]")).toBeInTheDocument();
+    expect(document.querySelector("[data-vc-inline-edit-actions]")).toHaveTextContent("SaveCancel");
     const input = screen.getByRole("textbox", { name: "Project title" });
     await user.clear(input);
     await user.type(input, "A");
@@ -322,6 +327,15 @@ describe("Phase 4E commerce", () => {
     expect(screen.getByText(/Sale price/).closest('[data-vc-component="money"]')).toHaveTextContent("$100.00");
     await user.selectOptions(screen.getByLabelText("Currency"), "USD");
     expect(change).toHaveBeenCalledWith("USD");
+  });
+
+  it("formats explicit minor-unit money without changing legacy major-unit output", () => {
+    const { container } = render(<><Money valueMinor={8000} originalValueMinor={10000} currency="CAD" locale="en-CA" /><Money value={80} currency="CAD" locale="en-CA" /><Money valueMinor={8050} currency="CAD" locale="en-CA" maximumFractionDigits={0} /></>);
+    const values = container.querySelectorAll('[data-vc-component="money"]');
+    expect(values[0]).toHaveAttribute("data-vc-units", "minor");
+    expect(values[1]).toHaveAttribute("data-vc-units", "major");
+    expect(values[0]).toHaveTextContent("$100.00");
+    expect(values[2]).toHaveTextContent("$81");
   });
 
   it("disables unavailable product options", async () => {

@@ -20,7 +20,7 @@ try {
 
   await exec("npx", [...npmArgs, "init", project], { cwd: root, maxBuffer: 10 * 1024 * 1024 });
   await writeFile(path.join(project, "src/app/layout.jsx"), 'import "../styles/composer.css";\nexport default function Layout({ children }) { return <html lang="en"><body>{children}</body></html>; }\n');
-  await writeFile(path.join(project, "src/app/page.jsx"), 'import { Button, Section } from "@/components/composer";\nexport default function Page() { return <Section layout="flex" direction="column" align="center"><h1>npm release rehearsal</h1><Button>Ready</Button></Section>; }\n');
+  await writeFile(path.join(project, "src/app/page.jsx"), 'import { Button, Section } from "@/components/composer";\nexport default function Page() { return <Section as="main" layout="flex" direction="column" align="center"><h1>npm release rehearsal</h1><Button>Ready</Button></Section>; }\n');
   await writeFile(path.join(project, "jsconfig.json"), '{"compilerOptions":{"baseUrl":".","paths":{"@/*":["./src/*"]}}}\n');
 
   await exec("npm", ["install", "--no-audit", "--no-fund"], { cwd: project, maxBuffer: 10 * 1024 * 1024 });

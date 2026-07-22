@@ -22,8 +22,8 @@ export type FormProps = Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit"> & 
 
 export default function Form({ fields, onSubmit, submitLabel = "Submit", submitting = false, submittingLabel = "Submitting", actions, errors = {}, className, ...props }: FormProps) {
   return (
-    <form {...props} className={className} data-vc-component="form" onSubmit={onSubmit ? (event) => { event.preventDefault(); void onSubmit(new FormData(event.currentTarget), event); } : undefined}>
-      <div data-vc-form-fields>
+    <form {...props} className={className} data-vc-component="form" data-vc-slot="root" onSubmit={onSubmit ? (event) => { event.preventDefault(); void onSubmit(new FormData(event.currentTarget), event); } : undefined}>
+      <div data-vc-form-fields data-vc-slot="fields">
         {fields.map((field) => {
           if (field.type === "checkbox") return <Checkbox key={field.name} name={field.name} label={field.label} description={field.description} required={field.required} disabled={field.disabled} defaultChecked={field.defaultChecked} className={field.className} />;
           if (field.type === "file") return <FileUpload key={field.name} name={field.name} label={field.label} description={field.description} required={field.required} disabled={field.disabled} accept={field.accept} multiple={field.multiple} maxSize={field.maxSize} error={errors[field.name]} className={field.className} />;
@@ -37,7 +37,7 @@ export default function Form({ fields, onSubmit, submitLabel = "Submit", submitt
           return <Field key={field.name} label={field.label} description={field.description} error={errors[field.name]} required={field.required} className={field.className}>{control}</Field>;
         })}
       </div>
-      <div data-vc-form-actions>{actions}<Button type="submit" loading={submitting} loadingLabel={submittingLabel}>{submitLabel}</Button></div>
+      <div data-vc-form-actions data-vc-slot="actions">{actions}<Button type="submit" loading={submitting} loadingLabel={submittingLabel} data-vc-slot="submit">{submitLabel}</Button></div>
     </form>
   );
 }

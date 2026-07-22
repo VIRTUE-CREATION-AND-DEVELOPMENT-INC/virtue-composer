@@ -12,7 +12,7 @@ export default function Menu({ trigger, items, onAction, ariaLabel = "Actions", 
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild aria-label={ariaLabel}>{trigger}</DropdownMenu.Trigger>
       <DropdownMenu.Portal>
-        <DropdownMenu.Content align={align} side={side} sideOffset={6} className={className} data-vc-component="menu">
+        <DropdownMenu.Content align={align} side={side} sideOffset={6} className={className} data-vc-component="menu" data-vc-slot="root">
           {items.map((item) => {
             if ("separator" in item) return <DropdownMenu.Separator key={item.id} data-vc-menu-separator />;
             const content = <>{item.icon && <span aria-hidden="true" data-vc-menu-icon>{item.icon}</span>}<span>{item.label}</span></>;
