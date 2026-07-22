@@ -3,8 +3,8 @@
 Initialize, upgrade, inspect, and validate Virtue Composer projects.
 
 ```bash
-npx @virtuecreation/composer-cli@0.4.1 init .
-npx @virtuecreation/composer-cli@0.4.1 doctor .
+npx @virtuecreation/composer-cli@0.5.0 init .
+npx @virtuecreation/composer-cli@0.5.0 doctor .
 ```
 
 The default installation mode uses the public `@virtuecreation/composer` package and installs a pinned `@virtuecreation/composer-cli` dev dependency for future local commands. Contributors working on Composer itself can opt into a local package source explicitly.

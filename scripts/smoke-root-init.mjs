@@ -3,11 +3,21 @@ import { existsSync } from "node:fs";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { doctor, init, inspect } from "../packages/cli/src/index.js";
 
 const exec = promisify(execFile);
+const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const root = await mkdtemp(path.join(os.tmpdir(), "virtue-composer-root-smoke-"));
+
+async function useLocalTooling(project) {
+  const packageFile = path.join(project, "package.json");
+  const packageJson = JSON.parse(await readFile(packageFile, "utf8"));
+  packageJson.devDependencies["@virtuecreation/composer-cli"] = `file:${path.join(workspaceRoot, "packages/cli")}`;
+  packageJson.devDependencies["@virtuecreation/composer-registry"] = `file:${path.join(workspaceRoot, "packages/registry")}`;
+  await writeFile(packageFile, `${JSON.stringify(packageJson, null, 2)}\n`);
+}
 
 try {
   await mkdir(path.join(root, "app"), { recursive: true });
@@ -19,6 +29,7 @@ try {
   }, null, 2)}\n`);
   await writeFile(path.join(root, "jsconfig.json"), '{"compilerOptions":{"paths":{"@/*":["./*"]}}}\n');
   const initialized = await init(root, { source: "local", components: "Section,Button,Money" });
+  await useLocalTooling(root);
   if (initialized.structure.sourceRoot !== "." || initialized.structure.wrapperRoot !== "components/composer") throw new Error(`Root layout was not detected: ${JSON.stringify(initialized.structure)}`);
   await writeFile(path.join(root, "app/layout.jsx"), 'import "../styles/composer.css";\nexport default function Layout({ children }) { return <html lang="en"><body>{children}</body></html>; }\n');
   await writeFile(path.join(root, "app/page.jsx"), 'import { Button, Money, Section } from "@/components/composer";\nexport default function Page() { return <Section as="main" layout="grid" gap="medium"><h1>Root fixture</h1><Money valueMinor={4000} currency="CAD" /><Button>Ready</Button></Section>; }\n');

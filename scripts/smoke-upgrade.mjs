@@ -2,15 +2,25 @@ import { execFile } from "node:child_process";
 import { mkdtemp, mkdir, readFile, rm, unlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { componentRegistry } from "@virtuecreation/composer-registry";
 import { doctor, init, upgrade } from "../packages/cli/src/index.js";
 
 const exec = promisify(execFile);
+const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const root = await mkdtemp(path.join(os.tmpdir(), "virtue-composer-upgrade-smoke-"));
 const phaseOneIds = new Set([
   "section", "visually-hidden", "button", "button-link", "action-group", "field", "input", "textarea", "select", "checkbox", "radio-group", "toggle", "badge", "callout", "empty-state", "spinner", "skeleton", "dialog", "tooltip",
 ]);
+
+async function useLocalTooling(project) {
+  const packageFile = path.join(project, "package.json");
+  const packageJson = JSON.parse(await readFile(packageFile, "utf8"));
+  packageJson.devDependencies["@virtuecreation/composer-cli"] = `file:${path.join(workspaceRoot, "packages/cli")}`;
+  packageJson.devDependencies["@virtuecreation/composer-registry"] = `file:${path.join(workspaceRoot, "packages/registry")}`;
+  await writeFile(packageFile, `${JSON.stringify(packageJson, null, 2)}\n`);
+}
 
 try {
   await mkdir(path.join(root, "src/app"), { recursive: true });
@@ -21,6 +31,7 @@ try {
     dependencies: { next: "16.2.9", react: "19.2.4", "react-dom": "19.2.4" },
   }, null, 2)}\n`);
   await init(root, { source: "local" });
+  await useLocalTooling(root);
 
   const wrapperRoot = path.join(root, "src/components/composer");
   const phaseOne = componentRegistry.filter((component) => phaseOneIds.has(component.id));

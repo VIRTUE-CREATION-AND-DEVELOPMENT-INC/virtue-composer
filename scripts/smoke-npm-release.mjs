@@ -7,7 +7,7 @@ import { promisify } from "node:util";
 const exec = promisify(execFile);
 const root = await mkdtemp(path.join(os.tmpdir(), "virtue-composer-npm-release-"));
 const project = path.join(root, "consumer");
-const npmArgs = ["--yes", "@virtuecreation/composer-cli@0.4.1"];
+const npmArgs = ["--yes", "@virtuecreation/composer-cli@0.5.0"];
 
 try {
   await mkdir(path.join(project, "src/app"), { recursive: true });
@@ -25,7 +25,7 @@ try {
 
   await exec("npm", ["install", "--no-audit", "--no-fund"], { cwd: project, maxBuffer: 10 * 1024 * 1024 });
   const composer = JSON.parse(await readFile(path.join(project, "node_modules/@virtuecreation/composer/package.json"), "utf8"));
-  if (composer.name !== "@virtuecreation/composer" || composer.version !== "0.4.0") throw new Error(`Unexpected Composer install: ${composer.name}@${composer.version}`);
+  if (composer.name !== "@virtuecreation/composer" || composer.version !== "0.5.0") throw new Error(`Unexpected Composer install: ${composer.name}@${composer.version}`);
 
   const doctor = await exec("npx", [...npmArgs, "doctor", project], { cwd: root, maxBuffer: 10 * 1024 * 1024 });
   if (!doctor.stdout.includes("Doctor: PASS") || !doctor.stdout.includes("0 warnings")) throw new Error(`npm CLI Doctor failed:\n${doctor.stdout}`);

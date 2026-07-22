@@ -9,7 +9,7 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "npm run dev --workspace @virtuecreation/composer-showcase -- --port 3107",
+    command: "npm run build --workspace @virtuecreation/composer-showcase && npm run start --workspace @virtuecreation/composer-showcase -- --port 3107",
     url: "http://127.0.0.1:3107",
     reuseExistingServer: false,
     timeout: 120000,

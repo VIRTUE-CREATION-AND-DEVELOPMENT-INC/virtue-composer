@@ -8,6 +8,7 @@ Composer grows by reusable behavior and accessibility contracts. Project-owned v
 - Phase 2, version 0.2: 21 navigation, disclosure, form, data, async, command, and carousel primitives. See [PHASE-2.md](PHASE-2.md).
 - Phase 3, version 0.3: 44 application navigation, advanced input, data workflow, editor, and media primitives. See [PHASE-3.md](PHASE-3.md).
 - Phase 4, version 0.4: 36 CMS/media, admin, advanced form, search, and commerce workflow components. See [PHASE-4.md](PHASE-4.md).
+- Optimization release, version 0.5: retained all 120 contracts while narrowing client boundaries, standardizing component anatomy and controlled state, strengthening dense responsive workflows, and upgrading CLI enforcement and project initialization.
 
 ## Phase 3: Complete Application Toolkit (Shipped)
 

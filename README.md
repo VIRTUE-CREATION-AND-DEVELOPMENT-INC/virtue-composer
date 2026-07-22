@@ -2,7 +2,7 @@
 
 Virtue Composer is a Next.js component foundation coupled to a Codex skill and machine-readable registry. Shared components own structure, behavior, and accessibility; consuming projects own visual design.
 
-Version 0.4 includes 120 components, a JavaScript/JSX showcase, a local-wrapper project template, `init`/`upgrade`/`inspect`/`doctor` CLI commands, generated registry artifacts, ESLint boundaries, and a globally discoverable Codex skill linked to this repository. Phase 4 adds reusable CMS/media, admin, advanced form, search, and commerce infrastructure while keeping persistence and visual design project-owned.
+Version 0.5 retains the 120-component contract while making it cheaper, more consistent, and easier to adopt. It narrows client boundaries, standardizes styling and state hooks, strengthens responsive application components, adds AST-backed Doctor coverage, supports root and `src` project layouts, and introduces focused or on-demand wrapper workflows.
 
 ```bash
 npm install
@@ -14,10 +14,10 @@ The showcase runs at `http://localhost:3000` by default.
 
 ## Adopt In A Project
 
-After the public packages are released:
+Install the current public release:
 
 ```bash
-npx @virtuecreation/composer-cli init /path/to/next-project
+npx @virtuecreation/composer-cli@0.5.0 init /path/to/next-project
 cd /path/to/next-project
 npm install
 ```

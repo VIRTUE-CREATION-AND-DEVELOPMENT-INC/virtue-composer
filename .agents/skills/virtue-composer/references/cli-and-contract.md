@@ -6,7 +6,7 @@ Use the first available command:
 
 1. `./node_modules/.bin/virtue-composer`
 2. `npx --no-install @virtuecreation/composer-cli`
-3. `npx @virtuecreation/composer-cli@0.4.1`
+3. `npx @virtuecreation/composer-cli@0.5.0`
 4. `node "$VIRTUE_COMPOSER_ROOT/packages/cli/bin/virtue-composer.mjs"`
 
 Do not run `npx virtue-composer`; no public package exists at that name. Normal initialization installs the compatible scoped CLI as a pinned dev dependency, which provides the local `virtue-composer` binary.
@@ -34,7 +34,7 @@ The authoritative registry is the combined export of:
 
 When working inside a consuming project, prefer focused `inspect --used --compact --json` output, then request full records only for components relevant to the task.
 
-Version 0.4 inventory:
+Version 0.5 inventory:
 
 - Structure: `Section`, `VisuallyHidden`
 - Navigation: `Tabs`, `Breadcrumbs`, `Pagination`, `AppShell`, `SideNav`, `TopNav`, `MobileNav`, `Stepper`, `AnchorNav`, `BackLink`, `SegmentedControl`

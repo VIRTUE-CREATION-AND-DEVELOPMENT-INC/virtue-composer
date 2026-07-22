@@ -16,8 +16,8 @@ test("init creates a detectable Composer project", async (t) => {
   assert.equal(result.components.length, 120);
   assert.match(await readFile(path.join(root, "src/components/composer/Button.js"), "utf8"), /@virtuecreation\/composer\/button/);
   const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
-  assert.equal(packageJson.dependencies["@virtuecreation/composer"], "0.4.0");
-  assert.equal(packageJson.devDependencies["@virtuecreation/composer-cli"], "0.4.1");
+  assert.equal(packageJson.dependencies["@virtuecreation/composer"], "0.5.0");
+  assert.equal(packageJson.devDependencies["@virtuecreation/composer-cli"], "0.5.0");
   assert.equal(result.config.packageSource, "npm");
   const jsconfig = JSON.parse(await readFile(path.join(root, "jsconfig.json"), "utf8"));
   assert.deepEqual(jsconfig.compilerOptions.paths["@/components/composer"], ["./src/components/composer/index.js"]);

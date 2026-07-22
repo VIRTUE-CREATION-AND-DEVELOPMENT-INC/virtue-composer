@@ -6,7 +6,7 @@ function jsxName(node) {
 }
 
 const plugin = {
-  meta: { name: "@virtuecreation/eslint-config-composer", version: "0.4.0" },
+  meta: { name: "@virtuecreation/eslint-config-composer", version: "0.5.0" },
   rules: {
     "no-direct-package-import": {
       meta: { type: "problem", messages: { default: "Import Composer components from the project's local wrapper layer." }, schema: [] },
