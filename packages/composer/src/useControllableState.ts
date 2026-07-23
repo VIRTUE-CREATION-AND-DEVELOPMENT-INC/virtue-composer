@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 type ControllableStateOptions<Value> = {
   value: Value | undefined;
@@ -12,10 +12,10 @@ export default function useControllableState<Value>({ value, defaultValue, onCha
   const [internalValue, setInternalValue] = useState(defaultValue);
   const currentValue = value === undefined ? internalValue : value;
 
-  const setValue = (nextValue: Value) => {
+  const setValue = useCallback((nextValue: Value) => {
     if (value === undefined) setInternalValue(nextValue);
     onChange?.(nextValue);
-  };
+  }, [onChange, value]);
 
   return [currentValue, setValue] as const;
 }

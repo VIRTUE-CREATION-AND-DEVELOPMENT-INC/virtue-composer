@@ -1,16 +1,22 @@
 "use client";
 
-import { flexRender, functionalUpdate, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable, type Column, type ColumnDef, type ColumnPinningState, type RowSelectionState, type SortingState, type Updater } from "@tanstack/react-table";
-import { useMemo, useState, type KeyboardEvent, type ReactNode } from "react";
+import { flexRender, functionalUpdate, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable, type Column, type ColumnDef, type ColumnPinningState, type RowSelectionState, type SortingState, type Updater, type VisibilityState } from "@tanstack/react-table";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
 export type DataGridColumn<Row> = { id: string; header: ReactNode; accessorKey?: keyof Row & string; cell?: (row: Row) => ReactNode; sortable?: boolean; size?: number; minSize?: number; maxSize?: number; align?: "start" | "center" | "end" };
-export type DataGridProps<Row extends { id: string }> = { rows: Row[]; columns: DataGridColumn<Row>[]; caption?: string; selectable?: boolean; selectedIds?: string[]; defaultSelectedIds?: string[]; onSelectedIdsChange?: (ids: string[]) => void; sorting?: SortingState; defaultSorting?: SortingState; onSortingChange?: (sorting: SortingState) => void; globalFilter?: string; pinnedColumns?: ColumnPinningState; empty?: ReactNode; className?: string };
+export type DataGridProps<Row extends { id: string }> = { rows: Row[]; columns: DataGridColumn<Row>[]; caption?: string; selectable?: boolean; selectedIds?: string[]; defaultSelectedIds?: string[]; onSelectedIdsChange?: (ids: string[]) => void; sorting?: SortingState; defaultSorting?: SortingState; onSortingChange?: (sorting: SortingState) => void; globalFilter?: string; defaultGlobalFilter?: string; onGlobalFilterChange?: (value: string) => void; columnVisibility?: VisibilityState; defaultColumnVisibility?: VisibilityState; onColumnVisibilityChange?: (visibility: VisibilityState) => void; pinnedColumns?: ColumnPinningState; manualSorting?: boolean; manualFiltering?: boolean; rowCount?: number; virtualize?: boolean; height?: number | string; estimateRowHeight?: number; overscan?: number; empty?: ReactNode; className?: string };
 
-export default function DataGrid<Row extends { id: string }>({ rows, columns, caption, selectable = false, selectedIds, defaultSelectedIds = [], onSelectedIdsChange, sorting, defaultSorting = [], onSortingChange, globalFilter, pinnedColumns, empty, className }: DataGridProps<Row>) {
+export default function DataGrid<Row extends { id: string }>({ rows, columns, caption, selectable = false, selectedIds, defaultSelectedIds = [], onSelectedIdsChange, sorting, defaultSorting = [], onSortingChange, globalFilter, defaultGlobalFilter = "", onGlobalFilterChange, columnVisibility, defaultColumnVisibility = {}, onColumnVisibilityChange, pinnedColumns, manualSorting = false, manualFiltering = false, rowCount, virtualize = false, height = 420, estimateRowHeight = 44, overscan = 6, empty, className }: DataGridProps<Row>) {
   const [internalSorting, setInternalSorting] = useState<SortingState>(defaultSorting);
   const [internalSelection, setInternalSelection] = useState<RowSelectionState>(() => Object.fromEntries(defaultSelectedIds.map((id) => [id, true])));
+  const [internalFilter, setInternalFilter] = useState(defaultGlobalFilter);
+  const [internalVisibility, setInternalVisibility] = useState<VisibilityState>(defaultColumnVisibility);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const resolvedSorting = sorting ?? internalSorting;
   const resolvedSelection = selectedIds ? Object.fromEntries(selectedIds.map((id) => [id, true])) : internalSelection;
+  const resolvedFilter = globalFilter ?? internalFilter;
+  const resolvedVisibility = columnVisibility ?? internalVisibility;
   const resolvedPinning = pinnedColumns ?? { left: [], right: [] };
   const defs = useMemo<ColumnDef<Row>[]>(() => {
     const dataColumns = columns.map((column): ColumnDef<Row> => ({ id: column.id, header: () => column.header, accessorKey: column.accessorKey, cell: column.cell ? ({ row }) => column.cell!(row.original) : ({ getValue }) => getValue() as ReactNode, enableSorting: column.sortable, size: column.size, minSize: column.minSize, maxSize: column.maxSize, meta: { align: column.align } }));
@@ -19,7 +25,9 @@ export default function DataGrid<Row extends { id: string }>({ rows, columns, ca
   }, [columns, selectable]);
   const updateSorting = (updater: Updater<SortingState>) => { const next = functionalUpdate(updater, resolvedSorting); if (sorting === undefined) setInternalSorting(next); onSortingChange?.(next); };
   const updateSelection = (updater: Updater<RowSelectionState>) => { const next = functionalUpdate(updater, resolvedSelection); if (selectedIds === undefined) setInternalSelection(next); onSelectedIdsChange?.(Object.keys(next).filter((id) => next[id])); };
-  const table = useReactTable({ data: rows, columns: defs, getRowId: (row) => row.id, getCoreRowModel: getCoreRowModel(), getSortedRowModel: getSortedRowModel(), getFilteredRowModel: getFilteredRowModel(), enableRowSelection: selectable, columnResizeMode: "onChange", state: { sorting: resolvedSorting, rowSelection: resolvedSelection, globalFilter, columnPinning: resolvedPinning }, onSortingChange: updateSorting, onRowSelectionChange: updateSelection });
+  const updateFilter = (updater: Updater<unknown>) => { const next = String(functionalUpdate(updater, resolvedFilter) ?? ""); if (globalFilter === undefined) setInternalFilter(next); onGlobalFilterChange?.(next); };
+  const updateVisibility = (updater: Updater<VisibilityState>) => { const next = functionalUpdate(updater, resolvedVisibility); if (columnVisibility === undefined) setInternalVisibility(next); onColumnVisibilityChange?.(next); };
+  const table = useReactTable({ data: rows, columns: defs, getRowId: (row) => row.id, getCoreRowModel: getCoreRowModel(), getSortedRowModel: getSortedRowModel(), getFilteredRowModel: getFilteredRowModel(), enableRowSelection: selectable, columnResizeMode: "onChange", manualSorting, manualFiltering, rowCount, state: { sorting: resolvedSorting, rowSelection: resolvedSelection, globalFilter: resolvedFilter, columnVisibility: resolvedVisibility, columnPinning: resolvedPinning }, onSortingChange: updateSorting, onRowSelectionChange: updateSelection, onGlobalFilterChange: updateFilter, onColumnVisibilityChange: updateVisibility });
   const columnStyle = (column: Column<Row>) => {
     const pinned = column.getIsPinned();
     return { width: column.getSize(), left: pinned === "left" ? column.getStart("left") : undefined, right: pinned === "right" ? column.getAfter("right") : undefined, position: pinned ? "sticky" : undefined, zIndex: pinned ? 1 : undefined } as React.CSSProperties;
@@ -34,7 +42,13 @@ export default function DataGrid<Row extends { id: string }>({ rows, columns, ca
     table.setColumnSizing((current) => ({ ...current, [column.id]: next }));
   };
   const visibleRows = table.getRowModel().rows;
-  return <div className={className} data-vc-component="data-grid" data-vc-slot="root" data-vc-state={visibleRows.length === 0 ? "empty" : "populated"} data-vc-sorted={resolvedSorting.length > 0 || undefined} data-vc-selected={Object.values(resolvedSelection).some(Boolean) || undefined}>
+  const rowVirtualizer = useVirtualizer({ count: visibleRows.length, getScrollElement: () => viewportRef.current, estimateSize: () => estimateRowHeight, overscan, enabled: virtualize });
+  const virtualItems = virtualize ? rowVirtualizer.getVirtualItems() : [];
+  const renderedRows = virtualize ? virtualItems.map((item) => visibleRows[item.index]) : visibleRows;
+  const topPadding = virtualize && virtualItems.length ? virtualItems[0].start : 0;
+  const bottomPadding = virtualize && virtualItems.length ? rowVirtualizer.getTotalSize() - virtualItems[virtualItems.length - 1].end : 0;
+  return <div className={className} data-vc-component="data-grid" data-vc-slot="root" data-vc-state={visibleRows.length === 0 ? "empty" : "populated"} data-vc-sorted={resolvedSorting.length > 0 || undefined} data-vc-selected={Object.values(resolvedSelection).some(Boolean) || undefined} data-vc-virtualized={virtualize || undefined}>
+    <div ref={viewportRef} style={virtualize ? { height, overflow: "auto" } : undefined} data-vc-slot="viewport">
     <table style={{ width: table.getTotalSize() }} data-vc-slot="table">
       {caption && <caption data-vc-slot="caption">{caption}</caption>}
       <thead data-vc-slot="header">
@@ -47,11 +61,12 @@ export default function DataGrid<Row extends { id: string }>({ rows, columns, ca
       </thead>
       <tbody data-vc-slot="body">
         {visibleRows.length === 0
-          ? <tr data-vc-slot="empty-row"><td colSpan={defs.length} data-vc-grid-empty data-vc-slot="empty">{empty}</td></tr>
-          : visibleRows.map((row) => <tr key={row.id} data-vc-selected={row.getIsSelected() || undefined} data-vc-slot="row">
+          ? <tr data-vc-slot="empty-row"><td colSpan={table.getVisibleLeafColumns().length} data-vc-grid-empty data-vc-slot="empty">{empty}</td></tr>
+          : <>{topPadding > 0 && <tr aria-hidden="true"><td colSpan={table.getVisibleLeafColumns().length} style={{ height: topPadding, padding: 0, border: 0 }} /></tr>}{renderedRows.map((row) => <tr key={row.id} data-vc-selected={row.getIsSelected() || undefined} data-vc-slot="row">
             {row.getVisibleCells().map((cell) => <td key={cell.id} style={columnStyle(cell.column)} data-vc-pinned={cell.column.getIsPinned() || undefined} data-vc-align={(cell.column.columnDef.meta as { align?: string } | undefined)?.align} data-vc-slot="cell">{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>)}
-          </tr>)}
+          </tr>)}{bottomPadding > 0 && <tr aria-hidden="true"><td colSpan={table.getVisibleLeafColumns().length} style={{ height: bottomPadding, padding: 0, border: 0 }} /></tr>}</>}
       </tbody>
     </table>
+    </div>
   </div>;
 }

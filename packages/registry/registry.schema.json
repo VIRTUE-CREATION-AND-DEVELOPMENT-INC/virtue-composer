@@ -17,6 +17,9 @@
       "replaces",
       "showcaseFixtures",
       "doctorRules",
+      "stability",
+      "since",
+      "guidance",
       "contractVersion"
     ],
     "properties": {
@@ -27,11 +30,56 @@
       "projectImport": { "type": "string" },
       "client": { "type": "boolean" },
       "props": { "type": "array", "items": { "type": "string" } },
+      "propContracts": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "required": ["kind", "description"],
+          "properties": {
+            "kind": { "enum": ["boolean", "descriptor-array", "enum", "function", "number", "react-node", "record", "string"] },
+            "itemType": { "type": "string" },
+            "values": { "type": "array", "items": { "type": "string" } },
+            "description": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
       "states": { "type": "array", "items": { "type": "string" } },
       "accessibilityChecks": { "type": "array", "items": { "type": "string" } },
       "replaces": { "type": "array", "items": { "type": "string" } },
       "showcaseFixtures": { "type": "array", "items": { "type": "string" } },
       "doctorRules": { "type": "array", "items": { "type": "string" } },
+      "selectionHints": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["rule", "from", "confidence", "message"],
+          "properties": {
+            "rule": { "enum": ["jsx-prop-equals", "jsx-prop-divisor", "jsx-ancestor"] },
+            "from": { "type": "string", "minLength": 1 },
+            "prop": { "type": "string", "minLength": 1 },
+            "value": { "type": ["string", "number"] },
+            "ancestor": { "type": "string", "minLength": 1 },
+            "confidence": { "enum": ["high", "medium", "low"] },
+            "message": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "stability": { "enum": ["stable", "beta", "experimental", "deprecated"] },
+      "since": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+      "guidance": {
+        "type": "object",
+        "required": ["use", "avoid", "alternatives", "companions", "responsive"],
+        "properties": {
+          "use": { "type": "string", "minLength": 1 },
+          "avoid": { "type": "string", "minLength": 1 },
+          "alternatives": { "type": "array", "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }, "uniqueItems": true },
+          "companions": { "type": "array", "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }, "uniqueItems": true },
+          "responsive": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      },
       "contractVersion": { "const": 1 }
     },
     "additionalProperties": false

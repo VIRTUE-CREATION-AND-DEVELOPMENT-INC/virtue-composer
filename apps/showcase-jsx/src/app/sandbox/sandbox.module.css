@@ -1,0 +1,227 @@
+.page {
+  min-height: 100dvh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.hero {
+  min-height: 23rem;
+  padding: 4rem clamp(1.5rem, 6vw, 6rem);
+  border-bottom: 1px solid var(--line);
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.hero h1 {
+  margin: 0;
+  max-width: 12ch;
+  font-size: clamp(2.75rem, 6vw, 3.75rem);
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.hero p,
+.cardHeader p {
+  max-width: 62ch;
+  margin: 0;
+  line-height: 1.55;
+}
+
+.hero p:not(.kicker),
+.cardHeader p:not(.kicker) {
+  color: var(--muted);
+}
+
+.kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.controls {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 1.25rem clamp(1.5rem, 6vw, 6rem);
+  border-bottom: 1px solid var(--line);
+  background: rgb(255 255 255 / 96%);
+}
+
+.controls [data-vc-component="segmented-control"] {
+  display: flex;
+  gap: 0;
+  width: fit-content;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--white);
+  overflow: hidden;
+}
+
+.controls [data-vc-segmented-item] {
+  min-height: 2.5rem;
+  padding: 0.55rem 0.85rem;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.controls [data-vc-segmented-item]:last-child {
+  border-right: 0;
+}
+
+.controls [data-vc-segmented-item][data-state="on"] {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.filterGrid {
+  align-items: end;
+}
+
+.filterGrid [data-vc-component="field"] {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.filterGrid input,
+.filterGrid select {
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1px solid #a3a3a3;
+  border-radius: 4px;
+  background: var(--white);
+  color: var(--ink);
+}
+
+.catalog {
+  gap: 0;
+  background: var(--white);
+}
+
+.catalogCard,
+.blueprintCard {
+  overflow: clip;
+  padding: clamp(2rem, 5vw, 4.5rem) clamp(1.5rem, 6vw, 6rem);
+  border-bottom: 1px solid var(--line);
+  background: var(--white);
+}
+
+.cardHeader h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 1.8rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.preview {
+  min-width: 0;
+  padding: clamp(1rem, 4vw, 2rem);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+.preview :global(a[data-vc-component="button-link"]),
+.blueprintPreview :global(a[data-vc-component="button-link"]) {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--white);
+}
+
+.details {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.details summary {
+  padding: 1rem 0;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.detailGrid {
+  padding: 0 0 1rem;
+}
+
+.detailGrid h3,
+.detailGrid p,
+.detailGrid ul {
+  margin: 0;
+}
+
+.detailGrid ul {
+  padding-inline-start: 1.15rem;
+}
+
+.command {
+  display: block;
+  max-width: 100%;
+  padding: 0.85rem 1rem;
+  overflow-x: auto;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--white);
+  white-space: nowrap;
+}
+
+.sequence {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sequence li {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.85rem;
+  border-top: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  font-weight: 700;
+}
+
+.sequence li:last-child {
+  border-right: 0;
+}
+
+.sequence span {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.blueprintPreview {
+  padding: clamp(1rem, 4vw, 2rem);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+@media (max-width: 760px) {
+  .hero,
+  .filterGrid,
+  .detailGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .controls {
+    position: static;
+  }
+
+  .sequence {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sequence li {
+    border-right: 0;
+  }
+}

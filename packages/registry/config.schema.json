@@ -4,7 +4,7 @@
   "title": "Virtue Composer project configuration",
   "type": "object",
   "additionalProperties": false,
-  "required": ["contractVersion", "language", "sourceRoot", "wrapperRoot", "foundationCss", "importAlias", "enforcement"],
+  "required": ["contractVersion", "language", "sourceRoot", "wrapperRoot", "compositionRoot", "foundationCss", "importAlias", "enforcement"],
   "properties": {
     "contractVersion": { "const": 1 },
     "packageName": { "const": "@virtuecreation/composer" },
@@ -12,6 +12,7 @@
     "language": { "enum": ["jsx", "tsx"] },
     "sourceRoot": { "type": "string" },
     "wrapperRoot": { "type": "string" },
+    "compositionRoot": { "type": "string" },
     "foundationCss": { "type": "string" },
     "importAlias": { "type": "string" },
     "enforcement": {
@@ -24,6 +25,7 @@
         "sectionVisualProps": { "enum": ["off", "warning", "error"] },
         "sectionSemantics": { "enum": ["off", "warning", "error"] },
         "layoutDivs": { "enum": ["off", "warning", "error"] },
+        "componentSelection": { "enum": ["off", "warning", "error"] },
         "sourceAnalysis": { "enum": ["off", "warning", "error"] },
         "exceptions": {
           "type": "object",

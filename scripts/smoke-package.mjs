@@ -31,7 +31,7 @@ try {
     name: "virtue-composer-package-consumer",
     private: true,
     scripts: { build: "next build" },
-    dependencies: { next: "16.2.10", react: "19.2.4", "react-dom": "19.2.4" },
+    dependencies: { next: "16.2.11", react: "19.2.4", "react-dom": "19.2.4" },
   }, null, 2)}\n`);
   await init(project, { source: "npm", dependency: `file:${tarball}` });
   await useLocalTooling(project);
@@ -41,7 +41,7 @@ try {
 
   await exec("npm", ["install", "--no-audit", "--no-fund"], { cwd: project, maxBuffer: 10 * 1024 * 1024 });
   const installedPackage = JSON.parse(await readFile(path.join(project, "node_modules/@virtuecreation/composer/package.json"), "utf8"));
-  if (installedPackage.name !== "@virtuecreation/composer" || installedPackage.version !== "0.5.0") throw new Error(`Unexpected installed package: ${installedPackage.name}@${installedPackage.version}`);
+  if (installedPackage.name !== "@virtuecreation/composer" || installedPackage.version !== "0.6.0") throw new Error(`Unexpected installed package: ${installedPackage.name}@${installedPackage.version}`);
   if (!existsSync(path.join(project, "node_modules/@virtuecreation/composer/dist/Button.js"))) throw new Error("Packed Composer is missing dist/Button.js.");
   if (existsSync(path.join(project, "node_modules/@virtuecreation/composer/src"))) throw new Error("Packed Composer unexpectedly contains source files.");
 

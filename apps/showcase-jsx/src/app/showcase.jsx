@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ArrowRight, Check, Command as CommandIcon, Folder, Inbox, MoreHorizontal, Plus, Search, Settings, Upload, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, Check, Command as CommandIcon, Folder, Inbox, List, MoreHorizontal, Plus, Search, Settings, Upload, X } from "lucide-react";
 import {
   Accordion,
   ActionGroup,
@@ -48,6 +48,7 @@ import {
 } from "@/components/composer";
 import PhaseThreeShowcase from "./phase-three-showcase";
 import PhaseFourShowcase from "./phase-four-showcase";
+import PhaseFiveShowcase from "./phase-five-showcase";
 
 const layers = ["structure", "navigation", "action", "field", "choice", "disclosure", "data", "content", "media", "feedback", "loading", "overlay"];
 
@@ -91,43 +92,69 @@ function ToastFixture() {
   return <Button onClick={() => toast({ title: "Revision published", description: "Atlas is now visible to the workspace.", tone: "success" })}>Show notification</Button>;
 }
 
+function LibraryNavigation({ components, query, onQueryChange, layer, onLayerChange, stability, onStabilityChange, activeId, onNavigate, inputId }) {
+  const normalized = query.trim().toLowerCase();
+  const visible = components.filter((component) => {
+    const searchText = [component.title, component.id, component.layer, component.stability, ...(component.states ?? []), ...(component.accessibilityChecks ?? []), ...(component.replaces ?? []), component.guidance?.use, component.guidance?.avoid, ...(component.guidance?.alternatives ?? []), ...(component.guidance?.companions ?? [])].filter(Boolean).join(" ").toLowerCase();
+    return (layer === "all" || component.layer === layer) && (stability === "all" || component.stability === stability) && (!normalized || searchText.includes(normalized));
+  });
+  const groups = layers.map((name) => ({ name, items: visible.filter((component) => component.layer === name) })).filter((group) => group.items.length);
+  return <div className="library-navigation">
+    <div className="library-navigation-controls">
+      <label htmlFor={inputId}>Find a component</label>
+      <div className="library-navigation-search"><Search size={15} aria-hidden="true" /><Input id={inputId} type="search" value={query} onChange={(event) => onQueryChange(event.currentTarget.value)} placeholder={`Search ${components.length} components`} /></div>
+      <label htmlFor={`${inputId}-layer`}>Layer</label>
+      <Select id={`${inputId}-layer`} value={layer} onChange={(event) => onLayerChange(event.currentTarget.value)}><option value="all">All layers</option>{layers.map((name) => <option key={name} value={name}>{name}</option>)}</Select>
+      <label htmlFor={`${inputId}-stability`}>Stability</label>
+      <Select id={`${inputId}-stability`} value={stability} onChange={(event) => onStabilityChange(event.currentTarget.value)}><option value="all">All levels</option><option value="stable">Stable</option><option value="beta">Beta</option><option value="experimental">Experimental</option></Select>
+      <p className="library-navigation-count" aria-live="polite">{visible.length} of {components.length} components</p>
+    </div>
+    <nav aria-label="Component library">
+      {groups.map((group) => <details key={group.name} {...(normalized || layer !== "all" || group.items.some((item) => item.id === activeId) ? { open: true } : {})}>
+        <summary><span>{group.name}</span><span>{group.items.length}</span></summary>
+        <div>{group.items.map((component) => <a key={component.id} href={`#${component.id}`} aria-label={component.title} aria-current={activeId === component.id ? "location" : undefined} onClick={() => onNavigate?.(component.id)}><span>{component.title}</span><small aria-hidden="true">{component.stability}</small></a>)}</div>
+      </details>)}
+      {groups.length === 0 && <p className="library-navigation-empty">No components match “{query}”.</p>}
+    </nav>
+  </div>;
+}
+
 export default function Showcase({ components }) {
   const [page, setPage] = useState(3);
   const [filters, setFilters] = useState({ query: "", status: "active", archived: false });
   const [commandOpen, setCommandOpen] = useState(false);
-  const byLayer = Object.fromEntries(layers.map((layer) => [layer, components.filter((component) => component.layer === layer)]));
+  const [navQuery, setNavQuery] = useState("");
+  const [navLayer, setNavLayer] = useState("all");
+  const [navStability, setNavStability] = useState("all");
+  const [activeId, setActiveId] = useState(components[0]?.id ?? "");
+  const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
+  const componentIds = useRef(new Set(components.map((component) => component.id)));
+  const activeComponent = components.find((component) => component.id === activeId);
   useEffect(() => {
     document.documentElement.dataset.vcShowcaseHydrated = "true";
     return () => { delete document.documentElement.dataset.vcShowcaseHydrated; };
   }, []);
+  useEffect(() => {
+    const hashId = window.location.hash.slice(1); if (componentIds.current.has(hashId)) setActiveId(hashId);
+    const observer = new IntersectionObserver((entries) => { const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top))[0]; if (visible) setActiveId(visible.target.id); }, { rootMargin: "-20% 0px -79%", threshold: 0 });
+    components.forEach((component) => { const node = document.getElementById(component.id); if (node) observer.observe(node); });
+    const keydown = (event) => { if (event.key === "/" && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement)) { event.preventDefault(); document.getElementById("component-search")?.focus(); } };
+    window.addEventListener("keydown", keydown); return () => { observer.disconnect(); window.removeEventListener("keydown", keydown); };
+  }, [components]);
   return (
     <AppShell className="shell" navigation={
       <Section as="div" className="sidebar" layout="flex" direction="column" justify="between" gap="large">
-        <Section as="div" layout="grid" gap="large">
-          <Section as="div" layout="grid" gap="small">
-            <p className="wordmark">Virtue Composer</p>
-            <p className="muted">Contract v1 · {components.length} components</p>
-          </Section>
-          <nav aria-label="Component layers">
-            <Section as="div" layout="grid" gap="medium">
-              {layers.map((layer) => (
-                <Section as="div" key={layer} layout="grid" gap="small">
-                  <p className="nav-label">{layer}</p>
-                  {byLayer[layer].map((component) => <a key={component.id} href={`#${component.id}`}>{component.title}</a>)}
-                </Section>
-              ))}
-            </Section>
-          </nav>
-        </Section>
+        <Section as="div" layout="grid" gap="large"><Section as="div" layout="grid" gap="small"><p className="wordmark">Virtue Composer</p><p className="muted">Contract v1 · {components.length} components</p></Section><LibraryNavigation components={components} query={navQuery} onQueryChange={setNavQuery} layer={navLayer} onLayerChange={setNavLayer} stability={navStability} onStabilityChange={setNavStability} activeId={activeId} inputId="component-search" onNavigate={setActiveId} /></Section>
         <p className="muted">JSX consumer · TSX internals</p>
       </Section>
     }>
       <Section as="div" className="workspace" layout="flex" direction="column">
+        <div className="mobile-library-bar"><div><span>Browsing</span><strong>{activeComponent?.title ?? "Component library"}</strong></div><Drawer side="left" open={mobileNavigationOpen} onOpenChange={setMobileNavigationOpen} trigger={<Button icon={<List size={16} />}>Library</Button>} title="Component library" description={`${components.length} reusable contracts`}><LibraryNavigation components={components} query={navQuery} onQueryChange={setNavQuery} layer={navLayer} onLayerChange={setNavLayer} stability={navStability} onStabilityChange={setNavStability} activeId={activeId} inputId="mobile-component-search" onNavigate={(id) => { setActiveId(id); setMobileNavigationOpen(false); }} /></Drawer></div>
         <Section as="header" className="workbench-header" layout="flex" justify="between" align="center" gap="medium" wrap>
           <Section as="div" layout="grid" gap="small">
             <p className="eyebrow">Component workbench</p>
             <h1>Virtue Composer</h1>
-            <p>One hundred twenty composable contracts. Behavior comes from Composer; every visible decision comes from this project.</p>
+            <p>{components.length} composable contracts. Behavior comes from Composer; every visible decision comes from this project.</p>
           </Section>
           <ButtonLink href="#section" icon={<ArrowRight size={16} />} iconPosition="end">Browse primitives</ButtonLink>
         </Section>
@@ -253,6 +280,7 @@ export default function Showcase({ components }) {
                 { name: "project", type: "text", label: "Project name", placeholder: "Atlas", required: true },
                 { name: "owner", type: "search-select", label: "Owner", options: ownerOptions, defaultValue: "maya" },
                 { name: "channel", type: "select", label: "Release channel", options: [{ value: "stable", label: "Stable" }, { value: "preview", label: "Preview" }], defaultValue: "stable" },
+                { name: "visibility", type: "custom", selfLabeled: true, control: <RadioGroup id="project-visibility" name="visibility" label="Visibility" defaultValue="team" options={[{ value: "team", label: "Team" }, { value: "private", label: "Private" }]} /> },
                 { name: "updates", type: "checkbox", label: "Send progress updates", description: "Notify collaborators when this project changes." },
               ]}
               onSubmit={() => undefined}
@@ -323,6 +351,7 @@ export default function Showcase({ components }) {
           </Demo>
           <PhaseThreeShowcase />
           <PhaseFourShowcase />
+          <PhaseFiveShowcase />
         </Section>
       </Section>
     </AppShell>

@@ -149,7 +149,7 @@ export default function PhaseFourShowcase() {
     </Demo>
 
     <Demo id="phone-input" title="Phone Input" detail="Country-aware formatting produces normalized E.164 values through a proven parsing engine." phase="4C">
-      <PhoneInput label="Contact number" defaultCountry="CA" defaultValue="+1 416 555 0123" name="phone" description="Used for delivery updates." />
+      <PhoneInput id="contact-phone" label="Contact number" defaultCountry="CA" defaultValue="+1 416 555 0123" name="phone" description="Used for delivery updates." />
     </Demo>
     <Demo id="currency-input" title="Currency Input" detail="Locale-aware entry emits minor units for precise storage and calculations." phase="4C">
       <CurrencyInput label="Campaign budget" currency="CAD" locale="en-CA" defaultValue={129900} name="budget" />

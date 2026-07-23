@@ -304,8 +304,11 @@
   width: calc(var(--vc-scheduler-lane-width) - 0.5rem);
 }
 :where([data-vc-scheduler-now]) { left: 0; position: absolute; right: 0; top: calc(var(--vc-scheduler-offset) * var(--vc-scheduler-scale) * 1px); }
+:where([data-vc-component="scheduler"] [data-vc-slot="days"]) { display: grid; min-width: 0; }
+:where([data-vc-component="scheduler"][data-vc-view="week"] [data-vc-slot="days"]) { grid-template-columns: repeat(7, minmax(12rem, 1fr)); overflow-x: auto; }
 :where([data-vc-component="kanban-board"]) { display: grid; grid-auto-columns: var(--vc-kanban-column-width, minmax(16rem, 1fr)); grid-auto-flow: column; max-width: 100%; overflow-x: auto; width: 100%; }
 :where([data-vc-kanban-list]) { align-content: start; display: grid; min-height: 4rem; }
+:where([data-vc-component="kanban-board"] [data-vc-slot="announcement"]) { clip: rect(0 0 0 0); clip-path: inset(50%); height: 1px; overflow: hidden; position: absolute; white-space: nowrap; width: 1px; }
 
 :where([data-vc-component="chart-frame"]) { margin: 0; min-width: 0; }
 :where([data-vc-chart-caption]),
@@ -318,6 +321,8 @@
 
 :where([data-vc-editor-toolbar]),
 :where([data-vc-markdown-header]) { align-items: center; display: flex; flex-wrap: wrap; }
+:where([data-vc-editor-toolbar][data-vc-overflow="scroll"]) { flex-wrap: nowrap; overflow-x: auto; }
+:where([data-vc-editor-toolbar][data-vc-overflow="scroll"] > *) { flex: 0 0 auto; }
 :where([data-vc-markdown-panes]) { display: grid; min-width: 0; }
 :where([data-vc-markdown-input]),
 :where([data-vc-markdown-preview]) { min-width: 0; width: 100%; }
@@ -434,14 +439,16 @@
 :where([data-vc-component="field-array"] ol) { display: grid; margin: 0; padding-inline-start: 1.5rem; }
 :where([data-vc-component="combobox-multi-select"] ul) { list-style: none; margin: 0; padding: 0; }
 :where([data-vc-component="honeypot-field"]) {
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   height: 1px;
-  left: -10000px;
   overflow: hidden;
   position: absolute;
+  white-space: nowrap;
   width: 1px;
 }
-:where([data-vc-component="search-input"] [data-vc-search-control]) { align-items: center; display: flex; }
-:where([data-vc-component="search-input"] input) { min-width: 0; }
+:where([data-vc-component="search-input"] [data-vc-search-control]) { align-items: center; display: flex; min-width: 0; width: 100%; }
+:where([data-vc-component="search-input"] input) { flex-basis: 0; min-width: 0; width: 0; }
 :where([data-vc-component="product-option-select"] > div) { display: flex; flex-wrap: wrap; }
 
 :where([data-vc-component="cart-line"]) {
@@ -457,6 +464,52 @@
   :where([data-vc-component="cart-line"]) { grid-template-columns: minmax(0, 1fr); }
 }
 /* vc:phase-4:end */
+
+/* vc:phase-5:start */
+:where([data-vc-component="selectable-card-group"]) { border: 0; margin: 0; min-width: 0; padding: 0; }
+:where([data-vc-component="selectable-card-group"] [data-vc-slot="items"]) { display: grid; gap: var(--vc-gap-small); }
+:where([data-vc-component="selectable-card-group"] [data-vc-slot="item"]) { align-items: center; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; min-width: 0; }
+:where([data-vc-component="selectable-card-group"] [data-vc-slot="copy"]) { display: grid; min-width: 0; }
+
+:where([data-vc-component="resizable-panels"]) { display: flex; min-height: 0; min-width: 0; overflow: hidden; }
+:where([data-vc-component="resizable-panels"] [data-vc-slot="panel"]) { flex-grow: 0; flex-shrink: 0; overflow: auto; }
+:where([data-vc-component="resizable-panels"] [data-vc-slot="separator"]) { flex: 0 0 0.75rem; padding: 0; touch-action: none; }
+:where([data-vc-component="resizable-panels"][data-vc-orientation="horizontal"] [data-vc-slot="separator"]) { cursor: col-resize; }
+:where([data-vc-component="resizable-panels"][data-vc-orientation="vertical"] [data-vc-slot="separator"]) { cursor: row-resize; }
+
+:where([data-vc-component="wizard"]),
+:where([data-vc-component="wizard"] [data-vc-slot="panels"]) { display: grid; gap: var(--vc-gap-medium); min-width: 0; }
+:where([data-vc-component="wizard"] [data-vc-slot="actions"]) { align-items: center; display: flex; gap: var(--vc-gap-small); justify-content: space-between; }
+
+:where([data-vc-component="transfer-list"]),
+:where([data-vc-component="rating-input"]) { border: 0; margin: 0; min-width: 0; padding: 0; }
+:where([data-vc-component="transfer-list"] [data-vc-slot="layout"]) { align-items: stretch; display: grid; gap: var(--vc-gap-small); grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+:where([data-vc-component="transfer-list"] [data-vc-slot="panel"]) { display: grid; min-width: 0; }
+:where([data-vc-component="transfer-list"] [data-vc-slot="panel-header"]),
+:where([data-vc-component="transfer-list"] [data-vc-slot="item"] label),
+:where([data-vc-component="color-picker"] [data-vc-slot="controls"]),
+:where([data-vc-component="color-picker"] [data-vc-slot="presets"]),
+:where([data-vc-component="rating-input"] [data-vc-slot="options"]),
+:where([data-vc-component="editable-list"] [data-vc-slot="header"]),
+:where([data-vc-component="editable-list"] [data-vc-slot="item-actions"]),
+:where([data-vc-component="editable-list"] [data-vc-slot="edit-form"]) { align-items: center; display: flex; gap: var(--vc-gap-small); }
+:where([data-vc-component="color-picker"] [data-vc-slot="controls"]),
+:where([data-vc-component="color-picker"] [data-vc-slot="presets"]) { flex-wrap: wrap; min-width: 0; }
+:where([data-vc-component="color-picker"] [data-vc-slot="text-control"]) { flex: 1 1 10rem; min-width: 0; }
+:where([data-vc-component="transfer-list"] [data-vc-slot="actions"]) { align-self: center; display: grid; gap: var(--vc-gap-small); }
+:where([data-vc-component="transfer-list"] ul),
+:where([data-vc-component="editable-list"] ol) { list-style: none; margin: 0; padding: 0; }
+:where([data-vc-component="color-picker"]),
+:where([data-vc-component="mention-input"]),
+:where([data-vc-component="editable-list"]) { display: grid; gap: var(--vc-gap-small); min-width: 0; }
+:where([data-vc-component="mention-input"] [data-vc-slot="suggestions"]) { position: relative; z-index: 1; }
+:where([data-vc-component="editable-list"] [data-vc-slot="item"]) { align-items: center; display: flex; justify-content: space-between; min-width: 0; }
+
+@media (max-width: 48rem) {
+  :where([data-vc-component="transfer-list"] [data-vc-slot="layout"]) { grid-template-columns: minmax(0, 1fr); }
+  :where([data-vc-component="transfer-list"] [data-vc-slot="actions"]) { grid-auto-flow: column; justify-self: center; }
+}
+/* vc:phase-5:end */
 
 @media (prefers-reduced-motion: reduce) {
   [data-vc-component="spinner"],

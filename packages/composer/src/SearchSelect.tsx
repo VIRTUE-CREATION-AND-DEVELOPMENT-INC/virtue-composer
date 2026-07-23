@@ -2,14 +2,13 @@
 
 import * as Popover from "@radix-ui/react-popover";
 import { Command } from "cmdk";
-import { useState } from "react";
 import useControllableState from "./useControllableState";
 
 export type SearchSelectOption = { value: string; label: string; description?: string; keywords?: string[]; disabled?: boolean };
-export type SearchSelectProps = { label: string; options: SearchSelectOption[]; value?: string; defaultValue?: string; onValueChange?: (value: string) => void; placeholder?: string; searchPlaceholder?: string; emptyText?: string; disabled?: boolean; required?: boolean; name?: string; className?: string };
+export type SearchSelectProps = { label: string; options: SearchSelectOption[]; value?: string; defaultValue?: string; onValueChange?: (value: string) => void; open?: boolean; defaultOpen?: boolean; onOpenChange?: (open: boolean) => void; side?: "top" | "right" | "bottom" | "left"; align?: "start" | "center" | "end"; sideOffset?: number; collisionPadding?: number; placeholder?: string; searchPlaceholder?: string; emptyText?: string; disabled?: boolean; required?: boolean; name?: string; className?: string };
 
-export default function SearchSelect({ label, options, value, defaultValue = "", onValueChange, placeholder = "Select an option", searchPlaceholder = "Search options", emptyText = "No options found", disabled, required, name, className }: SearchSelectProps) {
-  const [open, setOpen] = useState(false);
+export default function SearchSelect({ label, options, value, defaultValue = "", onValueChange, open, defaultOpen = false, onOpenChange, side = "bottom", align = "start", sideOffset = 6, collisionPadding = 8, placeholder = "Select an option", searchPlaceholder = "Search options", emptyText = "No options found", disabled, required, name, className }: SearchSelectProps) {
+  const [isOpen, setOpen] = useControllableState({ value: open, defaultValue: defaultOpen, onChange: onOpenChange });
   const [selectedValue, setSelectedValue] = useControllableState({ value, defaultValue, onChange: onValueChange });
   const selected = options.find((option) => option.value === selectedValue);
   const select = (nextValue: string) => {
@@ -18,14 +17,14 @@ export default function SearchSelect({ label, options, value, defaultValue = "",
   };
 
   return (
-    <div className={className} data-vc-component="search-select" data-vc-slot="root" data-vc-state={open ? "open" : "closed"}>
+    <div className={className} data-vc-component="search-select" data-vc-slot="root" data-vc-state={isOpen ? "open" : "closed"}>
       <span data-vc-search-select-label data-vc-slot="label">{label}{required && <span aria-hidden="true"> *</span>}</span>
-      <Popover.Root open={open} onOpenChange={setOpen}>
+      <Popover.Root open={isOpen} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          <button type="button" role="combobox" aria-label={label} aria-expanded={open} aria-required={required || undefined} disabled={disabled} data-vc-search-select-trigger data-vc-slot="trigger">{selected?.label ?? placeholder}</button>
+          <button type="button" role="combobox" aria-label={label} aria-expanded={isOpen} aria-required={required || undefined} disabled={disabled} data-vc-search-select-trigger data-vc-slot="trigger">{selected?.label ?? placeholder}</button>
         </Popover.Trigger>
         <Popover.Portal>
-          <Popover.Content align="start" sideOffset={6} data-vc-search-select-content data-vc-slot="content">
+          <Popover.Content align={align} side={side} sideOffset={sideOffset} collisionPadding={collisionPadding} data-vc-search-select-content data-vc-slot="content">
             <Command data-vc-search-select-command data-vc-slot="command">
               <Command.Input placeholder={searchPlaceholder} aria-label={searchPlaceholder} data-vc-search-select-input data-vc-slot="input" />
               <Command.List data-vc-slot="list">

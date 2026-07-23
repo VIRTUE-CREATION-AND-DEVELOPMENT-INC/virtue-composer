@@ -1,6 +1,6 @@
 {
   "name": "virtue-composer-workspace",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Composable React primitives, project scaffolding, and Codex guidance for consistent Next.js interfaces.",
   "private": true,
   "license": "MIT",
@@ -27,7 +27,9 @@
     "build:showcase": "npm run build --workspace @virtuecreation/composer-showcase",
     "dev": "npm run dev --workspace @virtuecreation/composer-showcase",
     "doctor": "node packages/cli/bin/virtue-composer.mjs doctor apps/showcase-jsx",
+    "doctor:strict": "node packages/cli/bin/virtue-composer.mjs doctor apps/showcase-jsx --strict",
     "compat:published": "npm run build --workspace @virtuecreation/composer && node scripts/check-published-compatibility.mjs",
+    "contracts:check": "node scripts/check-contract-conventions.mjs",
     "lint": "npm run lint --workspaces --if-present",
     "registry:validate": "node packages/registry/scripts/validate-registry.mjs",
     "registry:sync": "node packages/registry/scripts/sync-artifacts.mjs",
@@ -43,7 +45,7 @@
     "test": "npm run test --workspaces --if-present",
     "test:browser": "playwright test",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "verify": "npm run registry:validate && npm run registry:check && npm run typecheck && npm run test && npm run lint && npm run build && npm run analyze:components:check && npm run doctor && npm run smoke:init && npm run smoke:init-root && npm run smoke:upgrade"
+    "verify": "npm run registry:validate && npm run registry:check && npm run contracts:check && npm run typecheck && npm run test && npm run lint && npm run build && npm run analyze:components:check && npm run doctor:strict && npm run smoke:init && npm run smoke:init-root && npm run smoke:upgrade"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",

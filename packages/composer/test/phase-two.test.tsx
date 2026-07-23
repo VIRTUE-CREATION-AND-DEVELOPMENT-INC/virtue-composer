@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import Accordion from "../src/Accordion";
+import ActionGroup from "../src/ActionGroup";
 import Breadcrumbs from "../src/Breadcrumbs";
 import Button from "../src/Button";
 import Carousel from "../src/Carousel";
@@ -11,6 +12,7 @@ import DataTable from "../src/DataTable";
 import DetailRows from "../src/DetailRows";
 import Disclosure from "../src/Disclosure";
 import Drawer from "../src/Drawer";
+import EmptyState from "../src/EmptyState";
 import FileUpload from "../src/FileUpload";
 import FilterBar from "../src/FilterBar";
 import Form from "../src/Form";
@@ -20,6 +22,7 @@ import Menu from "../src/Menu";
 import Pagination from "../src/Pagination";
 import Popover from "../src/Popover";
 import ProgressBar from "../src/ProgressBar";
+import RadioGroup from "../src/RadioGroup";
 import ResourceBoundary from "../src/ResourceBoundary";
 import SearchSelect from "../src/SearchSelect";
 import Tabs from "../src/Tabs";
@@ -72,6 +75,20 @@ describe("Phase 2 forms and data", () => {
     expect(submit).toHaveBeenCalledWith({ name: "Ada", role: "admin" });
   });
 
+  it("submits self-labeling custom controls without adding a duplicate Field label", () => {
+    const submit = vi.fn();
+    render(<Form fields={[{
+      type: "custom",
+      name: "topic",
+      selfLabeled: true,
+      control: <RadioGroup label="Topic" name="topic" defaultValue="repairs" options={[{ value: "repairs", label: "Repairs" }, { value: "sales", label: "Sales" }]} />,
+    }]} onSubmit={(data) => submit(Object.fromEntries(data))} />);
+
+    expect(screen.getAllByText("Topic")).toHaveLength(1);
+    fireEvent.submit(screen.getByRole("button", { name: "Submit" }).closest("form")!);
+    expect(submit).toHaveBeenCalledWith({ topic: "repairs" });
+  });
+
   it("selects searchable options and reports uploaded files", async () => {
     const onFiles = vi.fn();
     render(<><SearchSelect label="Owner" options={[{ value: "ada", label: "Ada Lovelace" }, { value: "grace", label: "Grace Hopper" }]} /><FileUpload label="Assets" onFilesChange={onFiles} /></>);
@@ -120,6 +137,20 @@ describe("Phase 2 feedback and advanced utilities", () => {
     expect(screen.getByText("40%")).toBeInTheDocument();
     rerender(<ProgressBar label="Processing" />);
     expect(screen.getByRole("progressbar", { name: "Processing" })).not.toHaveAttribute("value");
+  });
+
+  it("rejects descriptor objects passed directly to EmptyState actions", () => {
+    const report = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    expect(() => render(
+      // @ts-expect-error Verifies the runtime guard for JavaScript consumers.
+      <EmptyState title="Complete" actions={[{ id: "continue", label: "Continue" }]} />,
+    )).toThrow(/Render descriptor actions with <ActionGroup/);
+    report.mockRestore();
+  });
+
+  it("accepts a rendered ActionGroup in EmptyState actions", () => {
+    render(<EmptyState title="Complete" actions={<ActionGroup actions={[{ id: "continue", label: "Continue" }]} />} />);
+    expect(screen.getByRole("group", { name: "Actions" })).toBeInTheDocument();
   });
 
   it("publishes and dismisses toast notifications", async () => {

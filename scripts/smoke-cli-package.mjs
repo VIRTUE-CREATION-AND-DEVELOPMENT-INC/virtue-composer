@@ -39,18 +39,22 @@ try {
     name: "virtue-composer-cli-consumer",
     private: true,
     scripts: { build: "next build" },
-    dependencies: { next: "16.2.10", react: "19.2.4", "react-dom": "19.2.4" },
+    dependencies: { next: "16.2.11", react: "19.2.4", "react-dom": "19.2.4" },
   }, null, 2)}\n`);
 
   const cli = path.join(toolProject, "node_modules/.bin/virtue-composer");
   await exec(cli, ["init", consumer], { cwd: root, maxBuffer: 10 * 1024 * 1024 });
+  const discovered = await exec(cli, ["compositions", consumer, "--query=impact statistics", "--json"], { cwd: root, maxBuffer: 10 * 1024 * 1024 });
+  const discovery = JSON.parse(discovered.stdout);
+  if (discovery.compositions[0]?.id !== "proof-metric-strip") throw new Error("Packed CLI did not discover the metric composition from natural-language metadata.");
+  await exec(cli, ["compose", consumer, "--compositions=faq-split-accordion,proof-metric-strip"], { cwd: root, maxBuffer: 10 * 1024 * 1024 });
   const packageJsonFile = path.join(consumer, "package.json");
   const packageJson = JSON.parse(await readFile(packageJsonFile, "utf8"));
-  if (packageJson.dependencies["@virtuecreation/composer"] !== "0.5.0") throw new Error("Packed CLI did not select Composer 0.5.0.");
-  if (packageJson.devDependencies["@virtuecreation/composer-cli"] !== "0.5.0") throw new Error("Packed CLI did not pin its local binary dependency.");
+  if (packageJson.dependencies["@virtuecreation/composer"] !== "0.6.0") throw new Error("Packed CLI did not select Composer 0.6.0.");
+  if (packageJson.devDependencies["@virtuecreation/composer-cli"] !== "0.6.0") throw new Error("Packed CLI did not pin its local binary dependency.");
 
   await writeFile(path.join(consumer, "src/app/layout.jsx"), 'import "../styles/composer.css";\nexport default function Layout({ children }) { return <html lang="en"><body>{children}</body></html>; }\n');
-  await writeFile(path.join(consumer, "src/app/page.jsx"), 'import { Button, Section } from "@/components/composer";\nexport default function Page() { return <Section as="main" layout="flex" direction="column" align="center"><h1>CLI package rehearsal</h1><Button>Ready</Button></Section>; }\n');
+  await writeFile(path.join(consumer, "src/app/page.jsx"), 'import { Button, Section } from "@/components/composer";\nimport { FAQSplitAccordion, ProofMetricStrip } from "@/components/compositions";\nexport default function Page() { return <Section as="main" layout="flex" direction="column" align="center"><h1>CLI package rehearsal</h1><Button>Ready</Button><ProofMetricStrip metrics={[{ value: "18", label: "Compositions" }]} /><FAQSplitAccordion items={[{ question: "Copyable?", answer: "Yes." }]} /></Section>; }\n');
   await writeFile(path.join(consumer, "jsconfig.json"), '{"compilerOptions":{"baseUrl":".","paths":{"@/*":["./src/*"]}}}\n');
 
   await exec("npm", ["install", composerTarball, cliTarball, registryTarball, "--no-audit", "--no-fund"], { cwd: consumer, maxBuffer: 10 * 1024 * 1024 });
@@ -59,7 +63,7 @@ try {
   if (!doctor.stdout.includes("Doctor: PASS") || !doctor.stdout.includes("0 warnings")) throw new Error(`Packed CLI Doctor failed:\n${doctor.stdout}`);
   await exec("npm", ["run", "build"], { cwd: consumer, maxBuffer: 10 * 1024 * 1024 });
 
-  console.log("Packed CLI smoke passed: registry resolved, npm-default init complete, Doctor clean, production build complete.");
+  console.log("Packed CLI smoke passed: registry resolved, composition discovery and copying complete, Doctor clean, production build complete.");
 } finally {
   await rm(root, { recursive: true, force: true });
 }

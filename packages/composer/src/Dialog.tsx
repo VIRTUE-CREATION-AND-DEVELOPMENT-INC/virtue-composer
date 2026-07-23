@@ -13,12 +13,14 @@ export type DialogProps = {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  modal?: boolean;
+  closeLabel?: string;
   className?: string;
 };
 
-export default function Dialog({ trigger, title, description, children, actions, open, defaultOpen, onOpenChange, className }: DialogProps) {
+export default function Dialog({ trigger, title, description, children, actions, open, defaultOpen, onOpenChange, modal = true, closeLabel = "Close dialog", className }: DialogProps) {
   return (
-    <DialogPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
+    <DialogPrimitive.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange} modal={modal}>
       <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay data-vc-dialog-overlay data-vc-slot="overlay" />
@@ -29,7 +31,7 @@ export default function Dialog({ trigger, title, description, children, actions,
               {description && <DialogPrimitive.Description data-vc-slot="description">{description}</DialogPrimitive.Description>}
             </div>
             <DialogPrimitive.Close asChild>
-              <Button aria-label="Close dialog" data-vc-slot="close">Close</Button>
+              <Button aria-label={closeLabel} data-vc-slot="close">{closeLabel}</Button>
             </DialogPrimitive.Close>
           </div>
           {children && <div data-vc-dialog-body data-vc-slot="body">{children}</div>}

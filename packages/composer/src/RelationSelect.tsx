@@ -2,24 +2,24 @@
 
 import * as Popover from "@radix-ui/react-popover";
 import { Command } from "cmdk";
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import useControllableState from "./useControllableState";
 
 export type RelationSelectOption = { value: string; label: string; description?: string; metadata?: ReactNode; keywords?: string[]; disabled?: boolean };
-export type RelationSelectProps = { label: string; options: RelationSelectOption[]; value?: string[]; defaultValue?: string[]; onValueChange?: (values: string[]) => void; multiple?: boolean; loading?: boolean; error?: ReactNode; name?: string; required?: boolean; disabled?: boolean; className?: string };
+export type RelationSelectProps = { label: string; options: RelationSelectOption[]; value?: string[]; defaultValue?: string[]; onValueChange?: (values: string[]) => void; open?: boolean; defaultOpen?: boolean; onOpenChange?: (open: boolean) => void; side?: "top" | "right" | "bottom" | "left"; align?: "start" | "center" | "end"; sideOffset?: number; collisionPadding?: number; multiple?: boolean; loading?: boolean; error?: ReactNode; name?: string; required?: boolean; disabled?: boolean; className?: string };
 
-export default function RelationSelect({ label, options, value, defaultValue = [], onValueChange, multiple = true, loading, error, name, required, disabled, className }: RelationSelectProps) {
-  const [open, setOpen] = useState(false);
+export default function RelationSelect({ label, options, value, defaultValue = [], onValueChange, open, defaultOpen = false, onOpenChange, side = "bottom", align = "start", sideOffset = 6, collisionPadding = 8, multiple = true, loading, error, name, required, disabled, className }: RelationSelectProps) {
+  const [isOpen, setOpen] = useControllableState({ value: open, defaultValue: defaultOpen, onChange: onOpenChange });
   const [selected, update] = useControllableState({ value, defaultValue, onChange: onValueChange });
   const toggle = (id: string) => {
     update(multiple ? (selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id]) : [id]);
     if (!multiple) setOpen(false);
   };
-  return <div className={className} data-vc-component="relation-select" data-vc-slot="root" data-vc-state={loading ? "loading" : error ? "error" : open ? "open" : "closed"}>
+  return <div className={className} data-vc-component="relation-select" data-vc-slot="root" data-vc-state={loading ? "loading" : error ? "error" : isOpen ? "open" : "closed"}>
     <span data-vc-relation-label data-vc-slot="label">{label}{required && <span aria-hidden="true"> *</span>}</span>
-    <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild><button type="button" role="combobox" aria-label={label} aria-expanded={open} aria-required={required || undefined} disabled={disabled} data-vc-slot="trigger">{selected.length ? `${selected.length} selected` : "Select relations"}</button></Popover.Trigger>
-      <Popover.Portal><Popover.Content align="start" data-vc-relation-content data-vc-slot="content">
+    <Popover.Root open={isOpen} onOpenChange={setOpen}>
+      <Popover.Trigger asChild><button type="button" role="combobox" aria-label={label} aria-expanded={isOpen} aria-required={required || undefined} disabled={disabled} data-vc-slot="trigger">{selected.length ? `${selected.length} selected` : "Select relations"}</button></Popover.Trigger>
+      <Popover.Portal><Popover.Content align={align} side={side} sideOffset={sideOffset} collisionPadding={collisionPadding} data-vc-relation-content data-vc-slot="content">
         <Command data-vc-slot="command">
           <Command.Input aria-label={`Search ${label}`} placeholder="Search relations" data-vc-slot="input" />
           <Command.List aria-multiselectable={multiple || undefined} data-vc-slot="list">

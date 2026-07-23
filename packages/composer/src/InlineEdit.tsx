@@ -2,9 +2,9 @@
 
 import { useId, useRef, useState, type ReactNode } from "react";
 
-export type InlineEditProps = { label: string; value: string; onSave: (value: string) => void | Promise<void>; renderValue?: (value: string) => ReactNode; validate?: (value: string) => string | undefined; disabled?: boolean; pending?: boolean; className?: string };
+export type InlineEditProps = { label: string; value: string; onSave: (value: string) => void | string | undefined | Promise<void | string | undefined>; renderValue?: (value: string) => ReactNode; validate?: (value: string) => string | undefined | Promise<string | undefined>; onCancel?: () => void; onError?: (error: unknown) => void; rollbackOnError?: boolean; saveErrorMessage?: string; disabled?: boolean; pending?: boolean; className?: string };
 
-export default function InlineEdit({ label, value, onSave, renderValue, validate, disabled, pending: externalPending, className }: InlineEditProps) {
+export default function InlineEdit({ label, value, onSave, renderValue, validate, onCancel, onError, rollbackOnError = false, saveErrorMessage = "Could not save this value.", disabled, pending: externalPending, className }: InlineEditProps) {
   const id = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [editing, setEditing] = useState(false);
@@ -12,12 +12,14 @@ export default function InlineEdit({ label, value, onSave, renderValue, validate
   const [error, setError] = useState<string>();
   const [internalPending, setInternalPending] = useState(false);
   const pending = externalPending ?? internalPending;
-  const cancel = () => { setDraft(value); setError(undefined); setEditing(false); queueMicrotask(() => triggerRef.current?.focus()); };
+  const cancel = () => { setDraft(value); setError(undefined); setEditing(false); onCancel?.(); queueMicrotask(() => triggerRef.current?.focus()); };
   const save = async () => {
-    const nextError = validate?.(draft);
+    const nextError = await validate?.(draft);
     if (nextError) { setError(nextError); return; }
     setInternalPending(true);
-    try { await onSave(draft); setEditing(false); queueMicrotask(() => triggerRef.current?.focus()); } finally { setInternalPending(false); }
+    try { const serverError = await onSave(draft); if (typeof serverError === "string") { setError(serverError); if (rollbackOnError) setDraft(value); return; } setEditing(false); queueMicrotask(() => triggerRef.current?.focus()); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : saveErrorMessage); if (rollbackOnError) setDraft(value); onError?.(reason); }
+    finally { setInternalPending(false); }
   };
   return <div className={className} data-vc-component="inline-edit" data-vc-slot="root" data-vc-editing={editing || undefined}>
     {editing ? <div role="group" aria-labelledby={`${id}-label`} data-vc-inline-edit-form data-vc-slot="form">

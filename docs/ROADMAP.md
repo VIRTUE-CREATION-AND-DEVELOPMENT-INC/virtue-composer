@@ -1,67 +1,99 @@
-# Component Roadmap
+# Virtue Composer roadmap
 
-Composer grows by reusable behavior and accessibility contracts. Project-owned visual composition remains outside the package.
+Composer grows from observed project needs. The package owns reusable structure,
+behavior, accessibility contracts, and selection metadata. Consuming projects
+continue to own their content, visual systems, and copied composition code.
 
-## Shipped
+## Shipped foundation
 
-- Phase 1, version 0.1: 19 structural, action, field, choice, feedback, loading, and overlay primitives.
-- Phase 2, version 0.2: 21 navigation, disclosure, form, data, async, command, and carousel primitives. See [PHASE-2.md](PHASE-2.md).
-- Phase 3, version 0.3: 44 application navigation, advanced input, data workflow, editor, and media primitives. See [PHASE-3.md](PHASE-3.md).
-- Phase 4, version 0.4: 36 CMS/media, admin, advanced form, search, and commerce workflow components. See [PHASE-4.md](PHASE-4.md).
-- Optimization release, version 0.5: retained all 120 contracts while narrowing client boundaries, standardizing component anatomy and controlled state, strengthening dense responsive workflows, and upgrading CLI enforcement and project initialization.
+- Version 0.1 introduced 19 structural, action, field, choice, feedback,
+  loading, and overlay primitives.
+- Version 0.2 added 21 navigation, disclosure, form, data, async, command, and
+  carousel primitives. See [PHASE-2.md](PHASE-2.md).
+- Version 0.3 added 44 application navigation, advanced input, data workflow,
+  editor, and media primitives. See [PHASE-3.md](PHASE-3.md).
+- Version 0.4 added 36 CMS/media, admin, advanced form, search, and commerce
+  workflow components. See [PHASE-4.md](PHASE-4.md).
+- Version 0.5 retained 120 contracts while narrowing client boundaries,
+  standardizing component anatomy and controlled state, strengthening dense
+  responsive workflows, and upgrading project initialization.
+- Version 0.6 expands the contract to 128 components and introduces 34 copyable
+  project-owned compositions, five specialized packs, three page blueprints,
+  natural-language discovery, maturity classification, cross-browser
+  conformance, and registry-driven selection.
 
-## Phase 3: Complete Application Toolkit (Shipped)
+## Version 0.7 direction: composition planning
 
-Phase 3 targets 44 additional components in three implementation waves, bringing the planned library to 84 components. Each wave must ship through the registry, wrappers, showcase, Doctor, install/upgrade smoke tests, and browser accessibility QA before the next starts.
+The next product step is an evidence-driven planning layer that can turn a
+project brief into an adaptable page baseline. It should not introduce a rigid
+runtime page-builder abstraction.
 
-### Wave A: Everyday Controls And Navigation
+The intended workflow is:
 
-1. Navigation: `AppShell`, `SideNav`, `TopNav`, `MobileNav`, `Stepper`, `AnchorNav`, `BackLink`, `SegmentedControl`.
-2. Actions: `IconButton`, `CopyButton`, `SplitButton`.
-3. Inputs: `NumberInput`, `PasswordInput`, `OtpInput`, `DatePicker`, `DateRangePicker`, `TimeInput`, `Slider`, `TagInput`.
-4. Overlays and feedback: `AlertDialog`, `ContextMenu`, `HoverCard`, `Banner`, `InlineMessage`, `LoadingOverlay`.
+1. Interpret the project description, audience, page goals, content inventory,
+   required interactions, and constraints.
+2. Rank relevant compositions and blueprints using their selection guidance,
+   avoidance conditions, anatomy, compatible neighbors, and project evidence.
+3. Produce an inspectable page plan that identifies selected sections, order,
+   required Composer primitives, content gaps, and rejected alternatives.
+4. Copy the selected wireframes into the consuming project.
+5. Adapt structure and content to the actual project, apply the project visual
+   system, then run Doctor and browser verification.
 
-Wave A establishes contracts that occur across marketing sites, dashboards, admin tools, onboarding, and account settings without forcing a specific visual identity.
+The planner should preserve provenance: a project should be able to see why a
+composition was selected and which copied files came from the canonical
+catalog. Once copied, those files remain project-owned and may be reordered,
+replaced, or rewritten.
 
-### Wave B: Rich Data Workflows
+## Evidence cycle before implementation
 
-1. Data navigation: `TreeView`, `TreeSelect`, `VirtualList`, `Timeline`.
-2. Data interaction: `DataGrid`, `Calendar`, `Scheduler`, `KanbanBoard`.
-3. Visualization framing: `ChartFrame`, `ChartLegend`, `ChartTooltip`.
+Use the 0.6 catalog in at least two distinct products before fixing the 0.7
+planner contract. For each page, record:
 
-Use proven engines for virtualization, date arithmetic, drag-and-drop, grids, and charts. Composer owns accessible adapters and project-facing contracts; it does not hand-roll those engines.
+- the original brief and content constraints;
+- ranked candidates and the selected baseline;
+- sections added, removed, reordered, or heavily rewritten;
+- missing composition patterns and misleading selection queries;
+- responsive, accessibility, and implementation failures;
+- how much of the blueprint survived final project adaptation.
 
-### Wave C: Content And Media Workflows
+This evidence determines whether 0.7 needs new compositions, stronger metadata,
+neighbor scoring, a page-plan schema, or CLI orchestration. Catalog growth
+should follow repeated gaps rather than isolated examples.
 
-1. Editing: `RichTextEditor`, `MarkdownEditor`, `CodeBlock`.
-2. Media: `Avatar`, `AvatarGroup`, `ImageGallery`, `Lightbox`, `VideoPlayer`.
+## Stabilization track
 
-These components ship with product-level fixtures and explicit editor and media dependencies.
+Alongside composition planning:
 
-## Explicit Project Ownership
+- review the eight experimental component APIs after use in at least two
+  products;
+- review all experimental compositions and blueprints after multiple generated
+  sites;
+- promote beta or experimental contracts only when production evidence supports
+  the change;
+- add manual screen-reader, physical touch-device, and Windows High Contrast
+  evidence;
+- add a production-consumer benchmark for route bundles and interaction
+  latency;
+- continue monitoring the private showcase's upstream Next.js, PostCSS, and
+  Sharp advisories.
 
-`Hero`, generic `Card`, branded `Header` and `Footer`, typography wrappers, marketing sections, pricing layouts, testimonial layouts, and decorative surfaces remain project or profile compositions. Promote one only when repeated cross-project behavior proves a stable contract.
+## 0.7 entry and exit gates
 
-## Phase 3 Gates
+Work begins only after 0.6.0 is published and the evidence cycle has started.
+The 0.7 release should require:
 
-- Write the registry API and fixture before implementation.
-- Keep server-compatible components server-compatible and client boundaries narrow.
-- Use established engines for complex rules, focus, parsing, dates, virtualization, drag-and-drop, editing, and media.
-- Add `upgrade` markers for every new foundation CSS block.
-- Preserve customized project wrappers during upgrades.
-- Require focused unit tests plus desktop/mobile keyboard and axe checks.
-- Keep package components visually neutral; only behavior-required geometry belongs in foundation CSS.
+- a registry-defined, versioned page-plan contract;
+- deterministic planning fixtures and rejection cases;
+- CLI support that never overwrites project adaptations;
+- generated-artifact drift checks;
+- Doctor coverage for planned and copied files;
+- clean fresh-project and upgrade paths;
+- responsive, keyboard, accessibility, and cross-browser verification;
+- published-package and packed-CLI consumer smokes;
+- documented migration and rollback behavior.
 
-All Phase 3 gates are represented in the 0.3 verification pipeline. Future candidates are ranked from observed project evidence in [PORTFOLIO-COMPONENT-BACKLOG.md](PORTFOLIO-COMPONENT-BACKLOG.md).
-
-## Phase 4: Workflow Infrastructure (Shipped)
-
-Phase 4 brings the library to 120 components in five implementation waves:
-
-1. CMS and media: `MediaPicker`, `UploadQueue`, `MediaField`, `RelationSelect`, `SortableList`, `ImageCropper`, `DocumentPreview`, and `AudioPlayer`.
-2. Admin workflows: `BulkActionBar`, `StatusSelect`, `FilterChip`, `ResourceToolbar`, `ImportPanel`, `AuditLog`, and `InlineEdit`.
-3. Advanced forms: `PhoneInput`, `CurrencyInput`, `DurationInput`, `DateTimePicker`, `TimezoneSelect`, `ComboboxMultiSelect`, `FieldArray`, `FormSummary`, and `HoneypotField`.
-4. Search and discovery: `SearchInput`, `FacetFilter`, `ActiveFilters`, and `SearchResultsSummary`.
-5. Commerce: `QuantityInput`, `Money`, `CurrencySelect`, `ProductOptionSelect`, `CartLine`, `CartSummary`, `DiscountCodeInput`, and `PriceRangeInput`.
-
-Phase 4 follows the same registry-first, generated-wrapper, preserved-upgrade, focused-test, and browser accessibility gates established in Phase 3.
+`Hero`, generic `Card`, branded headers and footers, typography wrappers,
+marketing copy, decorative surfaces, and final page styling remain
+project-owned. A composition is a wireframe and selection record, not a
+promotion into the runtime component package.

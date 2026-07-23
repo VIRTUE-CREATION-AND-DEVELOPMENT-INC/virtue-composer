@@ -1,7 +1,7 @@
 {
   "name": "@virtuecreation/composer-registry",
-  "version": "0.5.0",
-  "description": "Machine-readable component contracts for Virtue Composer.",
+  "version": "0.6.0",
+  "description": "Machine-readable component, composition, and blueprint contracts for Virtue Composer.",
   "author": "Virtue Creation <info@virtuesoftware.ca>",
   "license": "MIT",
   "repository": {
@@ -23,10 +23,28 @@
     "./components.json": "./components.json",
     "./phase-3.json": "./components.phase-3.json",
     "./phase-4.json": "./components.phase-4.json",
+    "./phase-5.json": "./components.phase-5.json",
+    "./compositions.json": "./compositions.json",
+    "./blueprints.json": "./blueprints.json",
     "./schema.json": "./registry.schema.json",
+    "./composition-schema.json": "./composition.schema.json",
+    "./blueprint-schema.json": "./blueprint.schema.json",
     "./config.schema.json": "./config.schema.json"
   },
-  "files": ["src", "components.json", "components.phase-3.json", "components.phase-4.json", "config.schema.json", "registry.schema.json"],
+  "files": [
+    "src",
+    "components.json",
+    "components.phase-3.json",
+    "components.phase-4.json",
+    "components.phase-5.json",
+    "compositions.json",
+    "blueprints.json",
+    "templates/compositions",
+    "config.schema.json",
+    "registry.schema.json",
+    "composition.schema.json",
+    "blueprint.schema.json"
+  ],
   "scripts": {
     "test": "node scripts/validate-registry.mjs && node scripts/sync-artifacts.mjs --check",
     "prepublishOnly": "npm test"

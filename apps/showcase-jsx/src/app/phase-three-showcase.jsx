@@ -75,6 +75,7 @@ const media = [
 ];
 
 const scheduleDate = new Date(2026, 6, 18);
+const calendarToday = new Date(2026, 6, 22);
 const scheduleEvents = [
   { id: "standup", title: "Project standup", start: new Date(2026, 6, 18, 9, 30), end: new Date(2026, 6, 18, 10), status: "confirmed" },
   { id: "planning", title: "Release planning", start: new Date(2026, 6, 18, 9, 45), end: new Date(2026, 6, 18, 10, 45), description: "Northstar", status: "planning" },
@@ -161,7 +162,7 @@ export default function PhaseThreeShowcase() {
       <DatePicker label="Publish date" defaultValue={scheduleDate} name="publishDate" />
     </Demo>
     <Demo id="date-range-picker" title="Date Range Picker" detail="A connected date interval uses the same calendar engine and form semantics." phase="3A">
-      <DateRangePicker label="Campaign window" defaultValue={{ from: scheduleDate, to: new Date(2026, 6, 24) }} startName="campaignStart" endName="campaignEnd" />
+      <DateRangePicker label="Campaign window" defaultValue={{ from: scheduleDate, to: new Date(2026, 6, 24) }} today={calendarToday} startName="campaignStart" endName="campaignEnd" />
     </Demo>
     <Demo id="time-input" title="Time Input" detail="Native time entry preserves labels, descriptions, and validation state." phase="3A">
       <TimeInput label="Review time" defaultValue="13:30" description="Shown in the workspace timezone." />
@@ -207,7 +208,7 @@ export default function PhaseThreeShowcase() {
       <DataGrid caption="Workspace projects" rows={gridRows} selectable pinnedColumns={{ left: ["__select__", "project"] }} columns={[{ id: "project", header: "Project", accessorKey: "project", sortable: true, minSize: 140 }, { id: "owner", header: "Owner", accessorKey: "owner", sortable: true }, { id: "status", header: "Status", accessorKey: "status" }]} defaultSorting={[{ id: "project", desc: false }]} />
     </Demo>
     <Demo id="calendar" title="Calendar" detail="A shared DayPicker contract exposes stable navigation, day, selection, range, and responsive month hooks." phase="3B">
-      <Calendar mode="single" defaultMonth={scheduleDate} selected={scheduleDate} fixedWeeks showOutsideDays ariaLabel="Editorial calendar" />
+      <Calendar mode="single" defaultMonth={scheduleDate} selected={scheduleDate} today={calendarToday} fixedWeeks showOutsideDays ariaLabel="Editorial calendar" />
     </Demo>
     <Demo id="scheduler" title="Scheduler" detail="Scaled time slots, compact events, collision lanes, and current-time context form a project-stylable day schedule." phase="3B">
       <Scheduler date={scheduleDate} events={scheduleEvents} startHour={8} endHour={17} pixelsPerMinute={0.8} currentTime={new Date(2026, 6, 18, 11, 20)} ariaLabel="Friday schedule" />

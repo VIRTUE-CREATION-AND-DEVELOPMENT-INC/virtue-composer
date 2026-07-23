@@ -4,6 +4,7 @@
   "language": "jsx",
   "sourceRoot": "src",
   "wrapperRoot": "src/components/composer",
+  "compositionRoot": "src/app/sandbox/examples",
   "foundationCss": "src/app/composer.css",
   "importAlias": "@/components/composer",
   "enforcement": {
@@ -12,6 +13,7 @@
     "sectionVisualProps": "error",
     "sectionSemantics": "warning",
     "layoutDivs": "warning",
+    "componentSelection": "warning",
     "sourceAnalysis": "warning",
     "exceptions": {}
   }

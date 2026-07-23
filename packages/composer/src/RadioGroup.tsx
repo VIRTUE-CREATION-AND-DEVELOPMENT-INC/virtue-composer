@@ -11,24 +11,33 @@ export type RadioGroupProps = Omit<HTMLAttributes<HTMLDivElement>, "defaultValue
   value?: string;
   defaultValue?: string;
   onValueChange?: (value: string) => void;
+  name?: string;
+  required?: boolean;
   disabled?: boolean;
+  error?: string;
 };
 
-export default function RadioGroup({ label, description, options, value, defaultValue, onValueChange, disabled, ...props }: RadioGroupProps) {
-  const labelId = useId();
-  const descriptionId = description ? `${labelId}-description` : undefined;
+export default function RadioGroup({ label, description, options, value, defaultValue, onValueChange, name, required, disabled, error, id: providedId, ...props }: RadioGroupProps) {
+  const generatedId = useId();
+  const id = providedId ?? generatedId;
+  const labelId = `${id}-label`;
+  const descriptionId = description ? `${id}-description` : undefined;
+  const errorId = error ? `${id}-error` : undefined;
 
   return (
-    <div data-vc-component="radio-group" data-vc-slot="root" {...props}>
-      <p id={labelId} data-vc-choice-heading>{label}</p>
+    <div id={id} data-vc-component="radio-group" data-vc-slot="root" data-vc-invalid={Boolean(error) || undefined} {...props}>
+      <p id={labelId} data-vc-choice-heading>{label}{required && <span aria-hidden="true"> *</span>}</p>
       {description && <p id={descriptionId} data-vc-choice-description>{description}</p>}
       <RadioGroupPrimitive.Root
         value={value}
         defaultValue={defaultValue}
         onValueChange={onValueChange}
+        name={name}
+        required={required}
         disabled={disabled}
         aria-labelledby={labelId}
-        aria-describedby={descriptionId}
+        aria-describedby={[descriptionId, errorId].filter(Boolean).join(" ") || undefined}
+        aria-invalid={Boolean(error) || undefined}
         data-vc-radio-root
       >
         {options.map((option) => (
@@ -43,6 +52,7 @@ export default function RadioGroup({ label, description, options, value, default
           </label>
         ))}
       </RadioGroupPrimitive.Root>
+      {error && <p id={errorId} role="alert" data-vc-choice-error>{error}</p>}
     </div>
   );
 }

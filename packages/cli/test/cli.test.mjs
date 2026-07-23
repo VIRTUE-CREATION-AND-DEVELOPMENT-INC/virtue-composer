@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { componentRegistry } from "@virtuecreation/composer-registry";
-import { add, doctor, init, inspect, upgrade } from "../src/index.js";
+import { add, compose, doctor, init, inspect, inspectCompositions, upgrade } from "../src/index.js";
 
 test("init creates a detectable Composer project", async (t) => {
   const root = await mkdtemp(path.join(os.tmpdir(), "virtue-composer-"));
@@ -13,12 +13,15 @@ test("init creates a detectable Composer project", async (t) => {
   await init(root);
   const result = await inspect(root);
   assert.equal(result.composerProject, true);
-  assert.equal(result.components.length, 120);
+  assert.equal(result.components.length, 128);
   assert.match(await readFile(path.join(root, "src/components/composer/Button.js"), "utf8"), /@virtuecreation\/composer\/button/);
   const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
-  assert.equal(packageJson.dependencies["@virtuecreation/composer"], "0.5.0");
-  assert.equal(packageJson.devDependencies["@virtuecreation/composer-cli"], "0.5.0");
+  assert.equal(packageJson.dependencies["@virtuecreation/composer"], "0.6.0");
+  assert.equal(packageJson.devDependencies["@virtuecreation/composer-cli"], "0.6.0");
+  assert.equal(packageJson.scripts["composer:check"], "virtue-composer doctor . --strict");
   assert.equal(result.config.packageSource, "npm");
+  assert.equal(result.config.compositionRoot, "src/components/compositions");
+  assert.equal(result.config.enforcement.componentSelection, "warning");
   const jsconfig = JSON.parse(await readFile(path.join(root, "jsconfig.json"), "utf8"));
   assert.deepEqual(jsconfig.compilerOptions.paths["@/components/composer"], ["./src/components/composer/index.js"]);
 });
@@ -30,7 +33,7 @@ test("init detects a root app layout and writes compatible aliases", async (t) =
   await writeFile(path.join(root, "package.json"), '{"name":"fixture","dependencies":{}}\n');
   await writeFile(path.join(root, "jsconfig.json"), '{"compilerOptions":{"paths":{"@/*":["./*"]}}}\n');
   const initialized = await init(root);
-  assert.deepEqual(initialized.structure, { sourceRoot: ".", wrapperRoot: "components/composer", foundationCss: "styles/composer.css", importAlias: "@/components/composer", language: "jsx" });
+  assert.deepEqual(initialized.structure, { sourceRoot: ".", wrapperRoot: "components/composer", compositionRoot: "components/compositions", foundationCss: "styles/composer.css", importAlias: "@/components/composer", language: "jsx" });
   assert.match(await readFile(path.join(root, "components/composer/Button.js"), "utf8"), /@virtuecreation\/composer\/button/);
   const config = JSON.parse(await readFile(path.join(root, "virtue-composer.config.json"), "utf8"));
   assert.equal(config.sourceRoot, ".");
@@ -167,10 +170,113 @@ test("inspect filters compact output and reports used components", async (t) => 
   const used = await inspect(root, { used: true, compact: true });
   assert.deepEqual(used.components.map((component) => component.id).sort(), ["button", "section"]);
   assert.equal(used.summary.used, 2);
-  assert.equal(used.summary.available, 120);
+  assert.equal(used.summary.available, 128);
   const fields = await inspect(root, { category: "field", compact: true });
   assert.ok(fields.components.length > 10);
   assert.ok(fields.components.every((component) => component.layer === "field"));
   const button = await inspect(root, { component: "Button", compact: true });
   assert.deepEqual(button.components.map((component) => component.id), ["button"]);
+  assert.equal(button.components[0].stability, "stable");
+  assert.equal(button.components[0].since, "0.1.0");
+  const emptyState = await inspect(root, { component: "EmptyState" });
+  assert.equal(emptyState.components[0].propContracts.actions.kind, "react-node");
+});
+
+test("report exposes per-file usage and registry-driven replacement candidates", async (t) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "virtue-composer-candidates-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await init(root);
+  await mkdir(path.join(root, "src/app"), { recursive: true });
+  await writeFile(path.join(root, "src/app/page.jsx"), `
+    import { Form, Input, Money, Section, SegmentedControl } from "@/components/composer";
+    export default function Page({ priceMinor }) {
+      return <Section as="main"><Form fields={[]}><Input type="tel" /><Input type="number" /><Input type="password" /><SegmentedControl items={[]} /><p role="status">Saved</p><Money value={priceMinor / 100} currency="CAD" /></Form></Section>;
+    }
+  `);
+  const report = await inspect(root, { used: true, compact: true, candidates: true, files: true });
+  assert.equal(report.files.length, 1);
+  assert.deepEqual(report.files[0].components.sort(), ["Form", "Input", "Money", "Section", "SegmentedControl"]);
+  assert.deepEqual(report.candidates.map((candidate) => candidate.recommendation.id).sort(), ["inline-message", "money", "number-input", "password-input", "phone-input", "radio-group"]);
+  assert.ok(report.candidates.every((candidate) => candidate.recommendation.status.installed));
+  assert.ok(report.candidates.every((candidate) => candidate.recommendation.addCommand === null));
+  const normal = await doctor(root);
+  assert.equal(normal.ok, true);
+  assert.equal(normal.findings.filter((finding) => finding.rule.startsWith("prefer-")).length, 6);
+  const strict = await doctor(root, { strict: true });
+  assert.equal(strict.ok, false);
+  assert.equal(strict.strict, true);
+});
+
+test("composition catalog supports natural-language discovery", async (t) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "virtue-composer-composition-inspect-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await writeFile(path.join(root, "package.json"), '{"name":"fixture","dependencies":{}}\n');
+  await init(root, { components: "Section" });
+  const result = await inspectCompositions(root, { query: "impact statistics", compact: true });
+  assert.equal(result.summary.availableCompositions, 34);
+  assert.equal(result.summary.availableBlueprints, 3);
+  assert.deepEqual(result.compositions.map((composition) => composition.id), ["proof-metric-strip"]);
+  assert.equal(result.compositions[0].status.installed, false);
+  const community = await inspectCompositions(root, { blueprint: "community-nonprofit", compact: true });
+  assert.deepEqual(community.blueprints.map((blueprint) => blueprint.id), ["community-nonprofit"]);
+  const guided = await inspectCompositions(root, { pack: "guided-workflows", compact: true });
+  assert.deepEqual(guided.compositions.map((composition) => composition.id), ["multi-step-selection-flow", "estimate-flow", "booking-flow"]);
+  assert.ok(guided.compositions.every((composition) => composition.pack === "guided-workflows"));
+});
+
+test("compose copies project-owned JSX and CSS, installs dependencies, and preserves adaptations", async (t) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "virtue-composer-compose-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await writeFile(path.join(root, "package.json"), '{"name":"fixture","dependencies":{}}\n');
+  await init(root, { components: "Section" });
+  const first = await compose(root, { compositions: "faq-split-accordion,proof-metric-strip" });
+  assert.deepEqual(first.compositions, ["faq-split-accordion", "proof-metric-strip"]);
+  const compositionRoot = path.join(root, "src/components/compositions");
+  assert.match(await readFile(path.join(compositionRoot, "FAQSplitAccordion.jsx"), "utf8"), /from "@\/components\/composer"/);
+  assert.match(await readFile(path.join(compositionRoot, "compositions.module.css"), "utf8"), /\.section/);
+  const manifestFile = path.join(root, "virtue-composer.manifest.json");
+  const manifest = JSON.parse(await readFile(manifestFile, "utf8"));
+  assert.deepEqual(manifest.compositions.sort(), ["faq-split-accordion", "proof-metric-strip"]);
+  assert.ok(manifest.components.includes("accordion"));
+  assert.ok(manifest.components.includes("button-link"));
+  assert.equal((await doctor(root)).ok, true);
+
+  await writeFile(path.join(compositionRoot, "FAQSplitAccordion.jsx"), "// project adaptation\n");
+  const second = await compose(root, { compositions: "faq-split-accordion" });
+  assert.ok(second.skipped.includes("FAQ split accordion composition"));
+  assert.equal(await readFile(path.join(compositionRoot, "FAQSplitAccordion.jsx"), "utf8"), "// project adaptation\n");
+});
+
+test("compose installs complete page blueprints and Doctor detects missing copied files", async (t) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "virtue-composer-blueprint-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await writeFile(path.join(root, "package.json"), '{"name":"fixture","dependencies":{}}\n');
+  await init(root, { components: "Section" });
+  await mkdir(path.join(root, "src/app"), { recursive: true });
+  await writeFile(path.join(root, "src/app/layout.jsx"), 'import "../styles/composer.css";\nexport default function Layout({ children }) { return <html><body>{children}</body></html>; }\n');
+  const result = await compose(root, { blueprint: "service-business" });
+  assert.equal(result.blueprint, "service-business");
+  assert.deepEqual(result.compositions, ["services-media-grid", "content-media-split", "proof-metric-strip", "process-numbered-steps", "location-contact-cards", "faq-split-accordion", "contact-form-split"]);
+  const manifest = JSON.parse(await readFile(path.join(root, "virtue-composer.manifest.json"), "utf8"));
+  assert.deepEqual(manifest.blueprints, ["service-business"]);
+  assert.equal((await doctor(root, { strict: true })).ok, true);
+  await rm(path.join(root, "src/components/compositions/ServicesMediaGrid.jsx"));
+  const report = await doctor(root);
+  assert.equal(report.ok, false);
+  assert.ok(report.findings.some((finding) => finding.rule === "missing-composition"));
+});
+
+test("compose installs a complete specialized composition pack", async (t) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "virtue-composer-pack-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await writeFile(path.join(root, "package.json"), '{"name":"fixture","dependencies":{}}\n');
+  await init(root, { components: "Section" });
+  const result = await compose(root, { pack: "immersive" });
+  assert.equal(result.pack, "immersive");
+  assert.deepEqual(result.compositions, ["horizontal-story", "chaptered-presentation"]);
+  const manifest = JSON.parse(await readFile(path.join(root, "virtue-composer.manifest.json"), "utf8"));
+  assert.ok(manifest.components.includes("anchor-nav"));
+  assert.ok(manifest.compositions.includes("horizontal-story"));
+  assert.ok(manifest.compositions.includes("chaptered-presentation"));
+  assert.equal((await doctor(root)).ok, true);
 });

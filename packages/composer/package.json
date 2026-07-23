@@ -1,6 +1,6 @@
 {
   "name": "@virtuecreation/composer",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Structural and behavioral components for Virtue Next.js projects.",
   "author": "Virtue Creation <info@virtuesoftware.ca>",
   "license": "MIT",
@@ -515,6 +515,38 @@
     "./price-range-input": {
       "types": "./dist/PriceRangeInput.d.ts",
       "import": "./dist/PriceRangeInput.js"
+    },
+    "./selectable-card-group": {
+      "types": "./dist/SelectableCardGroup.d.ts",
+      "import": "./dist/SelectableCardGroup.js"
+    },
+    "./resizable-panels": {
+      "types": "./dist/ResizablePanels.d.ts",
+      "import": "./dist/ResizablePanels.js"
+    },
+    "./wizard": {
+      "types": "./dist/Wizard.d.ts",
+      "import": "./dist/Wizard.js"
+    },
+    "./transfer-list": {
+      "types": "./dist/TransferList.d.ts",
+      "import": "./dist/TransferList.js"
+    },
+    "./color-picker": {
+      "types": "./dist/ColorPicker.d.ts",
+      "import": "./dist/ColorPicker.js"
+    },
+    "./rating-input": {
+      "types": "./dist/RatingInput.d.ts",
+      "import": "./dist/RatingInput.js"
+    },
+    "./mention-input": {
+      "types": "./dist/MentionInput.d.ts",
+      "import": "./dist/MentionInput.js"
+    },
+    "./editable-list": {
+      "types": "./dist/EditableList.d.ts",
+      "import": "./dist/EditableList.js"
     }
   },
   "scripts": {

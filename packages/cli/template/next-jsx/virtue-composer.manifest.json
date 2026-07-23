@@ -1,7 +1,7 @@
 {
   "contractVersion": 1,
-  "composerVersion": "0.5.0",
-  "cliVersion": "0.5.0",
+  "composerVersion": "0.6.0",
+  "cliVersion": "0.6.0",
   "installationMode": "full",
   "template": "next-jsx",
   "components": [
@@ -124,6 +124,16 @@
     "cart-line",
     "cart-summary",
     "discount-code-input",
-    "price-range-input"
-  ]
+    "price-range-input",
+    "selectable-card-group",
+    "resizable-panels",
+    "wizard",
+    "transfer-list",
+    "color-picker",
+    "rating-input",
+    "mention-input",
+    "editable-list"
+  ],
+  "compositions": [],
+  "blueprints": []
 }

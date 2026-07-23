@@ -17,13 +17,14 @@ function parseSource(source, file) {
   });
 }
 
-function walk(node, visit) {
+function walk(node, visit, ancestors = []) {
   if (!node || typeof node !== "object") return;
-  visit(node);
+  visit(node, ancestors);
+  const nextAncestors = [...ancestors, node];
   for (const [key, value] of Object.entries(node)) {
     if (key === "loc" || key === "start" || key === "end" || key === "extra") continue;
-    if (Array.isArray(value)) for (const child of value) walk(child, visit);
-    else if (value && typeof value === "object" && typeof value.type === "string") walk(value, visit);
+    if (Array.isArray(value)) for (const child of value) walk(child, visit, nextAncestors);
+    else if (value && typeof value === "object" && typeof value.type === "string") walk(value, visit, nextAncestors);
   }
 }
 
@@ -100,20 +101,66 @@ async function loadCssModuleLayouts(ast, absoluteFile) {
 
 function importUsage(ast, importAlias) {
   const names = new Set();
+  const localNames = new Map();
   walk(ast, (node) => {
     if (node.type !== "ImportDeclaration") return;
     const source = node.source.value;
     if (source !== importAlias && !source.startsWith(`${importAlias}/`)) return;
-    if (source.startsWith(`${importAlias}/`)) names.add(source.slice(importAlias.length + 1));
+    const subpathName = source.startsWith(`${importAlias}/`) ? source.slice(importAlias.length + 1) : null;
+    if (subpathName) names.add(subpathName);
     for (const specifier of node.specifiers) {
-      if (specifier.type === "ImportSpecifier") names.add(specifier.imported.name ?? specifier.imported.value);
-      else if (specifier.type === "ImportDefaultSpecifier" && source !== importAlias) names.add(path.basename(source));
+      if (specifier.type === "ImportSpecifier") {
+        const importedName = specifier.imported.name ?? specifier.imported.value;
+        names.add(importedName);
+        localNames.set(specifier.local.name, importedName);
+      } else if (specifier.type === "ImportDefaultSpecifier" && subpathName) {
+        names.add(subpathName);
+        localNames.set(specifier.local.name, subpathName);
+      }
     }
   });
-  return names;
+  return { names, localNames };
 }
 
-export async function analyzeSource({ source, absoluteFile, relativeFile, isWrapper, importAlias }) {
+function canonicalJsxName(node, localNames) {
+  const name = jsxName(node);
+  return localNames.get(name) ?? name;
+}
+
+function selectionHintMatches(node, ancestors, hint, localNames) {
+  const name = canonicalJsxName(node.name, localNames);
+  if (hint.from !== "*" && name !== hint.from) return false;
+  const attributes = new Map(node.attributes.map((attribute) => [attributeName(attribute), attribute]).filter(([key]) => key));
+  if (hint.rule === "jsx-prop-equals") return attributeValue(attributes.get(hint.prop)) === hint.value;
+  if (hint.rule === "jsx-prop-divisor") {
+    const expression = attributeValue(attributes.get(hint.prop));
+    return expression?.type === "BinaryExpression" && expression.operator === "/" && expression.right?.type === "NumericLiteral" && expression.right.value === hint.value;
+  }
+  if (hint.rule === "jsx-ancestor") {
+    return ancestors.some((ancestor) => ancestor.type === "JSXElement" && canonicalJsxName(ancestor.openingElement.name, localNames) === hint.ancestor);
+  }
+  return false;
+}
+
+function candidateFromHint(hint, relativeFile, line) {
+  return {
+    rule: `prefer-${hint.target.id}`,
+    file: relativeFile,
+    line,
+    current: hint.from,
+    confidence: hint.confidence,
+    message: hint.message,
+    recommendation: {
+      id: hint.target.id,
+      title: hint.target.title,
+      projectImport: hint.target.projectImport,
+      stability: hint.target.stability,
+      since: hint.target.since,
+    },
+  };
+}
+
+export async function analyzeSource({ source, absoluteFile, relativeFile, isWrapper, importAlias, selectionHints = [] }) {
   let ast;
   try {
     ast = parseSource(source, absoluteFile);
@@ -121,15 +168,18 @@ export async function analyzeSource({ source, absoluteFile, relativeFile, isWrap
     return {
       findings: [{ group: "sourceAnalysis", rule: "analysis-parse", file: relativeFile, line: error.loc?.line ?? 1, message: `Source analysis skipped: ${error.message}` }],
       usedNames: new Set(),
+      candidates: [],
       parsed: false,
     };
   }
 
-  const usedNames = isWrapper ? new Set() : importUsage(ast, importAlias);
-  if (isWrapper) return { findings: [], usedNames, parsed: true };
+  const usage = isWrapper ? { names: new Set(), localNames: new Map() } : importUsage(ast, importAlias);
+  const usedNames = usage.names;
+  if (isWrapper) return { findings: [], usedNames, candidates: [], parsed: true };
 
   const cssModules = await loadCssModuleLayouts(ast, absoluteFile);
   const findings = [];
+  const candidates = [];
   const sectionNames = new Set(["Section"]);
 
   for (const node of ast.program.body) {
@@ -144,9 +194,9 @@ export async function analyzeSource({ source, absoluteFile, relativeFile, isWrap
     }
   }
 
-  walk(ast, (node) => {
+  walk(ast, (node, ancestors) => {
     if (node.type !== "JSXOpeningElement") return;
-    const name = jsxName(node.name);
+    const name = canonicalJsxName(node.name, usage.localNames);
     const line = node.loc?.start.line ?? 1;
     if (rawControls.has(name)) {
       findings.push({ group: "rawControls", rule: `raw-${name}`, file: relativeFile, line, message: `Use the local Composer ${name} wrapper.` });
@@ -160,6 +210,13 @@ export async function analyzeSource({ source, absoluteFile, relativeFile, isWrap
       if (!attributes.has("as")) findings.push({ group: "sectionSemantics", rule: "section-explicit-element", file: relativeFile, line, message: "Declare Section as an explicit semantic region or as=\"div\" for layout-only grouping." });
     }
 
+    for (const hint of selectionHints) {
+      if (!selectionHintMatches(node, ancestors, hint, usage.localNames)) continue;
+      const candidate = candidateFromHint(hint, relativeFile, line);
+      candidates.push(candidate);
+      findings.push({ group: "componentSelection", rule: candidate.rule, file: relativeFile, line, message: candidate.message });
+    }
+
     if (name !== "div") return;
     const className = node.attributes.find((attribute) => attributeName(attribute) === "className");
     const style = node.attributes.find((attribute) => attributeName(attribute) === "style");
@@ -171,7 +228,7 @@ export async function analyzeSource({ source, absoluteFile, relativeFile, isWrap
     }
   });
 
-  return { findings, usedNames, parsed: true };
+  return { findings, usedNames, candidates, parsed: true };
 }
 
 export function componentName(component) {

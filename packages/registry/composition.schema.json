@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Virtue Composer composition registry",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "title",
+      "family",
+      "description",
+      "selection",
+      "anatomy",
+      "components",
+      "client",
+      "responsive",
+      "accessibilityChecks",
+      "neighbors",
+      "template",
+      "evidence",
+      "stability",
+      "since",
+      "contractVersion"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      },
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "family": {
+        "enum": [
+          "faq",
+          "services",
+          "process",
+          "proof",
+          "collection",
+          "capture",
+          "contact",
+          "content",
+          "participation",
+          "outcome",
+          "commerce",
+          "workflow",
+          "search",
+          "application",
+          "immersive"
+        ]
+      },
+      "pack": {
+        "enum": ["core", "commerce", "guided-workflows", "search", "application", "immersive"]
+      },
+      "description": {
+        "type": "string",
+        "minLength": 1
+      },
+      "selection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["description", "queries", "avoidWhen", "keywords"],
+        "properties": {
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "queries": {
+            "type": "array",
+            "minItems": 2,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "avoidWhen": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "keywords": {
+            "type": "array",
+            "minItems": 2,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      },
+      "anatomy": {
+        "type": "array",
+        "minItems": 2,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "label", "kind", "required"],
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kind": {
+              "enum": ["content", "media", "action", "list", "form"]
+            },
+            "required": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "components": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        }
+      },
+      "client": {
+        "type": "boolean"
+      },
+      "responsive": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["compact", "wide"],
+        "properties": {
+          "compact": {
+            "type": "string",
+            "minLength": 1
+          },
+          "wide": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "accessibilityChecks": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "neighbors": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["before", "after"],
+        "properties": {
+          "before": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            }
+          },
+          "after": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            }
+          }
+        }
+      },
+      "template": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["component", "source", "style"],
+        "properties": {
+          "component": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Za-z0-9]+$"
+          },
+          "source": {
+            "type": "string",
+            "pattern": "^templates/compositions/[A-Za-z0-9]+\\.jsx$"
+          },
+          "style": {
+            "const": "templates/compositions/compositions.module.css"
+          }
+        }
+      },
+      "evidence": {
+        "type": "array",
+        "minItems": 2,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "stability": {
+        "enum": ["experimental", "beta", "stable", "deprecated"]
+      },
+      "since": {
+        "type": "string",
+        "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+      },
+      "contractVersion": {
+        "const": 1
+      }
+    }
+  }
+}

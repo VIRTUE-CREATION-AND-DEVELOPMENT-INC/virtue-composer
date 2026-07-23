@@ -1,6 +1,6 @@
 {
   "name": "@virtuecreation/composer-cli",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Initialize, inspect, and validate Virtue Composer projects.",
   "author": "Virtue Creation <info@virtuesoftware.ca>",
   "license": "MIT",
@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@babel/parser": "^7.28.0",
-    "@virtuecreation/composer-registry": "0.5.0",
+    "@virtuecreation/composer-registry": "0.6.0",
     "jsonc-parser": "^3.3.1",
     "minimatch": "^10.0.3",
     "postcss": "^8.5.6"

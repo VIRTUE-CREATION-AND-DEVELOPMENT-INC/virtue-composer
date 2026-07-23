@@ -198,6 +198,12 @@ describe("Phase 4C advanced forms", () => {
     expect(document.querySelector("input[name='phone']")).toHaveValue("+14165550123");
   });
 
+  it("uses a project-provided phone input id for linked validation summaries", () => {
+    render(<PhoneInput id="contact-phone" label="Phone" error="Enter a valid number" countries={[{ code: "CA", label: "Canada" }]} />);
+    expect(screen.getByLabelText("Phone")).toHaveAttribute("id", "contact-phone");
+    expect(screen.getByLabelText("Phone")).toHaveAccessibleDescription("Enter a valid number");
+  });
+
   it("parses currency values into minor units", async () => {
     const change = vi.fn();
     const user = userEvent.setup();

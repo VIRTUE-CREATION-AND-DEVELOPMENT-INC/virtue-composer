@@ -1,0 +1,1138 @@
+[
+  {
+    "id": "faq-split-accordion",
+    "title": "FAQ split accordion",
+    "family": "faq",
+    "description": "An introduction and support action beside an interactive accordion.",
+    "selection": {
+      "description": "Use when frequently asked questions need context, reassurance, and a nearby escalation path.",
+      "queries": ["Add an FAQ beside introductory copy", "Create a support-oriented accordion section"],
+      "avoidWhen": ["There are fewer than three questions or every answer must remain visible."],
+      "keywords": ["faq", "accordion", "questions", "support", "split"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Introductory copy", "kind": "content", "required": true },
+      { "id": "questions", "label": "Question accordion", "kind": "list", "required": true },
+      { "id": "support-action", "label": "Support action", "kind": "action", "required": false }
+    ],
+    "components": ["section", "accordion", "button-link"],
+    "client": true,
+    "responsive": {
+      "compact": "Stack the introduction before the full-width accordion.",
+      "wide": "Place the introduction and accordion in asymmetric columns."
+    },
+    "accessibilityChecks": ["section-heading", "accordion-keyboard-operation", "visible-focus"],
+    "neighbors": {
+      "before": ["process-numbered-steps", "services-media-grid"],
+      "after": ["newsletter-inline-band", "confirmation-next-actions"]
+    },
+    "template": {
+      "component": "FAQSplitAccordion",
+      "source": "templates/compositions/FAQSplitAccordion.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["bgr-main", "heatwave-fl", "Precision-paint-pros", "virtuecreation"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "faq-stacked-list",
+    "title": "FAQ stacked list",
+    "family": "faq",
+    "description": "A heading followed by an always-visible semantic question-and-answer list.",
+    "selection": {
+      "description": "Use when answers are short, highly scannable, and useful to compare without interaction.",
+      "queries": ["Show all FAQs in a simple list", "Create a compact questions and answers section"],
+      "avoidWhen": ["Answers are long enough to make the page difficult to scan."],
+      "keywords": ["faq", "questions", "answers", "stacked", "support"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Section heading", "kind": "content", "required": true },
+      { "id": "answers", "label": "Question and answer list", "kind": "list", "required": true }
+    ],
+    "components": ["section"],
+    "client": false,
+    "responsive": {
+      "compact": "Keep each answer in a single stacked reading flow.",
+      "wide": "Retain one readable column or use a restrained two-column definition list."
+    },
+    "accessibilityChecks": ["section-heading", "definition-list-semantics", "heading-hierarchy"],
+    "neighbors": {
+      "before": ["services-icon-grid", "proof-metric-strip"],
+      "after": ["newsletter-inline-band", "confirmation-next-actions"]
+    },
+    "template": {
+      "component": "FAQStackedList",
+      "source": "templates/compositions/FAQStackedList.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["heatwave-fl", "oops-my-phone", "Precision-paint-pros"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "services-icon-grid",
+    "title": "Services icon grid",
+    "family": "services",
+    "description": "A concise service or capability grid with optional icons and per-item actions.",
+    "selection": {
+      "description": "Use when several offers need equal visual weight and brief explanations.",
+      "queries": ["Show services in an icon grid", "Create an equal-weight capability section"],
+      "avoidWhen": ["One service is dominant enough to require a featured media treatment."],
+      "keywords": ["services", "features", "capabilities", "icon grid", "offerings"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Section introduction", "kind": "content", "required": true },
+      { "id": "items", "label": "Service cards", "kind": "list", "required": true },
+      { "id": "action", "label": "Section action", "kind": "action", "required": false }
+    ],
+    "components": ["section", "button-link"],
+    "client": false,
+    "responsive": {
+      "compact": "Collapse cards to one column with icons aligned consistently.",
+      "wide": "Distribute cards across two to four equal columns."
+    },
+    "accessibilityChecks": ["section-heading", "list-semantics", "decorative-icon-hidden"],
+    "neighbors": {
+      "before": ["announcement-dismissible"],
+      "after": ["process-numbered-steps", "proof-metric-strip"]
+    },
+    "template": {
+      "component": "ServicesIconGrid",
+      "source": "templates/compositions/ServicesIconGrid.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["bgr-main", "heatwave-fl", "Precision-paint-pros", "virtuecreation"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "services-media-grid",
+    "title": "Services media grid",
+    "family": "services",
+    "description": "A collection of service summaries paired with project-owned imagery.",
+    "selection": {
+      "description": "Use when services benefit from visual examples, outcomes, or environmental context.",
+      "queries": ["Create image-led service cards", "Show service offerings with media"],
+      "avoidWhen": ["Imagery is generic or would distract from a short utility-oriented list."],
+      "keywords": ["services", "media", "image cards", "offerings", "capabilities"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Section introduction", "kind": "content", "required": true },
+      { "id": "media-items", "label": "Media service cards", "kind": "media", "required": true },
+      { "id": "actions", "label": "Item actions", "kind": "action", "required": false }
+    ],
+    "components": ["section", "button-link"],
+    "client": false,
+    "responsive": {
+      "compact": "Stack media above copy and keep cards in a single column.",
+      "wide": "Use a balanced two- or three-column collection with consistent media ratios."
+    },
+    "accessibilityChecks": ["section-heading", "meaningful-image-alt", "link-purpose"],
+    "neighbors": {
+      "before": ["announcement-dismissible"],
+      "after": ["proof-metric-strip", "process-numbered-steps"]
+    },
+    "template": {
+      "component": "ServicesMediaGrid",
+      "source": "templates/compositions/ServicesMediaGrid.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["heatwave-fl", "oops-my-phone", "Precision-paint-pros", "recinda6ix"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "process-numbered-steps",
+    "title": "Process numbered steps",
+    "family": "process",
+    "description": "A linear sequence that explains how work progresses from first action to outcome.",
+    "selection": {
+      "description": "Use for short, ordered processes where each step has similar importance and amount of copy.",
+      "queries": ["Explain our process in numbered steps", "Create a simple how-it-works section"],
+      "avoidWhen": ["The sequence branches, loops, or depends on application state."],
+      "keywords": ["process", "steps", "how it works", "numbered", "workflow"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Process introduction", "kind": "content", "required": true },
+      { "id": "steps", "label": "Ordered steps", "kind": "list", "required": true }
+    ],
+    "components": ["section"],
+    "client": false,
+    "responsive": {
+      "compact": "Stack steps vertically and preserve their explicit order.",
+      "wide": "Arrange steps in a row or restrained grid with visible sequence markers."
+    },
+    "accessibilityChecks": ["section-heading", "ordered-list-semantics", "sequence-not-color-only"],
+    "neighbors": {
+      "before": ["services-icon-grid", "services-media-grid"],
+      "after": ["proof-metric-strip", "faq-split-accordion"]
+    },
+    "template": {
+      "component": "ProcessNumberedSteps",
+      "source": "templates/compositions/ProcessNumberedSteps.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["bgr-main", "oops-my-phone", "Precision-paint-pros", "virtuecreation"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "timeline-alternating-media",
+    "title": "Timeline alternating media",
+    "family": "process",
+    "description": "A chronological or narrative sequence with optional media alternating beside each entry.",
+    "selection": {
+      "description": "Use for histories, journeys, milestones, and longer processes where each stage deserves visual space.",
+      "queries": ["Build an alternating timeline", "Tell our journey with milestones and images"],
+      "avoidWhen": ["The content is not genuinely sequential or has fewer than three meaningful stages."],
+      "keywords": ["timeline", "milestones", "journey", "history", "media"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Timeline introduction", "kind": "content", "required": true },
+      { "id": "entries", "label": "Timeline entries", "kind": "list", "required": true },
+      { "id": "media", "label": "Entry media", "kind": "media", "required": false }
+    ],
+    "components": ["section"],
+    "client": false,
+    "responsive": {
+      "compact": "Use one chronological column with media before its related copy.",
+      "wide": "Alternate media and copy while keeping source order chronological."
+    },
+    "accessibilityChecks": ["section-heading", "ordered-list-semantics", "source-order-matches-chronology"],
+    "neighbors": {
+      "before": ["proof-metric-strip", "services-media-grid"],
+      "after": ["stories-featured-plus-grid", "participation-pathways"]
+    },
+    "template": {
+      "component": "TimelineAlternatingMedia",
+      "source": "templates/compositions/TimelineAlternatingMedia.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["recinda6ix", "route83co", "onenewlifeacademy"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "proof-metric-strip",
+    "title": "Proof metric strip",
+    "family": "proof",
+    "description": "A compact row of outcome metrics with labels and optional supporting context.",
+    "selection": {
+      "description": "Use when three to five credible numbers can quickly establish reach, quality, or impact.",
+      "queries": ["Add an impact statistics strip", "Show key proof points in one row"],
+      "avoidWhen": ["Numbers lack a clear definition, source, or meaningful unit."],
+      "keywords": ["metrics", "stats", "proof", "impact", "outcomes"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Proof context", "kind": "content", "required": false },
+      { "id": "metrics", "label": "Metric list", "kind": "list", "required": true }
+    ],
+    "components": ["section"],
+    "client": false,
+    "responsive": {
+      "compact": "Wrap metrics into readable rows without shrinking values below legibility.",
+      "wide": "Keep metrics in a single balanced strip where space allows."
+    },
+    "accessibilityChecks": ["section-label", "definition-list-semantics", "meaning-not-color-only"],
+    "neighbors": {
+      "before": ["services-media-grid", "process-numbered-steps"],
+      "after": ["testimonials-editorial-list", "participation-pathways"]
+    },
+    "template": {
+      "component": "ProofMetricStrip",
+      "source": "templates/compositions/ProofMetricStrip.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["heatwave-fl", "onenewlifeacademy", "recinda6ix", "route83co"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "testimonials-editorial-list",
+    "title": "Testimonials editorial list",
+    "family": "proof",
+    "description": "A quote-led list that gives each testimonial enough room for context and attribution.",
+    "selection": {
+      "description": "Use when a small set of detailed testimonials is more persuasive than a dense carousel.",
+      "queries": ["Create an editorial testimonial section", "Show detailed client quotes with outcomes"],
+      "avoidWhen": ["Quotes are anonymous, repetitive, or too short to need editorial treatment."],
+      "keywords": ["testimonials", "quotes", "reviews", "clients", "social proof"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Proof introduction", "kind": "content", "required": true },
+      { "id": "quotes", "label": "Attributed quotes", "kind": "list", "required": true }
+    ],
+    "components": ["section"],
+    "client": false,
+    "responsive": {
+      "compact": "Stack quotes and keep attribution immediately after each quotation.",
+      "wide": "Use an editorial list or restrained columns without changing reading order."
+    },
+    "accessibilityChecks": ["section-heading", "blockquote-semantics", "attribution-associated"],
+    "neighbors": {
+      "before": ["proof-metric-strip", "gallery-featured-grid"],
+      "after": ["faq-split-accordion", "newsletter-inline-band"]
+    },
+    "template": {
+      "component": "TestimonialsEditorialList",
+      "source": "templates/compositions/TestimonialsEditorialList.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["Precision-paint-pros", "recinda6ix", "virtuecreation", "heatwave-fl"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "partners-logo-wall",
+    "title": "Partners logo wall",
+    "family": "proof",
+    "description": "A labeled wall of partner, sponsor, client, or press marks.",
+    "selection": {
+      "description": "Use when recognizable organizations provide meaningful trust or demonstrate ecosystem reach.",
+      "queries": ["Add a partner logo wall", "Show sponsors and press marks"],
+      "avoidWhen": ["The marks are decorative, outdated, or lack permission to display."],
+      "keywords": ["partners", "sponsors", "logos", "clients", "press"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Relationship context", "kind": "content", "required": true },
+      { "id": "logos", "label": "Organization marks", "kind": "media", "required": true }
+    ],
+    "components": ["section"],
+    "client": false,
+    "responsive": {
+      "compact": "Wrap marks into a two-column grid with consistent cells.",
+      "wide": "Use four to six columns while preserving each mark's intrinsic ratio."
+    },
+    "accessibilityChecks": ["section-heading", "logo-alt-names-organization", "links-have-purpose"],
+    "neighbors": {
+      "before": ["proof-metric-strip", "stories-featured-plus-grid"],
+      "after": ["newsletter-inline-band", "participation-pathways"]
+    },
+    "template": {
+      "component": "PartnersLogoWall",
+      "source": "templates/compositions/PartnersLogoWall.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["recinda6ix", "bgr-main", "balik"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "gallery-featured-grid",
+    "title": "Gallery featured grid",
+    "family": "collection",
+    "description": "A featured visual followed by a supporting image or project grid.",
+    "selection": {
+      "description": "Use when one image or project should lead while the remaining collection stays browsable.",
+      "queries": ["Build a gallery with one featured image", "Create a portfolio grid with a lead project"],
+      "avoidWhen": ["Every item must receive identical prominence or the collection has fewer than three items."],
+      "keywords": ["gallery", "portfolio", "featured", "projects", "images"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Collection introduction", "kind": "content", "required": true },
+      { "id": "featured", "label": "Featured media", "kind": "media", "required": true },
+      { "id": "supporting", "label": "Supporting media grid", "kind": "media", "required": true }
+    ],
+    "components": ["section", "image-gallery"],
+    "client": true,
+    "responsive": {
+      "compact": "Stack the selected image and horizontally scrollable or wrapped thumbnails.",
+      "wide": "Give the selected image dominant space beside or above supporting thumbnails."
+    },
+    "accessibilityChecks": ["section-heading", "meaningful-image-alt", "gallery-selection-announced"],
+    "neighbors": {
+      "before": ["services-media-grid"],
+      "after": ["stories-featured-plus-grid", "testimonials-editorial-list"]
+    },
+    "template": {
+      "component": "GalleryFeaturedGrid",
+      "source": "templates/compositions/GalleryFeaturedGrid.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["balik", "bgr-main", "heatwave-fl", "Precision-paint-pros", "vocedoro"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "stories-featured-plus-grid",
+    "title": "Stories featured plus grid",
+    "family": "collection",
+    "description": "A featured article or story followed by a compact archive grid.",
+    "selection": {
+      "description": "Use when editorial content needs a clear lead story and several secondary routes.",
+      "queries": ["Create a featured story with article cards", "Build a news or case-study landing section"],
+      "avoidWhen": ["All records are utility results that should be sorted or filtered instead."],
+      "keywords": ["stories", "news", "articles", "case studies", "editorial"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Archive introduction", "kind": "content", "required": true },
+      { "id": "featured", "label": "Featured story", "kind": "media", "required": true },
+      { "id": "archive", "label": "Supporting story grid", "kind": "list", "required": true }
+    ],
+    "components": ["section", "button-link"],
+    "client": false,
+    "responsive": {
+      "compact": "Stack the lead story before the archive and keep metadata concise.",
+      "wide": "Give the lead story a wider column than supporting cards."
+    },
+    "accessibilityChecks": ["section-heading", "article-semantics", "link-purpose", "meaningful-image-alt"],
+    "neighbors": {
+      "before": ["gallery-featured-grid", "timeline-alternating-media"],
+      "after": ["newsletter-inline-band", "partners-logo-wall"]
+    },
+    "template": {
+      "component": "StoriesFeaturedPlusGrid",
+      "source": "templates/compositions/StoriesFeaturedPlusGrid.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["onenewlifeacademy", "recinda6ix", "route83co", "virtuecreation"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "people-profile-grid",
+    "title": "People profile grid",
+    "family": "collection",
+    "description": "A team, board, stylist, instructor, or contributor grid with role context.",
+    "selection": {
+      "description": "Use when individual people and their roles are important to trust, selection, or organizational transparency.",
+      "queries": ["Add a team profile grid", "Show stylists or board members"],
+      "avoidWhen": ["Names are incidental or profiles have no useful role or biography context."],
+      "keywords": ["team", "people", "board", "staff", "profiles"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "People introduction", "kind": "content", "required": true },
+      { "id": "profiles", "label": "Profile cards", "kind": "list", "required": true },
+      { "id": "portraits", "label": "Portrait media", "kind": "media", "required": false }
+    ],
+    "components": ["section"],
+    "client": false,
+    "responsive": {
+      "compact": "Use one or two columns and keep names adjacent to their roles.",
+      "wide": "Use three or four columns with consistent portrait ratios."
+    },
+    "accessibilityChecks": ["section-heading", "list-semantics", "portrait-alt-context"],
+    "neighbors": {
+      "before": ["timeline-alternating-media", "services-icon-grid"],
+      "after": ["testimonials-editorial-list", "participation-pathways"]
+    },
+    "template": {
+      "component": "PeopleProfileGrid",
+      "source": "templates/compositions/PeopleProfileGrid.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["balik", "bgr-main", "heatwave-fl", "recinda6ix"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "events-featured-list",
+    "title": "Events featured list",
+    "family": "collection",
+    "description": "A lead event followed by upcoming dates with clear time, place, and action information.",
+    "selection": {
+      "description": "Use when one event deserves emphasis while visitors also need to scan upcoming opportunities.",
+      "queries": ["Create a featured event and upcoming list", "Show community events with dates and locations"],
+      "avoidWhen": ["The page needs full calendar navigation or availability scheduling."],
+      "keywords": ["events", "schedule", "dates", "upcoming", "community"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Events introduction", "kind": "content", "required": true },
+      { "id": "featured", "label": "Featured event", "kind": "content", "required": true },
+      { "id": "upcoming", "label": "Upcoming event list", "kind": "list", "required": true }
+    ],
+    "components": ["section", "button-link"],
+    "client": false,
+    "responsive": {
+      "compact": "Stack events and keep date, time, and location in a predictable order.",
+      "wide": "Place the featured event beside a compact upcoming list."
+    },
+    "accessibilityChecks": ["section-heading", "time-element", "event-link-purpose"],
+    "neighbors": {
+      "before": ["stories-featured-plus-grid", "proof-metric-strip"],
+      "after": ["participation-pathways", "newsletter-inline-band"]
+    },
+    "template": {
+      "component": "EventsFeaturedList",
+      "source": "templates/compositions/EventsFeaturedList.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["recinda6ix", "route83co"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "newsletter-inline-band",
+    "title": "Newsletter inline band",
+    "family": "capture",
+    "description": "A compact value proposition and email form arranged as one conversion band.",
+    "selection": {
+      "description": "Use when email capture supports the page's content or community relationship without requiring a dedicated landing page.",
+      "queries": ["Add an inline newsletter signup", "Create an email capture band"],
+      "avoidWhen": ["Consent, segmentation, or onboarding requires a long multi-field form."],
+      "keywords": ["newsletter", "email", "signup", "subscribe", "capture"]
+    },
+    "anatomy": [
+      { "id": "copy", "label": "Signup value proposition", "kind": "content", "required": true },
+      { "id": "form", "label": "Email signup form", "kind": "form", "required": true },
+      { "id": "consent", "label": "Consent or privacy note", "kind": "content", "required": false }
+    ],
+    "components": ["section", "form"],
+    "client": true,
+    "responsive": {
+      "compact": "Stack copy, form field, and submit action with full-width controls.",
+      "wide": "Place copy beside an inline form while retaining a readable consent note."
+    },
+    "accessibilityChecks": ["section-heading", "email-label", "submission-status", "consent-context"],
+    "neighbors": {
+      "before": ["stories-featured-plus-grid", "partners-logo-wall", "faq-split-accordion"],
+      "after": ["confirmation-next-actions"]
+    },
+    "template": {
+      "component": "NewsletterInlineBand",
+      "source": "templates/compositions/NewsletterInlineBand.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["recinda6ix", "virtuecreation", "vocedoro"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "announcement-dismissible",
+    "title": "Announcement dismissible",
+    "family": "capture",
+    "description": "A concise announcement with an optional action and accessible dismissal.",
+    "selection": {
+      "description": "Use for timely, site-wide information that should be noticed but can be dismissed.",
+      "queries": ["Add a dismissible announcement", "Show a temporary promotion with a link"],
+      "avoidWhen": ["The message is critical enough that dismissal would hide required information."],
+      "keywords": ["announcement", "banner", "promotion", "notice", "dismissible"]
+    },
+    "anatomy": [
+      { "id": "message", "label": "Announcement message", "kind": "content", "required": true },
+      { "id": "action", "label": "Announcement action", "kind": "action", "required": false },
+      { "id": "dismiss", "label": "Dismiss control", "kind": "action", "required": true }
+    ],
+    "components": ["banner", "button-link"],
+    "client": true,
+    "responsive": {
+      "compact": "Wrap message and action without obscuring the dismiss control.",
+      "wide": "Keep the announcement in one concise horizontal band."
+    },
+    "accessibilityChecks": ["status-role", "dismissible-keyboard-control", "dismiss-label"],
+    "neighbors": {
+      "before": [],
+      "after": ["services-icon-grid", "gallery-featured-grid", "participation-pathways"]
+    },
+    "template": {
+      "component": "AnnouncementDismissible",
+      "source": "templates/compositions/AnnouncementDismissible.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["bgr-main", "recinda6ix", "virtuecreation", "vocedoro"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "participation-pathways",
+    "title": "Participation pathways",
+    "family": "participation",
+    "description": "A set of clear ways to join, give, volunteer, apply, or otherwise participate.",
+    "selection": {
+      "description": "Use when an organization has two or more distinct participation routes with different commitments.",
+      "queries": ["Show ways to get involved", "Create giving volunteering and application pathways"],
+      "avoidWhen": ["There is only one primary conversion action."],
+      "keywords": ["get involved", "giving", "volunteer", "join", "apply"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Participation introduction", "kind": "content", "required": true },
+      { "id": "pathways", "label": "Participation options", "kind": "list", "required": true },
+      { "id": "actions", "label": "Pathway actions", "kind": "action", "required": true }
+    ],
+    "components": ["section", "button-link"],
+    "client": false,
+    "responsive": {
+      "compact": "Stack pathways and keep each action adjacent to its commitment description.",
+      "wide": "Use equal columns unless one pathway is intentionally primary."
+    },
+    "accessibilityChecks": ["section-heading", "list-semantics", "distinct-link-purpose"],
+    "neighbors": {
+      "before": ["proof-metric-strip", "stories-featured-plus-grid", "events-featured-list"],
+      "after": ["newsletter-inline-band", "confirmation-next-actions"]
+    },
+    "template": {
+      "component": "ParticipationPathways",
+      "source": "templates/compositions/ParticipationPathways.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["onenewlifeacademy", "recinda6ix", "route83co"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "location-contact-cards",
+    "title": "Location contact cards",
+    "family": "participation",
+    "description": "A set of address, hours, contact, and optional direction cards for physical locations.",
+    "selection": {
+      "description": "Use when visitors need to compare or act on one or more physical locations.",
+      "queries": ["Show business locations and hours", "Create contact cards with addresses and directions"],
+      "avoidWhen": ["The business is fully remote or a single address belongs directly inside a larger contact composition."],
+      "keywords": ["locations", "hours", "addresses", "directions", "contact"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Location introduction", "kind": "content", "required": true },
+      { "id": "locations", "label": "Location cards", "kind": "list", "required": true },
+      { "id": "directions", "label": "Direction actions", "kind": "action", "required": false }
+    ],
+    "components": ["section", "button-link"],
+    "client": false,
+    "responsive": {
+      "compact": "Stack location cards and preserve address line breaks.",
+      "wide": "Use equal columns and align hours and actions consistently."
+    },
+    "accessibilityChecks": ["section-heading", "address-semantics", "hours-readable", "external-link-context"],
+    "neighbors": {
+      "before": ["services-media-grid", "proof-metric-strip"],
+      "after": ["faq-split-accordion", "newsletter-inline-band"]
+    },
+    "template": {
+      "component": "LocationContactCards",
+      "source": "templates/compositions/LocationContactCards.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["bgr-main", "heatwave-fl", "atelier-bookings"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "contact-form-split",
+    "title": "Contact form split",
+    "family": "contact",
+    "description": "A contact introduction and direct contact routes paired with a focused inquiry form.",
+    "selection": {
+      "description": "Use when the page should convert interest into a structured inquiry while keeping direct email or phone routes visible.",
+      "queries": ["Create a contact section with an inquiry form", "Add a split contact form with direct contact details"],
+      "avoidWhen": ["The flow requires authentication, payment, scheduling, or a long multi-step application."],
+      "keywords": ["contact form", "inquiry", "lead form", "quote request", "message"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Contact introduction", "kind": "content", "required": true },
+      { "id": "direct-contact", "label": "Direct contact routes", "kind": "action", "required": false },
+      { "id": "form", "label": "Inquiry form", "kind": "form", "required": true }
+    ],
+    "components": ["section", "button-link", "form"],
+    "client": true,
+    "responsive": {
+      "compact": "Stack the introduction, direct contact routes, fields, and submit action in reading order.",
+      "wide": "Place concise contact context beside a focused form without separating labels from controls."
+    },
+    "accessibilityChecks": ["section-heading", "form-labels", "required-field-context", "submission-status", "descriptive-contact-links"],
+    "neighbors": {
+      "before": ["location-contact-cards", "faq-split-accordion", "proof-metric-strip"],
+      "after": ["confirmation-next-actions"]
+    },
+    "template": {
+      "component": "ContactFormSplit",
+      "source": "templates/compositions/ContactFormSplit.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["heatwave-fl", "Precision-paint-pros", "virtuecreation", "vocedoro"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "content-media-split",
+    "title": "Content media split",
+    "family": "content",
+    "description": "A general-purpose text and image section with reversible media placement and an optional action.",
+    "selection": {
+      "description": "Use for flexible about, feature, program, place, product, or service narratives that need one supporting image.",
+      "queries": ["Create a text and image split section", "Add an about section with an image and action"],
+      "avoidWhen": ["Several equal items need collection semantics or the image is the primary story rather than supporting context."],
+      "keywords": ["text and image", "about", "feature", "media split", "story section"]
+    },
+    "anatomy": [
+      { "id": "copy", "label": "Primary content", "kind": "content", "required": true },
+      { "id": "media", "label": "Supporting image", "kind": "media", "required": true },
+      { "id": "action", "label": "Optional next action", "kind": "action", "required": false }
+    ],
+    "components": ["section", "button-link"],
+    "client": false,
+    "responsive": {
+      "compact": "Stack copy before media regardless of the wide-screen media position so reading order remains predictable.",
+      "wide": "Place copy and media in balanced columns and allow the project to choose which side leads."
+    },
+    "accessibilityChecks": ["section-heading", "meaningful-image-alt", "caption-associated", "link-purpose"],
+    "neighbors": {
+      "before": ["announcement-dismissible", "services-icon-grid"],
+      "after": ["proof-metric-strip", "content-media-stacked", "participation-pathways"]
+    },
+    "template": {
+      "component": "ContentMediaSplit",
+      "source": "templates/compositions/ContentMediaSplit.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["heatwave-fl", "recinda6ix", "route83co", "virtuecreation"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "content-media-stacked",
+    "title": "Content media stacked",
+    "family": "content",
+    "description": "A wide featured image followed by adaptable editorial copy and an optional action.",
+    "selection": {
+      "description": "Use when a place, project, campaign, or editorial moment needs a wide image to establish context before the supporting text.",
+      "queries": ["Create a wide image with text below", "Add a featured editorial image and copy section"],
+      "avoidWhen": ["The image is merely decorative or the copy and media need equal side-by-side weight."],
+      "keywords": ["featured image", "text below image", "editorial section", "campaign", "wide media"]
+    },
+    "anatomy": [
+      { "id": "media", "label": "Featured image", "kind": "media", "required": true },
+      { "id": "copy", "label": "Supporting content", "kind": "content", "required": true },
+      { "id": "action", "label": "Optional next action", "kind": "action", "required": false }
+    ],
+    "components": ["section", "button-link"],
+    "client": false,
+    "responsive": {
+      "compact": "Keep the image, copy, and action in a single readable column.",
+      "wide": "Use a wide media frame with copy and action aligned beneath it."
+    },
+    "accessibilityChecks": ["section-heading", "meaningful-image-alt", "caption-associated", "link-purpose"],
+    "neighbors": {
+      "before": ["content-media-split", "gallery-featured-grid"],
+      "after": ["stories-featured-plus-grid", "testimonials-editorial-list", "contact-form-split"]
+    },
+    "template": {
+      "component": "ContentMediaStacked",
+      "source": "templates/compositions/ContentMediaStacked.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["oops-my-phone", "recinda6ix", "route83co", "vocedoro"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "confirmation-next-actions",
+    "title": "Confirmation next actions",
+    "family": "outcome",
+    "description": "A success or completion state with a clear summary and relevant next actions.",
+    "selection": {
+      "description": "Use after submissions, purchases, signups, or guided flows to confirm the result and prevent a dead end.",
+      "queries": ["Create a thank-you confirmation section", "Show success details and next steps"],
+      "avoidWhen": ["The operation has not completed or its status is still uncertain."],
+      "keywords": ["confirmation", "success", "thank you", "next steps", "outcome"]
+    },
+    "anatomy": [
+      { "id": "status", "label": "Outcome status", "kind": "content", "required": true },
+      { "id": "summary", "label": "Confirmation summary", "kind": "content", "required": true },
+      { "id": "actions", "label": "Next actions", "kind": "action", "required": true }
+    ],
+    "components": ["section", "button-link"],
+    "client": false,
+    "responsive": {
+      "compact": "Stack actions and keep the confirmation summary concise.",
+      "wide": "Center the outcome or place the summary beside a compact action group."
+    },
+    "accessibilityChecks": ["status-announcement", "heading-hierarchy", "next-actions-descriptive"],
+    "neighbors": {
+      "before": ["newsletter-inline-band", "participation-pathways", "faq-split-accordion"],
+      "after": []
+    },
+    "template": {
+      "component": "ConfirmationNextActions",
+      "source": "templates/compositions/ConfirmationNextActions.jsx",
+      "style": "templates/compositions/compositions.module.css"
+    },
+    "evidence": ["balik", "bgr-main", "oops-my-phone", "Precision-paint-pros", "recinda6ix", "vocedoro"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "product-collection",
+    "title": "Product collection",
+    "family": "commerce",
+    "pack": "commerce",
+    "description": "A browsable product grid with imagery, price, concise context, and a direct product action.",
+    "selection": {
+      "description": "Use for shop, catalog, merchandise, or plan collections where comparable products need equal visual weight.",
+      "queries": ["Create a shop product grid", "Show a collection of products with prices"],
+      "avoidWhen": ["The items are editorial stories or only one product needs a detailed purchase flow."],
+      "keywords": ["commerce", "products", "shop", "collection", "catalog"]
+    },
+    "anatomy": [
+      { "id": "intro", "label": "Collection introduction", "kind": "content", "required": true },
+      { "id": "products", "label": "Product list", "kind": "list", "required": true },
+      { "id": "product-actions", "label": "Product actions", "kind": "action", "required": true }
+    ],
+    "components": ["section", "money", "button-link"],
+    "client": false,
+    "responsive": { "compact": "Stack products in one readable column.", "wide": "Present products in a balanced multi-column grid." },
+    "accessibilityChecks": ["section-heading", "meaningful-image-alt", "price-announcement", "link-purpose"],
+    "neighbors": { "before": ["announcement-dismissible"], "after": ["product-detail-gallery", "newsletter-inline-band"] },
+    "template": { "component": "ProductCollection", "source": "templates/compositions/ProductCollection.jsx", "style": "templates/compositions/compositions.module.css" },
+    "evidence": ["balik", "vocedoro"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "product-detail-gallery",
+    "title": "Product detail gallery",
+    "family": "commerce",
+    "pack": "commerce",
+    "description": "A product purchase surface combining an accessible gallery, options, quantity, price, and primary action.",
+    "selection": {
+      "description": "Use when one physical or configurable product needs visual inspection and a focused purchase decision.",
+      "queries": ["Create a product detail page section", "Add product images, variants, quantity, and add to cart"],
+      "avoidWhen": ["The offer has no visual or configurable details, or several products need comparison first."],
+      "keywords": ["commerce", "product detail", "gallery", "variants", "add to cart"]
+    },
+    "anatomy": [
+      { "id": "gallery", "label": "Product image gallery", "kind": "media", "required": true },
+      { "id": "product-copy", "label": "Product details and price", "kind": "content", "required": true },
+      { "id": "purchase-controls", "label": "Options, quantity, and action", "kind": "form", "required": true }
+    ],
+    "components": ["section", "image-gallery", "money", "product-option-select", "quantity-input", "button"],
+    "client": true,
+    "responsive": { "compact": "Stack the gallery before purchase controls.", "wide": "Keep the gallery and purchase panel in adjacent columns." },
+    "accessibilityChecks": ["section-heading", "gallery-keyboard-operation", "option-labels", "quantity-label", "visible-focus"],
+    "neighbors": { "before": ["product-collection"], "after": ["cart-checkout-summary", "faq-split-accordion"] },
+    "template": { "component": "ProductDetailGallery", "source": "templates/compositions/ProductDetailGallery.jsx", "style": "templates/compositions/compositions.module.css" },
+    "evidence": ["balik", "vocedoro"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "cart-checkout-summary",
+    "title": "Cart checkout summary",
+    "family": "commerce",
+    "pack": "commerce",
+    "description": "An editable cart line-item list beside a transparent order summary and checkout action.",
+    "selection": {
+      "description": "Use when shoppers must review quantities, pricing, discounts, and totals before checkout.",
+      "queries": ["Create a shopping cart summary", "Show editable cart items and checkout totals"],
+      "avoidWhen": ["The purchase is complete or there is no editable cart state."],
+      "keywords": ["commerce", "cart", "checkout", "order summary", "discount"]
+    },
+    "anatomy": [
+      { "id": "items", "label": "Editable cart lines", "kind": "list", "required": true },
+      { "id": "discount", "label": "Optional discount input", "kind": "form", "required": false },
+      { "id": "summary", "label": "Totals and checkout action", "kind": "action", "required": true }
+    ],
+    "components": ["section", "cart-line", "cart-summary", "discount-code-input", "money", "quantity-input", "button", "button-link"],
+    "client": true,
+    "responsive": { "compact": "Stack the summary after the cart items.", "wide": "Keep totals visible beside the item list." },
+    "accessibilityChecks": ["cart-line-headings", "quantity-labels", "discount-status", "total-announcement", "link-purpose"],
+    "neighbors": { "before": ["product-detail-gallery"], "after": ["confirmation-next-actions"] },
+    "template": { "component": "CartCheckoutSummary", "source": "templates/compositions/CartCheckoutSummary.jsx", "style": "templates/compositions/compositions.module.css" },
+    "evidence": ["balik", "vocedoro"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "multi-step-selection-flow",
+    "title": "Multi-step selection flow",
+    "family": "workflow",
+    "pack": "guided-workflows",
+    "description": "A reusable guided decision flow that divides a complex selection into clear, reviewable steps.",
+    "selection": {
+      "description": "Use when a recommendation or result depends on several sequential choices.",
+      "queries": ["Create a guided product selector", "Build a multi-step recommendation flow"],
+      "avoidWhen": ["A single choice or short form can complete the task without sequencing."],
+      "keywords": ["workflow", "wizard", "guided selection", "recommendation", "steps"]
+    },
+    "anatomy": [
+      { "id": "progress", "label": "Step progress", "kind": "content", "required": true },
+      { "id": "choices", "label": "Step choices", "kind": "form", "required": true },
+      { "id": "navigation", "label": "Previous and next actions", "kind": "action", "required": true }
+    ],
+    "components": ["section", "wizard", "selectable-card-group"],
+    "client": true,
+    "responsive": { "compact": "Stack progress and choices with full-width controls.", "wide": "Use the available width for comparable choice cards." },
+    "accessibilityChecks": ["wizard-focus-management", "step-status", "group-labels", "visible-focus"],
+    "neighbors": { "before": ["services-icon-grid"], "after": ["confirmation-next-actions"] },
+    "template": { "component": "MultiStepSelectionFlow", "source": "templates/compositions/MultiStepSelectionFlow.jsx", "style": "templates/compositions/compositions.module.css" },
+    "evidence": ["oops-my-phone", "Precision-paint-pros"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "estimate-flow",
+    "title": "Estimate flow",
+    "family": "workflow",
+    "pack": "guided-workflows",
+    "description": "A guided scope and timing workflow ending in a transparent planning range.",
+    "selection": {
+      "description": "Use when service visitors benefit from a directional estimate before speaking with the team.",
+      "queries": ["Create a service price estimator", "Build a quote flow with a price range"],
+      "avoidWhen": ["Pricing is fixed and can be shown directly or the estimate would be misleading without consultation."],
+      "keywords": ["workflow", "estimate", "quote", "calculator", "service pricing"]
+    },
+    "anatomy": [
+      { "id": "scope", "label": "Scope choices", "kind": "form", "required": true },
+      { "id": "timing", "label": "Timing choice", "kind": "form", "required": true },
+      { "id": "range", "label": "Estimate range and qualification", "kind": "content", "required": true }
+    ],
+    "components": ["section", "wizard", "selectable-card-group", "money"],
+    "client": true,
+    "responsive": { "compact": "Stack choice cards and keep the estimate readable.", "wide": "Compare options across columns within each step." },
+    "accessibilityChecks": ["wizard-focus-management", "group-labels", "price-announcement", "estimate-qualification"],
+    "neighbors": { "before": ["services-media-grid"], "after": ["contact-form-split", "confirmation-next-actions"] },
+    "template": { "component": "EstimateFlow", "source": "templates/compositions/EstimateFlow.jsx", "style": "templates/compositions/compositions.module.css" },
+    "evidence": ["Precision-paint-pros", "oops-my-phone"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "booking-flow",
+    "title": "Booking flow",
+    "family": "workflow",
+    "pack": "guided-workflows",
+    "description": "A staged service, date, time, and contact-detail booking workflow.",
+    "selection": {
+      "description": "Use when a visitor must choose an appointment type and available schedule before confirmation.",
+      "queries": ["Create an appointment booking flow", "Build service, date, and time selection"],
+      "avoidWhen": ["Availability is not known or the only action is an external booking link."],
+      "keywords": ["workflow", "booking", "appointment", "calendar", "schedule"]
+    },
+    "anatomy": [
+      { "id": "service", "label": "Service selection", "kind": "form", "required": true },
+      { "id": "schedule", "label": "Date and time selection", "kind": "form", "required": true },
+      { "id": "contact", "label": "Contact details", "kind": "form", "required": true }
+    ],
+    "components": ["section", "wizard", "selectable-card-group", "date-picker", "form"],
+    "client": true,
+    "responsive": { "compact": "Use one choice column and modal date selection.", "wide": "Let service and time choices use compact grids." },
+    "accessibilityChecks": ["wizard-focus-management", "date-picker-label", "group-labels", "form-errors", "visible-focus"],
+    "neighbors": { "before": ["services-icon-grid"], "after": ["confirmation-next-actions"] },
+    "template": { "component": "BookingFlow", "source": "templates/compositions/BookingFlow.jsx", "style": "templates/compositions/compositions.module.css" },
+    "evidence": ["virtue-booking", "oops-my-phone"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "filtered-results-master-detail",
+    "title": "Filtered results master detail",
+    "family": "search",
+    "pack": "search",
+    "description": "Search and facets paired with a result list and persistent detail pane.",
+    "selection": {
+      "description": "Use for directories, inventories, programs, jobs, or knowledge bases where visitors compare results without losing context.",
+      "queries": ["Create a searchable directory with details", "Build filtered results with a master detail layout"],
+      "avoidWhen": ["Results are few enough to scan without filters or every result needs a full page."],
+      "keywords": ["search", "filters", "facets", "master detail", "directory"]
+    },
+    "anatomy": [
+      { "id": "query", "label": "Search and facet controls", "kind": "form", "required": true },
+      { "id": "results", "label": "Result list", "kind": "list", "required": true },
+      { "id": "detail", "label": "Selected result detail", "kind": "content", "required": true }
+    ],
+    "components": ["section", "search-input", "facet-filter", "inline-message", "master-detail-layout", "list-view"],
+    "client": true,
+    "responsive": { "compact": "Stack the active result below or switch between list and detail panes.", "wide": "Keep results and selected detail visible together." },
+    "accessibilityChecks": ["search-landmark", "facet-group-labels", "result-count-status", "master-detail-labels", "visible-focus"],
+    "neighbors": { "before": ["content-media-split"], "after": ["contact-form-split"] },
+    "template": { "component": "FilteredResultsMasterDetail", "source": "templates/compositions/FilteredResultsMasterDetail.jsx", "style": "templates/compositions/compositions.module.css" },
+    "evidence": ["bgr-main", "route83co"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "auth-shell",
+    "title": "Authentication shell",
+    "family": "application",
+    "pack": "application",
+    "description": "A focused account-access shell with primary authentication and clear alternate paths.",
+    "selection": {
+      "description": "Use for sign-in, account creation, password reset, or invitation acceptance routes.",
+      "queries": ["Create a sign-in page", "Build a simple authentication shell"],
+      "avoidWhen": ["Authentication is a minor inline action or belongs to a third-party hosted page."],
+      "keywords": ["application", "auth", "sign in", "account", "password"]
+    },
+    "anatomy": [
+      { "id": "context", "label": "Authentication context", "kind": "content", "required": true },
+      { "id": "credentials", "label": "Credential form", "kind": "form", "required": true },
+      { "id": "alternate-actions", "label": "Recovery and alternate actions", "kind": "action", "required": true }
+    ],
+    "components": ["section", "form", "button-link"],
+    "client": true,
+    "responsive": { "compact": "Use a full-width panel with comfortable controls.", "wide": "Center a restrained authentication panel." },
+    "accessibilityChecks": ["form-labels", "password-manager-support", "error-announcement", "alternate-link-purpose"],
+    "neighbors": { "before": [], "after": ["dashboard-overview"] },
+    "template": { "component": "AuthShell", "source": "templates/compositions/AuthShell.jsx", "style": "templates/compositions/compositions.module.css" },
+    "evidence": ["bgr-main", "virtue-booking"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "dashboard-overview",
+    "title": "Dashboard overview",
+    "family": "application",
+    "pack": "application",
+    "description": "A dashboard opening view with headline metrics, a trend frame, and recent operational records.",
+    "selection": {
+      "description": "Use when an application home needs a quick status read before deeper management tasks.",
+      "queries": ["Create an admin dashboard overview", "Show metrics, a chart, and recent records"],
+      "avoidWhen": ["There is no meaningful overview or users should enter a single focused task directly."],
+      "keywords": ["application", "dashboard", "metrics", "chart", "admin"]
+    },
+    "anatomy": [
+      { "id": "metrics", "label": "Headline metrics", "kind": "list", "required": true },
+      { "id": "trend", "label": "Trend visualization", "kind": "content", "required": true },
+      { "id": "records", "label": "Recent records", "kind": "list", "required": true }
+    ],
+    "components": ["section", "chart-frame", "data-table"],
+    "client": true,
+    "responsive": { "compact": "Stack metrics, chart, and records with horizontal table overflow.", "wide": "Pair the trend and recent records beneath a metric strip." },
+    "accessibilityChecks": ["section-heading", "chart-summary", "table-caption", "sortable-column-state"],
+    "neighbors": { "before": ["auth-shell"], "after": ["resource-index"] },
+    "template": { "component": "DashboardOverview", "source": "templates/compositions/DashboardOverview.jsx", "style": "templates/compositions/compositions.module.css" },
+    "evidence": ["bgr-main", "virtue-booking"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "resource-index",
+    "title": "Resource index",
+    "family": "application",
+    "pack": "application",
+    "description": "A searchable, sortable, selectable management index with a clear creation action.",
+    "selection": {
+      "description": "Use for admin lists where users find, sort, select, and act on structured resources.",
+      "queries": ["Create an admin resource list", "Build a searchable data grid index"],
+      "avoidWhen": ["The collection is read-only editorial content or has too few records to need management controls."],
+      "keywords": ["application", "resource index", "data grid", "admin", "management"]
+    },
+    "anatomy": [
+      { "id": "header", "label": "Index context and create action", "kind": "action", "required": true },
+      { "id": "search", "label": "Resource search", "kind": "form", "required": true },
+      { "id": "grid", "label": "Sortable resource grid", "kind": "list", "required": true }
+    ],
+    "components": ["section", "button-link", "search-input", "data-grid"],
+    "client": true,
+    "responsive": { "compact": "Stack controls and allow intentional horizontal grid overflow.", "wide": "Keep the header action aligned and expose useful grid columns." },
+    "accessibilityChecks": ["search-landmark", "grid-caption", "selection-labels", "sort-state", "resize-keyboard-operation"],
+    "neighbors": { "before": ["dashboard-overview"], "after": ["resource-editor-detail"] },
+    "template": { "component": "ResourceIndex", "source": "templates/compositions/ResourceIndex.jsx", "style": "templates/compositions/compositions.module.css" },
+    "evidence": ["bgr-main", "virtue-booking"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "resource-editor-detail",
+    "title": "Resource editor detail",
+    "family": "application",
+    "pack": "application",
+    "description": "A record-editing surface with contextual actions, a structured form, and secondary metadata.",
+    "selection": {
+      "description": "Use when application users need to edit one resource while retaining status and metadata context.",
+      "queries": ["Create an admin edit resource page", "Build a record detail editor with tabs"],
+      "avoidWhen": ["The task is a short modal edit or the resource is strictly read-only."],
+      "keywords": ["application", "resource editor", "detail", "form", "tabs"]
+    },
+    "anatomy": [
+      { "id": "context-actions", "label": "Resource context and actions", "kind": "action", "required": true },
+      { "id": "editor", "label": "Primary editor form", "kind": "form", "required": true },
+      { "id": "metadata", "label": "Secondary resource details", "kind": "content", "required": false }
+    ],
+    "components": ["section", "action-group", "form", "tabs"],
+    "client": true,
+    "responsive": { "compact": "Wrap contextual actions and retain one form column.", "wide": "Use tabbed content within a broad editing surface." },
+    "accessibilityChecks": ["heading-hierarchy", "action-group-label", "tab-keyboard-operation", "form-errors", "visible-focus"],
+    "neighbors": { "before": ["resource-index"], "after": ["confirmation-next-actions"] },
+    "template": { "component": "ResourceEditorDetail", "source": "templates/compositions/ResourceEditorDetail.jsx", "style": "templates/compositions/compositions.module.css" },
+    "evidence": ["bgr-main", "virtue-booking"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "horizontal-story",
+    "title": "Horizontal story",
+    "family": "immersive",
+    "pack": "immersive",
+    "description": "A deliberately horizontal, scroll-snapping narrative made from ordered media and copy chapters.",
+    "selection": {
+      "description": "Use for a finite visual sequence where horizontal progression is part of the editorial idea.",
+      "queries": ["Create a horizontal scrolling story", "Build a side-scrolling sequence of visual chapters"],
+      "avoidWhen": ["The content is a general item carousel, an infinite feed, or horizontal scrolling would obscure essential navigation."],
+      "keywords": ["immersive", "horizontal story", "scroll snap", "chapters", "narrative"]
+    },
+    "anatomy": [
+      { "id": "introduction", "label": "Story introduction", "kind": "content", "required": true },
+      { "id": "chapters", "label": "Ordered visual chapters", "kind": "list", "required": true },
+      { "id": "chapter-media", "label": "Chapter media", "kind": "media", "required": false }
+    ],
+    "components": ["section"],
+    "client": false,
+    "responsive": { "compact": "Keep snap points, readable card widths, and visible overflow cues.", "wide": "Reveal the next scene while maintaining a focused chapter viewport." },
+    "accessibilityChecks": ["ordered-list-semantics", "meaningful-image-alt", "keyboard-scroll-reachability", "reduced-motion-safe"],
+    "neighbors": { "before": ["content-media-stacked"], "after": ["chaptered-presentation"] },
+    "template": { "component": "HorizontalStory", "source": "templates/compositions/HorizontalStory.jsx", "style": "templates/compositions/compositions.module.css" },
+    "evidence": ["recinda6ix", "route83co"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "chaptered-presentation",
+    "title": "Chaptered presentation",
+    "family": "immersive",
+    "pack": "immersive",
+    "description": "A long-form presentation with persistent chapter navigation and substantial media-led sections.",
+    "selection": {
+      "description": "Use for case studies, reports, campaign narratives, or presentations that readers may enter and revisit by chapter.",
+      "queries": ["Create a chaptered case study", "Build a long-form presentation with anchor navigation"],
+      "avoidWhen": ["The story is short enough for one content section or chapters do not have stable linkable identities."],
+      "keywords": ["immersive", "presentation", "chapters", "anchor navigation", "case study"]
+    },
+    "anatomy": [
+      { "id": "introduction", "label": "Presentation introduction", "kind": "content", "required": true },
+      { "id": "navigation", "label": "Chapter navigation", "kind": "action", "required": true },
+      { "id": "chapters", "label": "Linkable content chapters", "kind": "list", "required": true }
+    ],
+    "components": ["section", "anchor-nav"],
+    "client": false,
+    "responsive": { "compact": "Place chapter navigation before a single chapter column.", "wide": "Keep chapter navigation beside the scrolling presentation." },
+    "accessibilityChecks": ["nav-label", "unique-anchor-targets", "heading-hierarchy", "meaningful-image-alt"],
+    "neighbors": { "before": ["horizontal-story"], "after": ["contact-form-split"] },
+    "template": { "component": "ChapteredPresentation", "source": "templates/compositions/ChapteredPresentation.jsx", "style": "templates/compositions/compositions.module.css" },
+    "evidence": ["recinda6ix", "virtuecreation"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  }
+]

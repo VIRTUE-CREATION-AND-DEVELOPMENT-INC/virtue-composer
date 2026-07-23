@@ -6,11 +6,13 @@ import { useState, type ReactNode } from "react";
 import useControllableState from "./useControllableState";
 
 export type MediaPickerItem = { id: string; src: string; alt: string; title: string; type?: "image" | "video" | "file"; thumbnail?: string; metadata?: ReactNode; disabled?: boolean };
-export type MediaPickerProps = { label: string; items: MediaPickerItem[]; value?: string[]; defaultValue?: string[]; onValueChange?: (ids: string[]) => void; multiple?: boolean; searchPlaceholder?: string; empty?: ReactNode; loading?: boolean; error?: ReactNode; name?: string; className?: string };
+export type MediaPickerProps = { label: string; items: MediaPickerItem[]; value?: string[]; defaultValue?: string[]; onValueChange?: (ids: string[]) => void; multiple?: boolean; query?: string; defaultQuery?: string; onQueryChange?: (query: string) => void; page?: number; defaultPage?: number; onPageChange?: (page: number) => void; pageCount?: number; hasMore?: boolean; loadingMore?: boolean; onLoadMore?: () => void; searchPlaceholder?: string; empty?: ReactNode; loading?: boolean; error?: ReactNode; name?: string; className?: string };
 
-export default function MediaPicker({ label, items, value, defaultValue = [], onValueChange, multiple = false, searchPlaceholder = "Search media", empty = "No media found", loading = false, error, name, className }: MediaPickerProps) {
+export default function MediaPicker({ label, items, value, defaultValue = [], onValueChange, multiple = false, query, defaultQuery = "", onQueryChange, page, defaultPage = 1, onPageChange, pageCount, hasMore, loadingMore = false, onLoadMore, searchPlaceholder = "Search media", empty = "No media found", loading = false, error, name, className }: MediaPickerProps) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useControllableState({ value, defaultValue, onChange: onValueChange });
+  const [search, setSearch] = useControllableState({ value: query, defaultValue: defaultQuery, onChange: onQueryChange });
+  const [currentPage, setCurrentPage] = useControllableState({ value: page, defaultValue: defaultPage, onChange: onPageChange });
   const update = (id: string) => {
     const next = multiple ? (selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id]) : [id];
     setSelected(next);
@@ -25,8 +27,8 @@ export default function MediaPicker({ label, items, value, defaultValue = [], on
         <Dialog.Overlay data-vc-media-picker-overlay data-vc-slot="overlay" />
         <Dialog.Content aria-describedby={undefined} data-vc-media-picker-content data-vc-slot="content">
           <Dialog.Title data-vc-slot="title">{label}</Dialog.Title>
-          <Command data-vc-media-picker-command data-vc-slot="command">
-            <Command.Input aria-label={searchPlaceholder} placeholder={searchPlaceholder} data-vc-slot="input" />
+          <Command label={searchPlaceholder} shouldFilter={onQueryChange ? false : true} data-vc-media-picker-command data-vc-slot="command">
+            <Command.Input value={search} onValueChange={(next) => { setSearch(next); if (next !== search) setCurrentPage(1); }} aria-label={searchPlaceholder} placeholder={searchPlaceholder} data-vc-slot="input" />
             <Command.List aria-busy={loading || undefined} data-vc-slot="list">
               {loading && <div role="status" data-vc-slot="loading">Loading media</div>}
               {error && <div role="alert" data-vc-slot="error">{error}</div>}
@@ -37,6 +39,8 @@ export default function MediaPicker({ label, items, value, defaultValue = [], on
               </Command.Item>)}
             </Command.List>
           </Command>
+          {!loading && !error && pageCount && pageCount > 1 && <nav aria-label="Media pages" data-vc-slot="pagination"><button type="button" onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} disabled={currentPage <= 1}>Previous</button><span aria-live="polite">Page {currentPage} of {pageCount}</span><button type="button" onClick={() => setCurrentPage(Math.min(pageCount, currentPage + 1))} disabled={currentPage >= pageCount}>Next</button></nav>}
+          {!loading && !error && hasMore && onLoadMore && <button type="button" onClick={onLoadMore} disabled={loadingMore} data-vc-slot="load-more">{loadingMore ? "Loading more…" : "Load more"}</button>}
           {multiple && <Dialog.Close asChild><button type="button" data-vc-slot="done">Done</button></Dialog.Close>}
           <Dialog.Close asChild><button type="button" aria-label="Close media picker" data-vc-slot="close">Close</button></Dialog.Close>
         </Dialog.Content>

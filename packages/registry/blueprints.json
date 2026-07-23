@@ -1,0 +1,50 @@
+[
+  {
+    "id": "community-nonprofit",
+    "title": "Community and nonprofit",
+    "description": "An impact-led page flow that establishes the mission, proves the work, tells human stories, and creates clear ways to participate.",
+    "selection": {
+      "description": "Choose for charities, schools, community programs, foundations, and impact organizations.",
+      "queries": ["Build a nonprofit impact page", "Create a community organization homepage"],
+      "avoidWhen": ["The primary task is transactional shopping or application administration."],
+      "keywords": ["nonprofit", "community", "impact", "giving", "programs"]
+    },
+    "sequence": ["content-media-split", "proof-metric-strip", "participation-pathways", "stories-featured-plus-grid", "partners-logo-wall", "newsletter-inline-band"],
+    "optional": ["events-featured-list", "testimonials-editorial-list", "faq-split-accordion", "contact-form-split"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "editorial-portfolio",
+    "title": "Editorial and portfolio",
+    "description": "A media-forward page flow that leads with selected work, expands into stories or projects, and closes with social proof and an inquiry path.",
+    "selection": {
+      "description": "Choose for studios, photographers, agencies, creators, publications, and case-study-driven portfolios.",
+      "queries": ["Build an editorial portfolio", "Create a case study driven studio site"],
+      "avoidWhen": ["The page has no meaningful visual or story collection."],
+      "keywords": ["portfolio", "editorial", "gallery", "stories", "case studies"]
+    },
+    "sequence": ["gallery-featured-grid", "content-media-stacked", "stories-featured-plus-grid", "testimonials-editorial-list", "newsletter-inline-band", "confirmation-next-actions"],
+    "optional": ["people-profile-grid", "partners-logo-wall", "announcement-dismissible", "contact-form-split"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  },
+  {
+    "id": "service-business",
+    "title": "Service business",
+    "description": "A practical conversion flow that explains the offer, demonstrates trust, reduces uncertainty, and routes visitors toward an inquiry.",
+    "selection": {
+      "description": "Choose for local services, consultancies, trades, salons, repair businesses, and appointment-led companies.",
+      "queries": ["Build a service business homepage", "Create a quote-focused local business page"],
+      "avoidWhen": ["The product is primarily self-serve ecommerce or a content publication."],
+      "keywords": ["services", "quote", "local business", "process", "locations"]
+    },
+    "sequence": ["services-media-grid", "content-media-split", "proof-metric-strip", "process-numbered-steps", "location-contact-cards", "faq-split-accordion", "contact-form-split"],
+    "optional": ["testimonials-editorial-list", "newsletter-inline-band", "announcement-dismissible", "content-media-stacked"],
+    "stability": "experimental",
+    "since": "0.6.0",
+    "contractVersion": 1
+  }
+]

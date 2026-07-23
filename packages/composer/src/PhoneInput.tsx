@@ -5,14 +5,15 @@ import { useId, useMemo, useState } from "react";
 import { phoneCountryNames } from "./phoneCountryNames";
 
 export type PhoneCountry = { code: CountryCode; label: string };
-export type PhoneInputProps = { label: string; value?: string; defaultValue?: string; onValueChange?: (value: string, valid: boolean) => void; defaultCountry?: CountryCode; countries?: PhoneCountry[]; name?: string; required?: boolean; disabled?: boolean; description?: string; error?: string; className?: string };
+export type PhoneInputProps = { id?: string; label: string; value?: string; defaultValue?: string; onValueChange?: (value: string, valid: boolean) => void; defaultCountry?: CountryCode; countries?: PhoneCountry[]; name?: string; required?: boolean; disabled?: boolean; description?: string; error?: string; className?: string };
 
 function countryOptions(): PhoneCountry[] {
   return getCountries().map((code) => ({ code, label: phoneCountryNames[code] })).sort((a, b) => a.label === b.label ? a.code < b.code ? -1 : 1 : a.label < b.label ? -1 : 1);
 }
 
-export default function PhoneInput({ label, value, defaultValue = "", onValueChange, defaultCountry = "CA", countries, name, required, disabled, description, error, className }: PhoneInputProps) {
-  const id = useId();
+export default function PhoneInput({ id: providedId, label, value, defaultValue = "", onValueChange, defaultCountry = "CA", countries, name, required, disabled, description, error, className }: PhoneInputProps) {
+  const generatedId = useId();
+  const id = providedId ?? generatedId;
   const options = useMemo(() => countries ?? countryOptions(), [countries]);
   const initial = parsePhoneNumberFromString(value ?? defaultValue);
   const [country, setCountry] = useState<CountryCode>(initial?.country ?? defaultCountry);
