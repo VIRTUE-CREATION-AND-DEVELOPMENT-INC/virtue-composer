@@ -2,15 +2,15 @@
 
 Virtue Composer is a Next.js frontend contract system coupled to a Codex skill and machine-readable registry. Shared components own structure, behavior, accessibility, and decision contracts; consuming projects own visual design.
 
-The 0.7 workspace is under active development on top of the compatible 0.6
-foundation. Version 0.6 includes 128 component contracts, 34 copyable composition
+Version 0.7.0 is the current registry-foundation release. It retains the
+compatible 0.6 foundation of 128 component contracts, 34 copyable composition
 wireframes across a core catalog and five specialized packs, and three
 adaptable page blueprints. Components own reusable
 behavior and accessibility. Compositions give Codex and project teams a
 registry-described starting arrangement while remaining fully project-owned
 JSX and CSS.
 
-The first 0.7 implementation slice adds validated decision guidance, measured
+The 0.7.0 release adds validated decision guidance, measured
 own-module runtime profiles, practical trust-boundary metadata, metadata-driven
 Doctor warnings, and a human-reviewed component stability evidence report.
 These contracts are additive; they do not change stable 0.6 component APIs or
@@ -30,7 +30,7 @@ The composition sandbox runs at `http://localhost:3000/sandbox`.
 Install the current public release:
 
 ```bash
-npx @virtuecreation/composer-cli@0.6.0 init /path/to/next-project
+npx @virtuecreation/composer-cli@0.7.0 init /path/to/next-project
 cd /path/to/next-project
 npm install
 ```

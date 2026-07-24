@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.0 — in development
+## 0.7.0 — 2026-07-24
 
 The first implementation slice establishes the registry foundations for
 evidence-driven planning without changing stable 0.6 component APIs.

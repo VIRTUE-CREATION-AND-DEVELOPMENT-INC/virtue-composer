@@ -21,12 +21,13 @@ continue to own their content, visual systems, and copied composition code.
   project-owned compositions, five specialized packs, three page blueprints,
   natural-language discovery, maturity classification, cross-browser
   conformance, and registry-driven selection.
-- Version 0.7 work has begun with decision-grade component guidance, measured
-  runtime profiles, trust-boundary metadata, local stability evidence, and
-  human-reviewed promotion reporting. The page-plan, lifecycle, wrapper-drift,
-  browser-verification, and benchmark stages remain in progress.
+- Version 0.7 ships decision-grade component guidance, measured runtime
+  profiles, trust-boundary metadata, local stability evidence, and
+  human-reviewed promotion reporting. Page planning, lifecycle modes,
+  wrapper-drift reporting, the reusable browser-verification harness, and
+  benchmarking remain follow-on roadmap stages.
 
-## Version 0.7 direction: composition planning
+## Post-0.7 direction: composition planning
 
 The next product step is an evidence-driven planning layer that can turn a
 project brief into an adaptable page baseline. It should not introduce a rigid
@@ -51,7 +52,7 @@ replaced, or rewritten.
 
 ## Evidence cycle
 
-Use the 0.6 catalog in distinct products while fixing the 0.7 planner contract.
+Use the catalog in distinct products while fixing the planner contract.
 The first recorded production adoption is the mature BGR commerce and CMS site;
 the showcase remains fixture evidence rather than a second production claim.
 For each page, record:
@@ -84,11 +85,10 @@ Alongside composition planning:
 - continue monitoring the private showcase's upstream Next.js, PostCSS, and
   Sharp advisories.
 
-## 0.7 entry and exit gates
+## Follow-on release gates
 
-Work began after the 0.6.0 adoption evidence cycle started. The Stage A
-registry-foundation slice is implemented; the following remain release gates.
-The 0.7 release should require:
+Version 0.7.0 deliberately releases the compatible registry-foundation slice.
+The broader agentic planning and lifecycle system remains gated on:
 
 - a registry-defined, versioned page-plan contract;
 - deterministic planning fixtures and rejection cases;
