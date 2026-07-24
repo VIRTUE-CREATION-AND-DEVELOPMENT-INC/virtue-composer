@@ -1,6 +1,6 @@
 {
   "name": "virtue-composer-workspace",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Composable React primitives, project scaffolding, and Codex guidance for consistent Next.js interfaces.",
   "private": true,
   "license": "MIT",

@@ -15,6 +15,7 @@
     "sectionSemantics": "warning",
     "layoutDivs": "warning",
     "componentSelection": "warning",
+    "trustBoundaries": "warning",
     "sourceAnalysis": "warning",
     "exceptions": {}
   }

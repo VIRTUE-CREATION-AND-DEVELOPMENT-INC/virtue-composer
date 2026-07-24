@@ -1,7 +1,7 @@
 {
   "contractVersion": 1,
-  "composerVersion": "0.6.0",
-  "cliVersion": "0.6.0",
+  "composerVersion": "0.7.0",
+  "cliVersion": "0.7.0",
   "installationMode": "full",
   "template": "next-jsx",
   "components": [

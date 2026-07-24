@@ -1,6 +1,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { componentRegistry } from "../packages/registry/src/index.js";
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourceRoot = path.join(workspaceRoot, "packages/composer/src");
@@ -18,6 +19,17 @@ const componentFiles = compiledFiles.filter(([file]) => file !== "index.js").sor
 const largestComponent = componentFiles[0];
 const rootIndexBytes = compiledFiles.find(([file]) => file === "index.js")?.[1] ?? 0;
 const dataAttributes = new Set(sources.flatMap(([, source]) => source.match(/data-vc-[a-z0-9-]+/g) ?? []));
+const sourceByName = new Map(sources.map(([file, source]) => [path.basename(file, ".tsx"), source]));
+const bytesByName = new Map(compiledFiles.map(([file, bytes]) => [path.basename(file, ".js"), bytes]));
+const runtimeProfiles = componentRegistry.filter((component) => component.runtime).map((component) => {
+  const name = component.projectImport.split("/").at(-1);
+  const actualBytes = bytesByName.get(name);
+  const source = sourceByName.get(name) ?? "";
+  const actualEffectCount = (source.match(/\buse(?:Layout)?Effect\s*\(/g) ?? []).length;
+  const baselineBytes = component.runtime.measuredModuleBytes;
+  const deltaPercent = baselineBytes === 0 ? 0 : ((actualBytes - baselineBytes) / baselineBytes) * 100;
+  return { component, name, actualBytes, actualEffectCount, baselineBytes, deltaPercent };
+});
 
 const metrics = {
   components: sourceFiles.length,
@@ -44,6 +56,10 @@ console.log(`  Compiled JS:       ${metrics.compiledBytes} bytes (published base
 console.log(`  Largest component: ${metrics.largestComponent[0]} at ${metrics.largestComponent[1]} bytes (budget: ${budgets.largestComponentBytes})`);
 console.log(`  Root index:        ${metrics.rootIndexBytes} bytes (budget: ${budgets.rootIndexBytes})`);
 console.log(`  Largest five:      ${componentFiles.slice(0, 5).map(([file, bytes]) => `${file} ${bytes}`).join(", ")}`);
+console.log(`  Runtime profiles:  ${runtimeProfiles.length} decision-grade components`);
+for (const profile of runtimeProfiles) {
+  console.log(`    ${profile.component.id.padEnd(24)} ${String(profile.actualBytes).padStart(5)} bytes | baseline ${String(profile.baselineBytes).padStart(5)} | ${profile.deltaPercent >= 0 ? "+" : ""}${profile.deltaPercent.toFixed(1)}% | ${profile.actualEffectCount} effects`);
+}
 
 if (process.argv.includes("--check")) {
   const failures = [];
@@ -55,6 +71,11 @@ if (process.argv.includes("--check")) {
   if (metrics.compiledBytes > baseline.compiledBytes * 1.1) failures.push("compiled JavaScript grew by more than 10%");
   if (metrics.largestComponent[1] > budgets.largestComponentBytes) failures.push(`${metrics.largestComponent[0]} exceeds the ${budgets.largestComponentBytes}-byte component budget`);
   if (metrics.rootIndexBytes > budgets.rootIndexBytes) failures.push(`root index exceeds the ${budgets.rootIndexBytes}-byte budget`);
+  for (const profile of runtimeProfiles) {
+    if (!Number.isInteger(profile.actualBytes)) failures.push(`${profile.component.id}: compiled module is missing`);
+    else if (Math.abs(profile.deltaPercent) > 10) failures.push(`${profile.component.id}: compiled module changed ${profile.deltaPercent.toFixed(1)}% from the ${profile.baselineBytes}-byte registry measurement`);
+    if (profile.actualEffectCount !== profile.component.runtime.effectCount) failures.push(`${profile.component.id}: registry effectCount ${profile.component.runtime.effectCount} does not match measured ${profile.actualEffectCount}`);
+  }
   if (failures.length > 0) throw new Error(`Component analysis failed:\n- ${failures.join("\n- ")}`);
   console.log("Component analysis checks passed.");
 }

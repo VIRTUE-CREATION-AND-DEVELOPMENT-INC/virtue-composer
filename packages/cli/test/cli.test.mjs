@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { componentRegistry } from "@virtuecreation/composer-registry";
-import { add, compose, doctor, init, inspect, inspectCompositions, upgrade } from "../src/index.js";
+import { add, compose, doctor, init, inspect, inspectCompositions, stabilityReport, upgrade } from "../src/index.js";
 
 test("init creates a detectable Composer project", async (t) => {
   const root = await mkdtemp(path.join(os.tmpdir(), "virtue-composer-"));
@@ -16,8 +16,8 @@ test("init creates a detectable Composer project", async (t) => {
   assert.equal(result.components.length, 128);
   assert.match(await readFile(path.join(root, "src/components/composer/Button.js"), "utf8"), /@virtuecreation\/composer\/button/);
   const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
-  assert.equal(packageJson.dependencies["@virtuecreation/composer"], "0.6.0");
-  assert.equal(packageJson.devDependencies["@virtuecreation/composer-cli"], "0.6.0");
+  assert.equal(packageJson.dependencies["@virtuecreation/composer"], "0.7.0");
+  assert.equal(packageJson.devDependencies["@virtuecreation/composer-cli"], "0.7.0");
   assert.equal(packageJson.scripts["composer:check"], "virtue-composer doctor . --strict");
   assert.equal(result.config.packageSource, "npm");
   assert.equal(result.config.compositionRoot, "src/components/compositions");
@@ -180,6 +180,56 @@ test("inspect filters compact output and reports used components", async (t) => 
   assert.equal(button.components[0].since, "0.1.0");
   const emptyState = await inspect(root, { component: "EmptyState" });
   assert.equal(emptyState.components[0].propContracts.actions.kind, "react-node");
+  const fileUpload = await inspect(root, { component: "FileUpload", compact: true });
+  assert.equal(fileUpload.components[0].decisionGrade, true);
+  assert.equal(fileUpload.components[0].runtime.measuredModuleBytes, 2299);
+  assert.equal(fileUpload.components[0].security.dataSensitivity, "files");
+  assert.match(fileUpload.runtimeMethodology.basis, /Unminified ESM/);
+});
+
+test("Doctor reports metadata-driven trust-boundary guidance without claiming client validation is security", async (t) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "virtue-composer-trust-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await init(root, { components: "FileUpload" });
+  await mkdir(path.join(root, "src/app"), { recursive: true });
+  await writeFile(path.join(root, "src/app/layout.jsx"), 'import "../styles/composer.css";\nexport default function Layout({ children }) { return children; }\n');
+  await writeFile(path.join(root, "src/app/page.jsx"), 'import { FileUpload } from "@/components/composer";\nexport default function Page(){return <FileUpload label="Attachment" />}\n');
+  const normal = await doctor(root);
+  assert.equal(normal.ok, true);
+  const finding = normal.findings.find((item) => item.rule === "file-type-policy");
+  assert.equal(finding.severity, "warning");
+  assert.match(finding.message, /server/);
+  assert.match(finding.message, /chooser hint/);
+  assert.equal((await doctor(root, { strict: true })).ok, false);
+
+  const configFile = path.join(root, "virtue-composer.config.json");
+  const config = JSON.parse(await readFile(configFile, "utf8"));
+  config.enforcement.trustBoundaries = "off";
+  await writeFile(configFile, `${JSON.stringify(config, null, 2)}\n`);
+  assert.equal((await doctor(root, { strict: true })).ok, true);
+  delete config.enforcement.trustBoundaries;
+  await writeFile(configFile, `${JSON.stringify(config, null, 2)}\n`);
+  assert.equal((await doctor(root, { strict: true })).ok, true);
+});
+
+test("stability report keeps evidence thresholds separate from human promotion decisions", () => {
+  const report = stabilityReport(".", { component: "FileUpload" });
+  assert.equal(report.summary.components, 1);
+  const fileUpload = report.components[0];
+  assert.equal(fileUpload.evidence.productionProjects, 1);
+  assert.deepEqual(fileUpload.evidence.useCases, ["admin product image upload", "public career application attachment"]);
+  assert.equal(fileUpload.evidence.productUseCases.length, 6);
+  assert.deepEqual(fileUpload.evidence.browserFamilies, ["chromium", "firefox", "webkit"]);
+  assert.equal(fileUpload.evidence.manualAccessibility.screenReader.status, "not-recorded");
+  assert.equal(fileUpload.promotion.automaticPromotion, false);
+  assert.equal(fileUpload.promotion.evidenceThresholdsMet, false);
+  assert.equal(fileUpload.promotion.review, null);
+  assert.equal(fileUpload.promotion.promotionGatePassed, false);
+
+  const dataGrid = stabilityReport(".", { component: "data-grid" }).components[0];
+  assert.equal(dataGrid.evidence.productionProjects, 0);
+  assert.equal(dataGrid.promotion.review.reviewerDecision, "pending");
+  assert.equal(dataGrid.promotion.promotionGatePassed, false);
 });
 
 test("report exposes per-file usage and registry-driven replacement candidates", async (t) => {

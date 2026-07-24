@@ -47,11 +47,19 @@ try {
   const discovered = await exec(cli, ["compositions", consumer, "--query=impact statistics", "--json"], { cwd: root, maxBuffer: 10 * 1024 * 1024 });
   const discovery = JSON.parse(discovered.stdout);
   if (discovery.compositions[0]?.id !== "proof-metric-strip") throw new Error("Packed CLI did not discover the metric composition from natural-language metadata.");
+  const inspected = JSON.parse((await exec(cli, ["inspect", consumer, "--component=FileUpload", "--compact", "--json"], { cwd: root, maxBuffer: 10 * 1024 * 1024 })).stdout);
+  if (inspected.components[0]?.runtime?.measuredModuleBytes !== 2299 || inspected.components[0]?.security?.dataSensitivity !== "files") {
+    throw new Error("Packed CLI did not expose runtime and trust-boundary metadata.");
+  }
+  const stability = JSON.parse((await exec(cli, ["stability", consumer, "--component=DataGrid", "--json"], { cwd: root, maxBuffer: 10 * 1024 * 1024 })).stdout);
+  if (stability.components[0]?.promotion?.automaticPromotion !== false || stability.components[0]?.promotion?.review?.reviewerDecision !== "pending") {
+    throw new Error("Packed CLI did not preserve the human-reviewed stability evidence contract.");
+  }
   await exec(cli, ["compose", consumer, "--compositions=faq-split-accordion,proof-metric-strip"], { cwd: root, maxBuffer: 10 * 1024 * 1024 });
   const packageJsonFile = path.join(consumer, "package.json");
   const packageJson = JSON.parse(await readFile(packageJsonFile, "utf8"));
-  if (packageJson.dependencies["@virtuecreation/composer"] !== "0.6.0") throw new Error("Packed CLI did not select Composer 0.6.0.");
-  if (packageJson.devDependencies["@virtuecreation/composer-cli"] !== "0.6.0") throw new Error("Packed CLI did not pin its local binary dependency.");
+  if (packageJson.dependencies["@virtuecreation/composer"] !== "0.7.0") throw new Error("Packed CLI did not select Composer 0.7.0.");
+  if (packageJson.devDependencies["@virtuecreation/composer-cli"] !== "0.7.0") throw new Error("Packed CLI did not pin its local binary dependency.");
 
   await writeFile(path.join(consumer, "src/app/layout.jsx"), 'import "../styles/composer.css";\nexport default function Layout({ children }) { return <html lang="en"><body>{children}</body></html>; }\n');
   await writeFile(path.join(consumer, "src/app/page.jsx"), 'import { Button, Section } from "@/components/composer";\nimport { FAQSplitAccordion, ProofMetricStrip } from "@/components/compositions";\nexport default function Page() { return <Section as="main" layout="flex" direction="column" align="center"><h1>CLI package rehearsal</h1><Button>Ready</Button><ProofMetricStrip metrics={[{ value: "18", label: "Compositions" }]} /><FAQSplitAccordion items={[{ question: "Copyable?", answer: "Yes." }]} /></Section>; }\n');
@@ -63,7 +71,7 @@ try {
   if (!doctor.stdout.includes("Doctor: PASS") || !doctor.stdout.includes("0 warnings")) throw new Error(`Packed CLI Doctor failed:\n${doctor.stdout}`);
   await exec("npm", ["run", "build"], { cwd: consumer, maxBuffer: 10 * 1024 * 1024 });
 
-  console.log("Packed CLI smoke passed: registry resolved, composition discovery and copying complete, Doctor clean, production build complete.");
+  console.log("Packed CLI smoke passed: registry metadata and stability evidence resolved, composition discovery and copying complete, Doctor clean, production build complete.");
 } finally {
   await rm(root, { recursive: true, force: true });
 }

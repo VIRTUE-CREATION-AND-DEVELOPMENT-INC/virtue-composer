@@ -1,15 +1,18 @@
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { validateDecisionGuidance } from "../src/validate-component-metadata.js";
 
 const registryUrls = [new URL("../components.json", import.meta.url), new URL("../components.phase-3.json", import.meta.url), new URL("../components.phase-4.json", import.meta.url), new URL("../components.phase-5.json", import.meta.url)];
 const registry = (await Promise.all(registryUrls.map(async (url) => JSON.parse(await readFile(url, "utf8"))))).flat();
 const compositionUrl = new URL("../compositions.json", import.meta.url);
 const compositionSchemaUrl = new URL("../composition.schema.json", import.meta.url);
 const blueprintUrl = new URL("../blueprints.json", import.meta.url);
+const stabilityEvidenceUrl = new URL("../stability-evidence.json", import.meta.url);
 const compositions = JSON.parse(await readFile(compositionUrl, "utf8"));
 const compositionSchema = JSON.parse(await readFile(compositionSchemaUrl, "utf8"));
 const blueprints = JSON.parse(await readFile(blueprintUrl, "utf8"));
+const stabilityEvidence = JSON.parse(await readFile(stabilityEvidenceUrl, "utf8"));
 const registryRoot = path.dirname(fileURLToPath(compositionUrl));
 const required = [
   "id",
@@ -33,9 +36,14 @@ const ids = new Set();
 const errors = [];
 const validStabilities = new Set(["stable", "beta", "experimental", "deprecated"]);
 const validLayers = new Set(["structure", "navigation", "action", "field", "choice", "disclosure", "data", "content", "media", "feedback", "loading", "overlay"]);
-const validPropKinds = new Set(["boolean", "descriptor-array", "enum", "function", "number", "react-node", "record", "string"]);
-const allowedKeys = new Set([...required, "propContracts", "selectionHints"]);
-const allowedGuidanceKeys = new Set(["use", "avoid", "alternatives", "companions", "responsive"]);
+const validPropKinds = new Set(["array", "boolean", "descriptor-array", "enum", "function", "number", "react-node", "record", "string", "union"]);
+const allowedKeys = new Set([...required, "propContracts", "selectionHints", "runtime", "security"]);
+const allowedGuidanceKeys = new Set(["use", "avoid", "alternatives", "companions", "responsive", "decision"]);
+const requiredRuntimeKeys = ["clientRequired", "engine", "measuredModuleBytes", "complexity", "effectCount", "listenerModel", "portal", "nativeAlternative", "scaleGuidance", "lazyLoad"];
+const allowedRuntimeKeys = new Set(requiredRuntimeKeys);
+const requiredSecurityKeys = ["acceptsHtml", "htmlPolicy", "dataSensitivity", "clientValidation", "serverValidation", "secretPolicy", "networkAuthority", "persistenceAuthority", "externalNavigation", "commerceAuthority", "warnings"];
+const allowedSecurityKeys = new Set([...requiredSecurityKeys, "doctorHints"]);
+const isNonEmptyString = (value) => typeof value === "string" && value.trim() !== "";
 
 if (!Array.isArray(registry) || registry.length === 0) {
   errors.push("Registry must be a non-empty array.");
@@ -63,6 +71,10 @@ for (const [index, component] of registry.entries()) {
       if (!component.props.includes(prop)) errors.push(`${label}: propContracts.${prop} is not listed in props`);
       if (!contract || typeof contract !== "object" || !contract.kind || !contract.description) errors.push(`${label}: propContracts.${prop} must define kind and description`);
       else if (!validPropKinds.has(contract.kind)) errors.push(`${label}: propContracts.${prop} has invalid kind ${contract.kind}`);
+      else {
+        if (["array", "descriptor-array"].includes(contract.kind) && !isNonEmptyString(contract.itemType)) errors.push(`${label}: propContracts.${prop} kind ${contract.kind} requires itemType`);
+        if (["enum", "union"].includes(contract.kind) && (!Array.isArray(contract.values) || contract.values.length === 0)) errors.push(`${label}: propContracts.${prop} kind ${contract.kind} requires values`);
+      }
     }
   }
   if (component.selectionHints) {
@@ -88,6 +100,44 @@ for (const [index, component] of registry.entries()) {
     for (const key of ["alternatives", "companions"]) {
       if (!Array.isArray(component.guidance[key])) errors.push(`${label}: guidance.${key} must be an array`);
       else if (new Set(component.guidance[key]).size !== component.guidance[key].length) errors.push(`${label}: guidance.${key} must not contain duplicates`);
+    }
+    for (const error of validateDecisionGuidance(component)) errors.push(`${label}: ${error}`);
+  }
+  if (component.runtime) {
+    const runtime = component.runtime;
+    for (const key of requiredRuntimeKeys) if (!(key in runtime)) errors.push(`${label}: runtime is missing ${key}`);
+    for (const key of Object.keys(runtime)) if (!allowedRuntimeKeys.has(key)) errors.push(`${label}: runtime has unknown property ${key}`);
+    if (runtime.clientRequired !== component.client) errors.push(`${label}: runtime.clientRequired must match client`);
+    if (!Array.isArray(runtime.engine) || runtime.engine.some((engine) => !isNonEmptyString(engine))) errors.push(`${label}: runtime.engine must be an array of non-empty strings`);
+    else if (new Set(runtime.engine).size !== runtime.engine.length) errors.push(`${label}: runtime.engine must not contain duplicates`);
+    if (!Number.isInteger(runtime.measuredModuleBytes) || runtime.measuredModuleBytes < 0) errors.push(`${label}: runtime.measuredModuleBytes must be a non-negative integer`);
+    if (!new Set(["low", "moderate", "high"]).has(runtime.complexity)) errors.push(`${label}: runtime.complexity is invalid`);
+    if (!Number.isInteger(runtime.effectCount) || runtime.effectCount < 0) errors.push(`${label}: runtime.effectCount must be a non-negative integer`);
+    for (const key of ["listenerModel", "nativeAlternative", "scaleGuidance"]) if (!isNonEmptyString(runtime[key])) errors.push(`${label}: runtime.${key} must be a non-empty string`);
+    if (typeof runtime.portal !== "boolean") errors.push(`${label}: runtime.portal must be boolean`);
+    if (!new Set(["not-recommended", "optional", "recommended"]).has(runtime.lazyLoad)) errors.push(`${label}: runtime.lazyLoad is invalid`);
+  }
+  if (component.security) {
+    const security = component.security;
+    for (const key of requiredSecurityKeys) if (!(key in security)) errors.push(`${label}: security is missing ${key}`);
+    for (const key of Object.keys(security)) if (!allowedSecurityKeys.has(key)) errors.push(`${label}: security has unknown property ${key}`);
+    if (typeof security.acceptsHtml !== "boolean") errors.push(`${label}: security.acceptsHtml must be boolean`);
+    for (const key of ["htmlPolicy", "clientValidation", "serverValidation", "secretPolicy", "externalNavigation", "commerceAuthority"]) if (!isNonEmptyString(security[key])) errors.push(`${label}: security.${key} must be a non-empty string`);
+    if (!new Set(["none", "user-content", "personal", "files", "financial"]).has(security.dataSensitivity)) errors.push(`${label}: security.dataSensitivity is invalid`);
+    if (!new Set(["none", "navigation", "project-callback"]).has(security.networkAuthority)) errors.push(`${label}: security.networkAuthority is invalid`);
+    if (!new Set(["none", "project-callback"]).has(security.persistenceAuthority)) errors.push(`${label}: security.persistenceAuthority is invalid`);
+    if (!Array.isArray(security.warnings) || security.warnings.length === 0 || security.warnings.some((warning) => !isNonEmptyString(warning))) errors.push(`${label}: security.warnings must be a non-empty string array`);
+    else if (new Set(security.warnings).size !== security.warnings.length) errors.push(`${label}: security.warnings must not contain duplicates`);
+    if (security.doctorHints !== undefined) {
+      if (!Array.isArray(security.doctorHints)) errors.push(`${label}: security.doctorHints must be an array`);
+      else for (const [hintIndex, hint] of security.doctorHints.entries()) {
+        const hintLabel = `${label}: security.doctorHints[${hintIndex}]`;
+        if (hint.rule !== "jsx-prop-absent") errors.push(`${hintLabel}.rule must be jsx-prop-absent`);
+        for (const key of ["prop", "code", "message"]) if (!isNonEmptyString(hint[key])) errors.push(`${hintLabel}.${key} must be a non-empty string`);
+        if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(hint.code ?? "")) errors.push(`${hintLabel}.code must be kebab-case`);
+        if (!component.props.includes(hint.prop)) errors.push(`${hintLabel}.prop must reference a registered prop`);
+        for (const key of Object.keys(hint)) if (!["rule", "prop", "code", "message"].includes(key)) errors.push(`${hintLabel} has unknown property ${key}`);
+      }
     }
   }
 }
@@ -203,6 +253,12 @@ for (const composition of compositions) {
   }
 }
 
+for (const component of registry) {
+  for (const compositionId of component.guidance?.decision?.compositions ?? []) {
+    if (!compositionIds.has(compositionId)) errors.push(`${component.id}: guidance.decision.compositions references unknown composition ${compositionId}`);
+  }
+}
+
 const blueprintIds = new Set();
 const requiredBlueprintKeys = ["id", "title", "description", "selection", "sequence", "optional", "stability", "since", "contractVersion"];
 const allowedBlueprintKeys = new Set(requiredBlueprintKeys);
@@ -230,10 +286,100 @@ for (const [index, blueprint] of blueprints.entries()) {
   }
 }
 
+if (stabilityEvidence.schemaVersion !== "1.0.0") errors.push("stability evidence: schemaVersion must be 1.0.0");
+const promotionPolicy = stabilityEvidence.promotionPolicy;
+if (!promotionPolicy || typeof promotionPolicy !== "object") {
+  errors.push("stability evidence: promotionPolicy must be an object");
+} else {
+  for (const key of ["minimumProductionProjects", "minimumUseCaseFamilies", "minimumBrowserFamilies"]) {
+    if (!Number.isInteger(promotionPolicy[key]) || promotionPolicy[key] < 1) errors.push(`stability evidence: promotionPolicy.${key} must be a positive integer`);
+  }
+  if (promotionPolicy.humanReviewRequired !== true) errors.push("stability evidence: humanReviewRequired must remain true");
+  const requiredManual = promotionPolicy.requiredManualEvidence;
+  if (!Array.isArray(requiredManual) || !["screenReader", "physicalTouch", "windowsHighContrast"].every((key) => requiredManual.includes(key))) {
+    errors.push("stability evidence: all manual accessibility evidence categories must be required");
+  }
+}
+
+const sourceIds = new Set();
+if (!Array.isArray(stabilityEvidence.sources) || stabilityEvidence.sources.length === 0) {
+  errors.push("stability evidence: sources must be a non-empty array");
+} else {
+  for (const [index, source] of stabilityEvidence.sources.entries()) {
+    const label = `stability evidence source ${source?.id ?? index}`;
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(source.id ?? "")) errors.push(`${label}: invalid id`);
+    if (sourceIds.has(source.id)) errors.push(`${label}: duplicate id`);
+    sourceIds.add(source.id);
+    if (!new Set(["production-adoption", "maintained-fixture"]).has(source.kind)) errors.push(`${label}: invalid kind`);
+    if (!new Set(["bootstrap", "adopt", "evolve"]).has(source.lifecycleMode)) errors.push(`${label}: invalid lifecycleMode`);
+    if (!/^\d+\.\d+\.\d+$/.test(source.composerVersion ?? "")) errors.push(`${label}: composerVersion must be semantic`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(source.collectedOn ?? "")) errors.push(`${label}: collectedOn must be an ISO date`);
+    const coverage = source.coverage;
+    if (!coverage || !new Set(["component-list", "all-registry-components"]).has(coverage.type)) {
+      errors.push(`${label}: invalid coverage`);
+    } else if (coverage.type === "component-list") {
+      if (!Array.isArray(coverage.componentIds) || coverage.componentIds.length === 0) errors.push(`${label}: component-list coverage must not be empty`);
+      else {
+        if (new Set(coverage.componentIds).size !== coverage.componentIds.length) errors.push(`${label}: coverage componentIds must not contain duplicates`);
+        for (const componentId of coverage.componentIds) if (!ids.has(componentId)) errors.push(`${label}: coverage references unknown component ${componentId}`);
+      }
+    } else if ("componentIds" in coverage) {
+      errors.push(`${label}: all-registry-components must not duplicate componentIds`);
+    }
+    if (source.componentUseCases !== undefined) {
+      if (!source.componentUseCases || typeof source.componentUseCases !== "object" || Array.isArray(source.componentUseCases)) {
+        errors.push(`${label}: componentUseCases must be an object`);
+      } else {
+        for (const [componentId, useCases] of Object.entries(source.componentUseCases)) {
+          if (!ids.has(componentId)) errors.push(`${label}: componentUseCases references unknown component ${componentId}`);
+          if (coverage?.type === "component-list" && !coverage.componentIds?.includes(componentId)) errors.push(`${label}: componentUseCases.${componentId} is outside source coverage`);
+          if (!Array.isArray(useCases) || useCases.length === 0 || useCases.some((useCase) => !isNonEmptyString(useCase))) errors.push(`${label}: componentUseCases.${componentId} must be a non-empty string array`);
+          else if (new Set(useCases).size !== useCases.length) errors.push(`${label}: componentUseCases.${componentId} must not contain duplicates`);
+        }
+      }
+    }
+    for (const key of ["useCases", "browserFamilies", "browserEvidence", "automatedAccessibility", "defects", "breakingRevisions", "unresolvedRisks"]) {
+      if (!Array.isArray(source[key])) errors.push(`${label}: ${key} must be an array`);
+    }
+    if (!source.manualAccessibility || typeof source.manualAccessibility !== "object") {
+      errors.push(`${label}: manualAccessibility must be an object`);
+    } else {
+      for (const key of ["screenReader", "physicalTouch", "windowsHighContrast"]) {
+        const check = source.manualAccessibility[key];
+        if (!check || !new Set(["passed", "failed", "not-recorded"]).has(check.status) || !isNonEmptyString(check.notes)) errors.push(`${label}: manualAccessibility.${key} is invalid`);
+      }
+    }
+    for (const defect of source.defects ?? []) {
+      if (!new Set(["low", "medium", "high", "critical"]).has(defect.severity)) errors.push(`${label}: defect ${defect.id ?? "unknown"} has invalid severity`);
+      for (const componentId of defect.componentIds ?? []) if (!ids.has(componentId)) errors.push(`${label}: defect ${defect.id ?? "unknown"} references unknown component ${componentId}`);
+    }
+    for (const revision of source.breakingRevisions ?? []) {
+      if (!/^\d+\.\d+\.\d+$/.test(revision.version ?? "")) errors.push(`${label}: breaking revision must name a semantic version`);
+      for (const componentId of revision.componentIds ?? []) if (!ids.has(componentId)) errors.push(`${label}: breaking revision references unknown component ${componentId}`);
+    }
+  }
+}
+
+if (!Array.isArray(stabilityEvidence.reviews)) {
+  errors.push("stability evidence: reviews must be an array");
+} else {
+  const reviewedComponents = new Set();
+  for (const review of stabilityEvidence.reviews) {
+    const label = `stability review ${review?.componentId ?? "unknown"}`;
+    if (!ids.has(review.componentId)) errors.push(`${label}: unknown component`);
+    if (reviewedComponents.has(review.componentId)) errors.push(`${label}: duplicate component review`);
+    reviewedComponents.add(review.componentId);
+    if (!new Set(["hold", "consider-beta", "consider-stable", "do-not-promote"]).has(review.recommendation)) errors.push(`${label}: invalid recommendation`);
+    if (!new Set(["pending", "approved", "rejected"]).has(review.reviewerDecision)) errors.push(`${label}: invalid reviewerDecision`);
+    if (review.reviewerDecision === "approved" && !review.reviewedOn) errors.push(`${label}: approved decisions require reviewedOn`);
+    if (!isNonEmptyString(review.rationale)) errors.push(`${label}: rationale must be non-empty`);
+  }
+}
+
 if (errors.length > 0) {
   console.error(`Registry validation failed (${errors.length})`);
   errors.forEach((error) => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log(`Registry valid: ${registry.length} components, ${compositions.length} compositions, ${blueprints.length} blueprints (${registryUrls.map(fileURLToPath).join(", ")})`);
+console.log(`Registry valid: ${registry.length} components, ${compositions.length} compositions, ${blueprints.length} blueprints, ${stabilityEvidence.sources.length} evidence sources (${registryUrls.map(fileURLToPath).join(", ")})`);

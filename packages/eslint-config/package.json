@@ -1,6 +1,6 @@
 {
   "name": "@virtuecreation/eslint-config-composer",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "ESLint boundaries for Virtue Composer projects.",
   "author": "Virtue Creation <info@virtuesoftware.ca>",
   "license": "MIT",

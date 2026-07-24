@@ -1,6 +1,6 @@
 {
   "name": "@virtuecreation/composer",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Structural and behavioral components for Virtue Next.js projects.",
   "author": "Virtue Creation <info@virtuesoftware.ca>",
   "license": "MIT",

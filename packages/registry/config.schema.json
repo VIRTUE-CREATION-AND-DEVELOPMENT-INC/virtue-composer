@@ -26,6 +26,7 @@
         "sectionSemantics": { "enum": ["off", "warning", "error"] },
         "layoutDivs": { "enum": ["off", "warning", "error"] },
         "componentSelection": { "enum": ["off", "warning", "error"] },
+        "trustBoundaries": { "enum": ["off", "warning", "error"] },
         "sourceAnalysis": { "enum": ["off", "warning", "error"] },
         "exceptions": {
           "type": "object",

@@ -36,11 +36,21 @@
           "type": "object",
           "required": ["kind", "description"],
           "properties": {
-            "kind": { "enum": ["boolean", "descriptor-array", "enum", "function", "number", "react-node", "record", "string"] },
+            "kind": { "enum": ["array", "boolean", "descriptor-array", "enum", "function", "number", "react-node", "record", "string", "union"] },
             "itemType": { "type": "string" },
             "values": { "type": "array", "items": { "type": "string" } },
             "description": { "type": "string", "minLength": 1 }
           },
+          "allOf": [
+            {
+              "if": { "properties": { "kind": { "enum": ["array", "descriptor-array"] } } },
+              "then": { "required": ["itemType"] }
+            },
+            {
+              "if": { "properties": { "kind": { "enum": ["enum", "union"] } } },
+              "then": { "required": ["values"] }
+            }
+          ],
           "additionalProperties": false
         }
       },
@@ -76,12 +86,109 @@
           "avoid": { "type": "string", "minLength": 1 },
           "alternatives": { "type": "array", "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }, "uniqueItems": true },
           "companions": { "type": "array", "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }, "uniqueItems": true },
-          "responsive": { "type": "string", "minLength": 1 }
+          "responsive": { "type": "string", "minLength": 1 },
+          "decision": {
+            "type": "object",
+            "required": ["nativeAlternative", "complexAlternative", "stateModel", "serverClientBoundary", "serialization", "focusOwnership", "failureModes", "compositions"],
+            "properties": {
+              "nativeAlternative": { "type": "string", "minLength": 1 },
+              "complexAlternative": { "type": "string", "minLength": 1 },
+              "stateModel": { "type": "string", "minLength": 1 },
+              "serverClientBoundary": { "type": "string", "minLength": 1 },
+              "serialization": { "type": "string", "minLength": 1 },
+              "focusOwnership": { "type": "string", "minLength": 1 },
+              "failureModes": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string", "minLength": 1 },
+                "uniqueItems": true
+              },
+              "compositions": {
+                "type": "array",
+                "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+                "uniqueItems": true
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "runtime": {
+        "type": "object",
+        "required": ["clientRequired", "engine", "measuredModuleBytes", "complexity", "effectCount", "listenerModel", "portal", "nativeAlternative", "scaleGuidance", "lazyLoad"],
+        "properties": {
+          "clientRequired": { "type": "boolean" },
+          "engine": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          },
+          "measuredModuleBytes": { "type": "integer", "minimum": 0 },
+          "complexity": { "enum": ["low", "moderate", "high"] },
+          "effectCount": { "type": "integer", "minimum": 0 },
+          "listenerModel": { "type": "string", "minLength": 1 },
+          "portal": { "type": "boolean" },
+          "nativeAlternative": { "type": "string", "minLength": 1 },
+          "scaleGuidance": { "type": "string", "minLength": 1 },
+          "lazyLoad": { "enum": ["not-recommended", "optional", "recommended"] }
+        },
+        "additionalProperties": false
+      },
+      "security": {
+        "type": "object",
+        "required": ["acceptsHtml", "htmlPolicy", "dataSensitivity", "clientValidation", "serverValidation", "secretPolicy", "networkAuthority", "persistenceAuthority", "externalNavigation", "commerceAuthority", "warnings"],
+        "properties": {
+          "acceptsHtml": { "type": "boolean" },
+          "htmlPolicy": { "type": "string", "minLength": 1 },
+          "dataSensitivity": { "enum": ["none", "user-content", "personal", "files", "financial"] },
+          "clientValidation": { "type": "string", "minLength": 1 },
+          "serverValidation": { "type": "string", "minLength": 1 },
+          "secretPolicy": { "type": "string", "minLength": 1 },
+          "networkAuthority": { "enum": ["none", "navigation", "project-callback"] },
+          "persistenceAuthority": { "enum": ["none", "project-callback"] },
+          "externalNavigation": { "type": "string", "minLength": 1 },
+          "commerceAuthority": { "type": "string", "minLength": 1 },
+          "warnings": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          },
+          "doctorHints": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["rule", "prop", "code", "message"],
+              "properties": {
+                "rule": { "const": "jsx-prop-absent" },
+                "prop": { "type": "string", "minLength": 1 },
+                "code": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+                "message": { "type": "string", "minLength": 1 }
+              },
+              "additionalProperties": false
+            }
+          }
         },
         "additionalProperties": false
       },
       "contractVersion": { "const": 1 }
     },
+    "allOf": [
+      {
+        "if": {
+          "anyOf": [
+            { "required": ["runtime"] },
+            { "required": ["security"] }
+          ]
+        },
+        "then": {
+          "properties": {
+            "guidance": { "required": ["decision"] }
+          }
+        }
+      }
+    ],
     "additionalProperties": false
   }
 }

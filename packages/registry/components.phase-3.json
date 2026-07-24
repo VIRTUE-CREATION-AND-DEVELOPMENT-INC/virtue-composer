@@ -750,11 +750,70 @@
     "stability": "beta",
     "since": "0.3.0",
     "guidance": {
-      "use": "Use when a project needs reusable data grid behavior with the registered state and accessibility contract.",
-      "avoid": "Avoid when project-specific business behavior would make the shared data contract misleading.",
-      "alternatives": ["data-table","virtual-list"],
-      "companions": ["bulk-action-bar","resource-toolbar"],
-      "responsive": "Preserve reading order and keyboard access; contain intentional overflow inside the component boundary."
+      "use": "Use for application data that genuinely needs selection, controlled sorting or filtering, column visibility or pinning, and optional row virtualization.",
+      "avoid": "Avoid for ordinary semantic tables, small read-only datasets, or layouts where each item is better represented as a list or card.",
+      "alternatives": [
+        "data-table",
+        "virtual-list"
+      ],
+      "companions": [
+        "bulk-action-bar",
+        "resource-toolbar"
+      ],
+      "responsive": "Contain the grid as an intentional region, preserve keyboard access, and provide a project strategy for narrow screens rather than shrinking every column.",
+      "decision": {
+        "nativeAlternative": "Use a native table or DataTable for small semantic datasets with simple sorting.",
+        "complexAlternative": "A project-specific grid may be necessary for editing, tree data, grouped rows, server cursoring, or domain-specific keyboard behavior.",
+        "stateModel": "Selection, sorting, filtering, visibility, and pinning each support controlled and initial-default state; the caller owns remote data synchronization.",
+        "serverClientBoundary": "Client boundary required for TanStack table and virtualizer state, descriptor callbacks, pointer resizing, and keyboard selection.",
+        "serialization": "Rows and plain descriptor data may cross the server boundary; accessor and cell functions must originate in client code.",
+        "focusOwnership": "Composer owns grid controls and selection focus; project cells must avoid nested interactive regions that break row keyboard behavior.",
+        "failureModes": [
+          "Choosing DataGrid for a simple table adds unnecessary client cost and interaction complexity.",
+          "Passing column callbacks across a Server Component boundary fails serialization.",
+          "Virtualizing without a bounded height or stable row identity creates measurement and focus defects."
+        ],
+        "compositions": [
+          "resource-index"
+        ]
+      }
+    },
+    "propContracts": {
+      "rows": {
+        "kind": "descriptor-array",
+        "itemType": "DataGridRow",
+        "description": "Caller-owned rows with stable IDs; remote loading, pagination, and mutation stay outside Composer."
+      },
+      "columns": {
+        "kind": "descriptor-array",
+        "itemType": "DataGridColumn",
+        "description": "TanStack-compatible descriptors. Function accessors and renderers must be created inside a client boundary."
+      },
+      "virtualize": {
+        "kind": "boolean",
+        "description": "Enables row virtualization and requires a bounded height plus a realistic estimateRowHeight."
+      },
+      "selectedIds": {
+        "kind": "array",
+        "itemType": "string",
+        "description": "Controlled selected row IDs; pair with onSelectedIdsChange."
+      }
+    },
+    "runtime": {
+      "clientRequired": true,
+      "engine": [
+        "@tanstack/react-table",
+        "@tanstack/react-virtual",
+        "react"
+      ],
+      "measuredModuleBytes": 9272,
+      "complexity": "high",
+      "effectCount": 0,
+      "listenerModel": "Per-grid keyboard, pointer, touch, sorting, selection, filtering, and resize handlers; virtualization observes the scroll container.",
+      "portal": false,
+      "nativeAlternative": "DataTable or native table.",
+      "scaleGuidance": "Enable virtualization only with stable IDs and a bounded viewport; use server filtering and sorting for large remote datasets.",
+      "lazyLoad": "recommended"
     }
   },
   {
@@ -918,11 +977,84 @@
     "stability": "beta",
     "since": "0.3.0",
     "guidance": {
-      "use": "Use when a project needs reusable rich text editor behavior with the registered state and accessibility contract.",
-      "avoid": "Avoid for project typography or static semantic content that does not require shared behavior.",
-      "alternatives": ["markdown-editor","textarea"],
-      "companions": ["field"],
-      "responsive": "Keep authoring and preview controls usable at narrow widths and 200 percent zoom."
+      "use": "Use for structured rich-text authoring when the project accepts the Tiptap document model and owns sanitization, storage, rendering, toolbar policy, and link policy.",
+      "avoid": "Avoid for static rendered content, plain text, Markdown-first workflows, or highly constrained fields that do not need rich authoring.",
+      "alternatives": [
+        "markdown-editor",
+        "textarea"
+      ],
+      "companions": [
+        "field"
+      ],
+      "responsive": "Keep toolbar controls reachable and allow editing content to reflow at narrow widths and 200 percent zoom.",
+      "decision": {
+        "nativeAlternative": "Textarea is safer and lighter for plain text or a narrowly formatted field.",
+        "complexAlternative": "Use a project editor integration when collaboration, comments, custom schemas, uploads, slash commands, or provider-specific persistence are required.",
+        "stateModel": "The editor instance owns interaction state while content/onChange define the project synchronization boundary.",
+        "serverClientBoundary": "Client boundary required for Tiptap and ProseMirror DOM state; extensions and callbacks must be configured in client code.",
+        "serialization": "Persist a deliberate Tiptap JSON or sanitized HTML format and version it; do not assume editor content is safe rendered HTML.",
+        "focusOwnership": "The editor surface owns editing focus; the project must keep toolbar order, labels, and overflow controls keyboard reachable.",
+        "failureModes": [
+          "Persisting unsanitized HTML creates a stored-content trust vulnerability.",
+          "Changing extensions without a content migration can make stored documents unreadable.",
+          "Loading the editor on read-only pages adds avoidable client and dependency cost."
+        ],
+        "compositions": [
+          "resource-editor-detail"
+        ]
+      }
+    },
+    "propContracts": {
+      "content": {
+        "kind": "union",
+        "values": [
+          "string",
+          "record"
+        ],
+        "description": "Tiptap Content, which may be structured JSON or an HTML string; the project owns format versioning and sanitization."
+      },
+      "extensions": {
+        "kind": "descriptor-array",
+        "itemType": "TiptapExtension",
+        "description": "Client-side Tiptap extensions that define the accepted document grammar and can affect stored-content compatibility."
+      },
+      "onChange": {
+        "kind": "function",
+        "description": "Receives the current editor output; persistence, debouncing, authorization, and conflict handling remain project-owned."
+      }
+    },
+    "runtime": {
+      "clientRequired": true,
+      "engine": [
+        "@tiptap/core",
+        "@tiptap/react",
+        "@tiptap/starter-kit",
+        "react"
+      ],
+      "measuredModuleBytes": 5133,
+      "complexity": "high",
+      "effectCount": 2,
+      "listenerModel": "Tiptap and ProseMirror own editor DOM events, selection, keyboard commands, and document updates.",
+      "portal": false,
+      "nativeAlternative": "Textarea for plain text.",
+      "scaleGuidance": "Mount only while authoring; avoid many simultaneous editor instances and version stored content when extensions change.",
+      "lazyLoad": "recommended"
+    },
+    "security": {
+      "acceptsHtml": true,
+      "htmlPolicy": "HTML content is untrusted input. Sanitize with an allowlist before storage or rendering and review every extension that can add links, embeds, or attributes.",
+      "dataSensitivity": "user-content",
+      "clientValidation": "Toolbar restrictions and editor schemas improve authoring quality but do not sanitize hostile stored content.",
+      "serverValidation": "Validate the document shape, enforce size limits, sanitize any HTML representation, authorize edits, and apply safe link and embed policies.",
+      "secretPolicy": "Never embed credentials, signed private URLs, provider tokens, or internal-only metadata in editor content or extensions.",
+      "networkAuthority": "project-callback",
+      "persistenceAuthority": "project-callback",
+      "externalNavigation": "Validate and normalize authored links; apply project rel, protocol, and redirect policies when rendering.",
+      "commerceAuthority": "No commerce authority.",
+      "warnings": [
+        "Stored rich text can become a persistent cross-site scripting vector if rendered without sanitization.",
+        "Custom extensions can introduce network, embed, or HTML behavior beyond the base Composer contract."
+      ]
     }
   },
   {
@@ -942,11 +1074,83 @@
     "stability": "beta",
     "since": "0.3.0",
     "guidance": {
-      "use": "Use when a project needs reusable markdown editor behavior with the registered state and accessibility contract.",
-      "avoid": "Avoid for project typography or static semantic content that does not require shared behavior.",
-      "alternatives": ["rich-text-editor","textarea"],
-      "companions": ["field"],
-      "responsive": "Keep authoring and preview controls usable at narrow widths and 200 percent zoom."
+      "use": "Use for Markdown-first authoring with explicit write, preview, and split modes when the project owns storage, size limits, and final rendered typography.",
+      "avoid": "Avoid for plain text, rich WYSIWYG authoring, or Markdown dialects that require raw HTML and custom rendering plugins.",
+      "alternatives": [
+        "rich-text-editor",
+        "textarea"
+      ],
+      "companions": [
+        "field"
+      ],
+      "responsive": "Collapse or stack panes when needed while keeping mode controls and the editing label perceivable at 200 percent zoom.",
+      "decision": {
+        "nativeAlternative": "Textarea is sufficient when preview and mode switching are unnecessary.",
+        "complexAlternative": "Use a project Markdown pipeline when custom directives, diagrams, raw HTML, collaborative editing, or server rendering must share one parser configuration.",
+        "stateModel": "Supports controlled value/onValueChange and uncontrolled defaultValue plus controlled or initial mode state.",
+        "serverClientBoundary": "Client boundary required for mode and editor state; persisted Markdown remains serializable text.",
+        "serialization": "Serialize the Markdown string through a named form field or project callback; keep parser version and plugin policy consistent at render time.",
+        "focusOwnership": "The textarea owns editing focus and the segmented control owns mode focus; mode changes must not unexpectedly discard the caret.",
+        "failureModes": [
+          "Using a different server renderer changes the accepted Markdown dialect and output.",
+          "Adding a raw-HTML plugin without sanitization creates a content injection risk.",
+          "Large documents make live preview unnecessarily expensive."
+        ],
+        "compositions": [
+          "resource-editor-detail"
+        ]
+      }
+    },
+    "propContracts": {
+      "value": {
+        "kind": "string",
+        "description": "Controlled Markdown source. Pair with onValueChange; defaultValue initializes uncontrolled state."
+      },
+      "name": {
+        "kind": "string",
+        "description": "Native textarea field name used for FormData serialization in write and split modes."
+      },
+      "mode": {
+        "kind": "enum",
+        "values": [
+          "write",
+          "preview",
+          "split"
+        ],
+        "description": "Controlled presentation mode; it does not change the persisted Markdown format."
+      }
+    },
+    "runtime": {
+      "clientRequired": true,
+      "engine": [
+        "react",
+        "react-markdown",
+        "remark-gfm"
+      ],
+      "measuredModuleBytes": 2007,
+      "complexity": "moderate",
+      "effectCount": 0,
+      "listenerModel": "Textarea input and segmented mode controls; ReactMarkdown parses on preview renders.",
+      "portal": false,
+      "nativeAlternative": "Textarea.",
+      "scaleGuidance": "Debounce or defer preview for very large documents; keep one parser policy across authoring and published rendering.",
+      "lazyLoad": "optional"
+    },
+    "security": {
+      "acceptsHtml": false,
+      "htmlPolicy": "The shipped renderer does not enable raw HTML. Treat any project-added rehype or raw-HTML plugin as a new sanitization boundary.",
+      "dataSensitivity": "user-content",
+      "clientValidation": "Preview rendering is not content validation and does not authorize publication.",
+      "serverValidation": "Authorize edits, enforce content size and allowed-link policies, and render with an equivalently safe server pipeline.",
+      "secretPolicy": "Never store credentials, private tokens, or privileged URLs in Markdown source.",
+      "networkAuthority": "none",
+      "persistenceAuthority": "project-callback",
+      "externalNavigation": "Normalize and constrain rendered link protocols and project redirect behavior.",
+      "commerceAuthority": "No commerce authority.",
+      "warnings": [
+        "Enabling raw HTML changes the trust model and requires an explicit sanitizer.",
+        "A mismatched server renderer can produce different or unsafe output."
+      ]
     }
   },
   {

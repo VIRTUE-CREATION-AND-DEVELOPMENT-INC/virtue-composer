@@ -1,13 +1,20 @@
 # Virtue Composer
 
-Virtue Composer is a Next.js component foundation coupled to a Codex skill and machine-readable registry. Shared components own structure, behavior, and accessibility; consuming projects own visual design.
+Virtue Composer is a Next.js frontend contract system coupled to a Codex skill and machine-readable registry. Shared components own structure, behavior, accessibility, and decision contracts; consuming projects own visual design.
 
-Version 0.6 includes 128 component contracts, 34 copyable composition
+The 0.7 workspace is under active development on top of the compatible 0.6
+foundation. Version 0.6 includes 128 component contracts, 34 copyable composition
 wireframes across a core catalog and five specialized packs, and three
 adaptable page blueprints. Components own reusable
 behavior and accessibility. Compositions give Codex and project teams a
 registry-described starting arrangement while remaining fully project-owned
 JSX and CSS.
+
+The first 0.7 implementation slice adds validated decision guidance, measured
+own-module runtime profiles, practical trust-boundary metadata, metadata-driven
+Doctor warnings, and a human-reviewed component stability evidence report.
+These contracts are additive; they do not change stable 0.6 component APIs or
+install a visual theme.
 
 ```bash
 npm install
@@ -45,6 +52,20 @@ Run `npm run release:check` before every package publication. It verifies the wo
 
 Generated projects include `npm run composer:check`, which runs Doctor in strict mode. Use `virtue-composer report . --candidates` to see per-file Composer usage and high-confidence alternatives the implementation may have overlooked.
 
+Use focused inspection and stability evidence when component choice is costly:
+
+```bash
+virtue-composer inspect . --component=DataGrid --json
+virtue-composer stability . --component=FileUpload --json
+```
+
+Full inspection records expose state ownership, server/client boundaries,
+serialization, focus responsibilities, failure modes, measured own-module
+cost, and trust-boundary expectations where decision-grade coverage exists.
+The byte measurement excludes dependencies and consumer bundler behavior and is
+for relative planning, not an exact route-bundle prediction. Stability evidence
+never promotes a component automatically.
+
 Search the composition catalog using intent and copy a composition or complete
 page blueprint into the project:
 
@@ -70,7 +91,7 @@ radius, shadows, typography, and all branded composition. Registry compositions
 are copied into the consuming project; they never become a visual runtime
 dependency.
 
-See [Phase 1](docs/PHASE-1.md), [Phase 2](docs/PHASE-2.md), [Phase 3](docs/PHASE-3.md), [Phase 4](docs/PHASE-4.md), the [component roadmap](docs/ROADMAP.md), and the [portfolio component backlog](docs/PORTFOLIO-COMPONENT-BACKLOG.md).
+See [Phase 1](docs/PHASE-1.md), [Phase 2](docs/PHASE-2.md), [Phase 3](docs/PHASE-3.md), [Phase 4](docs/PHASE-4.md), the [0.7 implementation record](docs/0.7.0-IMPLEMENTATION.md), the [component roadmap](docs/ROADMAP.md), and the [portfolio component backlog](docs/PORTFOLIO-COMPONENT-BACKLOG.md).
 
 ## License
 

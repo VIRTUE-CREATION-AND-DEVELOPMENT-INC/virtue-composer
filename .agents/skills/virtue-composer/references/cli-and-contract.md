@@ -21,6 +21,10 @@ Supported commands:
 - `report [project] [--candidates] [--json]`: compact per-file usage report, optionally including registry-driven replacement candidates with confidence, stability, wrapper status, and add commands.
 - `compositions [project] [--composition=id-or-title] [--pack=name] [--family=name] [--query=text] [--blueprint=id-or-title] [--compact] [--json]`: search copyable composition and blueprint contracts using structured intent metadata.
 - `compose [project] [--compositions=id,id|--pack=id|--blueprint=id] [--force] [--json]`: copy project-owned composition JSX and CSS individually, by specialized pack, or by page blueprint; install required wrappers; and update the project manifest without replacing adaptations by default.
+- `stability [project] [--component=id-or-title] [--json]`: report local
+  per-component production and fixture evidence, browser and accessibility
+  coverage, defects, revisions, unresolved risks, promotion thresholds, and
+  human reviewer decisions.
 
 Normal projects install the public package with `npm install`. Composer contributors may explicitly use `--local=/absolute/path/to/packages/composer` and `npm install --install-links` while testing unpublished changes.
 
@@ -36,7 +40,12 @@ The authoritative registry is the combined export of:
 
 `$VIRTUE_COMPOSER_ROOT/packages/registry/components.phase-5.json`
 
-When working inside a consuming project, run `inspect --used --compact --json` and `report --candidates --json`, then request full records only for components relevant to the task. Compact records identify component stability and introduction version. Full records include decision guidance (`use`, `avoid`, alternatives, companions, and responsive considerations), structured selection hints, and `propContracts` that distinguish rendered React content, descriptor arrays, normalized form values, and caller-managed state.
+When working inside a consuming project, run `inspect --used --compact --json` and `report --candidates --json`, then request full records only for components relevant to the task. Compact records identify component stability, introduction version, decision-grade coverage, client requirements, relative own-module cost, complexity, lazy-load suitability, and concise trust warnings. Full records include decision guidance (`use`, `avoid`, native and complex alternatives, state ownership, server/client boundaries, serialization, focus ownership, failure modes, composition relationships, and responsive considerations), structured selection hints, and `propContracts` that distinguish rendered React content, descriptor arrays, normalized form values, and caller-managed state.
+
+Runtime byte measurements are unminified ESM for the component's own compiled
+module. They exclude dependencies, tree-shaking, minification, compression,
+framework chunks, and consumer bundler behavior. Security metadata identifies
+trust boundaries; it never treats frontend validation as security authority.
 
 ## Composition Contracts
 
@@ -108,4 +117,4 @@ Version 0.6 composition inventory:
 - Immersive pack: `horizontal-story`, `chaptered-presentation`
 - Page blueprints: `community-nonprofit`, `editorial-portfolio`, `service-business`
 
-Doctor enforces local wrapper imports, Composer controls in place of raw controls, layout-only `Section` props, explicit Section semantics, registered component-selection hints, required project files, contract versions, and foundation CSS presence. Layout-bearing `div` elements and a missing root CSS import remain advisory unless the project raises their configured severity. Generated projects expose strict enforcement through `npm run composer:check`.
+Doctor enforces local wrapper imports, Composer controls in place of raw controls, layout-only `Section` props, explicit Section semantics, registered component-selection and trust-boundary hints, required project files, contract versions, and foundation CSS presence. Layout-bearing `div` elements and a missing root CSS import remain advisory unless the project raises their configured severity. Generated projects expose strict enforcement through `npm run composer:check`.

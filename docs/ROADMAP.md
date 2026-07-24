@@ -21,6 +21,10 @@ continue to own their content, visual systems, and copied composition code.
   project-owned compositions, five specialized packs, three page blueprints,
   natural-language discovery, maturity classification, cross-browser
   conformance, and registry-driven selection.
+- Version 0.7 work has begun with decision-grade component guidance, measured
+  runtime profiles, trust-boundary metadata, local stability evidence, and
+  human-reviewed promotion reporting. The page-plan, lifecycle, wrapper-drift,
+  browser-verification, and benchmark stages remain in progress.
 
 ## Version 0.7 direction: composition planning
 
@@ -45,10 +49,12 @@ composition was selected and which copied files came from the canonical
 catalog. Once copied, those files remain project-owned and may be reordered,
 replaced, or rewritten.
 
-## Evidence cycle before implementation
+## Evidence cycle
 
-Use the 0.6 catalog in at least two distinct products before fixing the 0.7
-planner contract. For each page, record:
+Use the 0.6 catalog in distinct products while fixing the 0.7 planner contract.
+The first recorded production adoption is the mature BGR commerce and CMS site;
+the showcase remains fixture evidence rather than a second production claim.
+For each page, record:
 
 - the original brief and content constraints;
 - ranked candidates and the selected baseline;
@@ -80,7 +86,8 @@ Alongside composition planning:
 
 ## 0.7 entry and exit gates
 
-Work begins only after 0.6.0 is published and the evidence cycle has started.
+Work began after the 0.6.0 adoption evidence cycle started. The Stage A
+registry-foundation slice is implemented; the following remain release gates.
 The 0.7 release should require:
 
 - a registry-defined, versioned page-plan contract;

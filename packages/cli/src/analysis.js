@@ -142,6 +142,13 @@ function selectionHintMatches(node, ancestors, hint, localNames) {
   return false;
 }
 
+function trustBoundaryHintMatches(node, hint, localNames) {
+  const name = canonicalJsxName(node.name, localNames);
+  if (name !== hint.from) return false;
+  const attributes = new Set(node.attributes.map(attributeName).filter(Boolean));
+  return hint.rule === "jsx-prop-absent" && !attributes.has(hint.prop);
+}
+
 function candidateFromHint(hint, relativeFile, line) {
   return {
     rule: `prefer-${hint.target.id}`,
@@ -160,7 +167,7 @@ function candidateFromHint(hint, relativeFile, line) {
   };
 }
 
-export async function analyzeSource({ source, absoluteFile, relativeFile, isWrapper, importAlias, selectionHints = [] }) {
+export async function analyzeSource({ source, absoluteFile, relativeFile, isWrapper, importAlias, selectionHints = [], trustBoundaryHints = [] }) {
   let ast;
   try {
     ast = parseSource(source, absoluteFile);
@@ -215,6 +222,11 @@ export async function analyzeSource({ source, absoluteFile, relativeFile, isWrap
       const candidate = candidateFromHint(hint, relativeFile, line);
       candidates.push(candidate);
       findings.push({ group: "componentSelection", rule: candidate.rule, file: relativeFile, line, message: candidate.message });
+    }
+
+    for (const hint of trustBoundaryHints) {
+      if (!trustBoundaryHintMatches(node, hint, usage.localNames)) continue;
+      findings.push({ group: "trustBoundaries", rule: hint.code, file: relativeFile, line, message: hint.message });
     }
 
     if (name !== "div") return;

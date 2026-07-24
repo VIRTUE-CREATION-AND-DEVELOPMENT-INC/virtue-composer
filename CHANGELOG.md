@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.7.0 — in development
+
+The first implementation slice establishes the registry foundations for
+evidence-driven planning without changing stable 0.6 component APIs.
+
+### Registry and agent decisions
+
+- Added decision-grade guidance for an initial set of high-risk overlay, form,
+  upload, data, editor, media, import, abuse-prevention, and commerce
+  components.
+- Added measured own-module runtime cost, client-boundary, engine, effect,
+  listener, portal, scale, native-alternative, and lazy-load metadata with
+  regression checks.
+- Added practical trust-boundary metadata covering HTML, data sensitivity,
+  validation authority, secrets, network and persistence authority, redirects,
+  and commerce ownership.
+- Added a metadata-driven `FileUpload` Doctor warning that explicitly treats
+  `accept` as a chooser hint and requires server-side validation.
+
+### Evidence and reporting
+
+- Added a versioned stability-evidence schema and local evidence registry,
+  separating one production brownfield adoption from the maintained showcase
+  fixture.
+- Added `virtue-composer stability` with per-component project diversity,
+  browser, automated accessibility, manual accessibility, defect, revision,
+  risk, threshold, recommendation, and human-review reporting.
+- Promotion remains a human decision even when numeric evidence thresholds are
+  met.
+
 ## 0.6.0 — 2026-07-23
 
 Virtue Composer 0.6.0 expands the registry to 128 components, classifies component maturity, normalizes complex interaction contracts, and adds candidate-selection enforcement for agents and CI. All published 0.4.0 and 0.5.0 component export paths remain available.

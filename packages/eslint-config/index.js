@@ -39,7 +39,7 @@ function collectComposerImports(node, context, localNames) {
 }
 
 const plugin = {
-  meta: { name: "@virtuecreation/eslint-config-composer", version: "0.6.0" },
+  meta: { name: "@virtuecreation/eslint-config-composer", version: "0.7.0" },
   rules: {
     "no-direct-package-import": {
       meta: { type: "problem", messages: { default: "Import Composer components from the project's local wrapper layer." }, schema: [] },

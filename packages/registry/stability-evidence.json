@@ -1,0 +1,304 @@
+{
+  "$schema": "./stability-evidence.schema.json",
+  "schemaVersion": "1.0.0",
+  "promotionPolicy": {
+    "minimumProductionProjects": 2,
+    "minimumUseCaseFamilies": 3,
+    "minimumBrowserFamilies": 3,
+    "requiredManualEvidence": [
+      "screenReader",
+      "physicalTouch",
+      "windowsHighContrast"
+    ],
+    "humanReviewRequired": true
+  },
+  "sources": [
+    {
+      "id": "bgr-0-6-adoption",
+      "kind": "production-adoption",
+      "product": "BGR commerce and CMS site",
+      "productType": "mature branded Next.js commerce and content application",
+      "lifecycleMode": "adopt",
+      "composerVersion": "0.6.0",
+      "collectedOn": "2026-07-24",
+      "coverage": {
+        "type": "component-list",
+        "componentIds": [
+          "section",
+          "button",
+          "button-link",
+          "input",
+          "textarea",
+          "select",
+          "checkbox",
+          "radio-group",
+          "badge",
+          "empty-state",
+          "spinner",
+          "dialog",
+          "drawer",
+          "file-upload",
+          "detail-rows",
+          "progress-bar",
+          "mobile-nav",
+          "number-input",
+          "password-input",
+          "alert-dialog",
+          "inline-message",
+          "image-gallery",
+          "phone-input",
+          "currency-input",
+          "form-summary",
+          "honeypot-field",
+          "quantity-input",
+          "money",
+          "product-option-select"
+        ]
+      },
+      "useCases": [
+        "public pages and navigation",
+        "admin resources and forms",
+        "overlays and announcements",
+        "commerce catalog cart and checkout",
+        "uploads and media",
+        "backend form serialization"
+      ],
+      "componentUseCases": {
+        "section": [
+          "announcement and confirmation composition structure",
+          "authentication composition structure",
+          "commerce collection detail cart and checkout structure",
+          "contact page composition structure",
+          "admin resource composition structure"
+        ],
+        "button": [
+          "admin resource actions",
+          "public navigation and location actions",
+          "survey progress actions",
+          "cart actions"
+        ],
+        "button-link": [
+          "confirmation next actions",
+          "project action-link wrapper"
+        ],
+        "input": [
+          "admin resource forms",
+          "public contact application and survey forms",
+          "checkout forms",
+          "store catalog filtering"
+        ],
+        "textarea": [
+          "admin content forms",
+          "public contact application and survey forms",
+          "checkout notes"
+        ],
+        "select": [
+          "admin resource forms",
+          "public contact and application forms",
+          "checkout forms",
+          "store catalog filtering"
+        ],
+        "checkbox": [
+          "admin content and store settings forms",
+          "public application and survey choices",
+          "checkout choices"
+        ],
+        "radio-group": [
+          "admin FAQ choices",
+          "public survey choices",
+          "checkout choices"
+        ],
+        "badge": [
+          "store product status",
+          "admin resource status"
+        ],
+        "empty-state": [
+          "admin resource empty state",
+          "store catalog empty state",
+          "cart empty state"
+        ],
+        "spinner": [
+          "admin resource loading state"
+        ],
+        "dialog": [
+          "delayed site announcement"
+        ],
+        "drawer": [
+          "store cart overlay"
+        ],
+        "file-upload": [
+          "admin product image upload",
+          "public career application attachment"
+        ],
+        "detail-rows": [
+          "admin record detail",
+          "order confirmation detail"
+        ],
+        "progress-bar": [
+          "public multi-step survey progress"
+        ],
+        "mobile-nav": [
+          "public mobile navigation",
+          "admin mobile navigation"
+        ],
+        "number-input": [
+          "admin ordering and numeric settings"
+        ],
+        "password-input": [
+          "admin authentication"
+        ],
+        "alert-dialog": [
+          "admin destructive archive confirmation"
+        ],
+        "inline-message": [
+          "admin order and fulfillment feedback",
+          "admin authentication feedback",
+          "checkout feedback"
+        ],
+        "image-gallery": [
+          "store product detail gallery"
+        ],
+        "phone-input": [
+          "public contact and career application forms",
+          "checkout contact form"
+        ],
+        "currency-input": [
+          "admin store currency settings"
+        ],
+        "form-summary": [
+          "admin form validation summary",
+          "public contact application and survey validation summary"
+        ],
+        "honeypot-field": [
+          "public contact application and survey abuse signal",
+          "checkout abuse signal"
+        ],
+        "quantity-input": [
+          "product detail quantity selection",
+          "cart line quantity editing"
+        ],
+        "money": [
+          "product price presentation",
+          "admin product price presentation",
+          "cart and order total presentation"
+        ],
+        "product-option-select": [
+          "store product option selection"
+        ]
+      },
+      "browserFamilies": [
+        "chromium"
+      ],
+      "browserEvidence": [
+        "Production route matrix passed at mobile and desktop widths",
+        "Dialog focus trap, Escape dismissal, and focus return passed",
+        "Redirect and security-header smoke checks passed"
+      ],
+      "automatedAccessibility": [
+        "Strict Doctor passed 267 of 267 files with zero findings",
+        "Production lint and build passed",
+        "Keyboard overlay checks passed"
+      ],
+      "manualAccessibility": {
+        "screenReader": {
+          "status": "not-recorded",
+          "notes": "No named screen reader and browser pairing was recorded."
+        },
+        "physicalTouch": {
+          "status": "not-recorded",
+          "notes": "Responsive emulation passed, but a physical touch-device session was not recorded."
+        },
+        "windowsHighContrast": {
+          "status": "not-recorded",
+          "notes": "No Windows high-contrast session was recorded."
+        }
+      },
+      "defects": [],
+      "breakingRevisions": [],
+      "unresolvedRisks": [
+        "Manual assistive-technology coverage remains incomplete.",
+        "One brownfield adoption cannot establish cross-project stability."
+      ],
+      "notes": "Aggregate adoption evidence only. Consumer-specific CSP, content availability, credentials, and dependency advisories are excluded from Composer defect evidence."
+    },
+    {
+      "id": "showcase-0-6-regression",
+      "kind": "maintained-fixture",
+      "product": "Virtue Composer JavaScript showcase",
+      "productType": "greenfield Next.js registry and browser QA fixture",
+      "lifecycleMode": "bootstrap",
+      "composerVersion": "0.6.0",
+      "collectedOn": "2026-07-24",
+      "coverage": {
+        "type": "all-registry-components"
+      },
+      "useCases": [
+        "component state fixtures",
+        "composition fixtures",
+        "responsive browser regression",
+        "automated accessibility regression"
+      ],
+      "browserFamilies": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "browserEvidence": [
+        "Playwright projects exercise Chromium, Firefox, and WebKit",
+        "Desktop and mobile showcase routes are maintained as release checks"
+      ],
+      "automatedAccessibility": [
+        "Axe checks run in the browser suite",
+        "Keyboard and focus behavior is covered for interactive fixtures",
+        "Registry, TypeScript, unit, lint, build, and Doctor checks run in verify"
+      ],
+      "manualAccessibility": {
+        "screenReader": {
+          "status": "not-recorded",
+          "notes": "Automated semantics are covered, but no release-specific screen-reader session is recorded here."
+        },
+        "physicalTouch": {
+          "status": "not-recorded",
+          "notes": "Mobile emulation is automated; physical touch evidence is still required."
+        },
+        "windowsHighContrast": {
+          "status": "not-recorded",
+          "notes": "Forced-colors automation is not a substitute for a recorded Windows high-contrast review."
+        }
+      },
+      "defects": [],
+      "breakingRevisions": [],
+      "unresolvedRisks": [
+        "A maintained fixture is not production adoption evidence.",
+        "Manual assistive-technology evidence remains incomplete."
+      ],
+      "notes": "This source proves repeatable contract and browser coverage, not production diversity."
+    }
+  ],
+  "reviews": [
+    {
+      "componentId": "image-gallery",
+      "recommendation": "hold",
+      "reviewerDecision": "pending",
+      "reviewerRole": "component stability reviewer",
+      "reviewedOn": null,
+      "rationale": "Production use exists, but cross-project evidence and all required manual media and accessibility evidence are still missing."
+    },
+    {
+      "componentId": "data-grid",
+      "recommendation": "hold",
+      "reviewerDecision": "pending",
+      "reviewerRole": "component stability reviewer",
+      "reviewedOn": null,
+      "rationale": "Only maintained-fixture evidence is recorded; beta promotion requires production diversity and human review."
+    },
+    {
+      "componentId": "honeypot-field",
+      "recommendation": "hold",
+      "reviewerDecision": "pending",
+      "reviewerRole": "component stability reviewer",
+      "reviewedOn": null,
+      "rationale": "The component is only a presentation aid; server-side bot handling must be evidenced independently before any promotion."
+    }
+  ]
+}

@@ -11,6 +11,13 @@ Virtue Composer treats the registry as the public API. A component is not ready 
 
 Every registry record declares `stability`, `since`, and decision guidance. `npm run contracts:check` prevents unclassified records, invalid relationships, missing exports, and incomplete controlled-state triplets.
 
+Decision-grade records also declare native and complex alternatives,
+controlled-state ownership, server/client boundaries, serialization, focus
+ownership, common failure modes, related compositions, measured runtime
+characteristics, and practical trust boundaries. Registry validation rejects
+generic family-level prose once a record opts into decision-grade runtime or
+security metadata.
+
 ## State naming
 
 Composer uses the following public conventions:
@@ -53,3 +60,21 @@ A stability promotion requires:
 4. desktop, tablet, mobile, 200 percent reflow, RTL, reduced-motion, and forced-color checks where applicable;
 5. package and per-component size budgets;
 6. a readable findings and migration report.
+
+Evidence is stored locally in
+`packages/registry/stability-evidence.json` under the versioned
+`stability-evidence.schema.json` contract. Run:
+
+```bash
+virtue-composer stability . --component=FileUpload
+virtue-composer stability . --json
+```
+
+The report distinguishes production adoption from maintained fixtures,
+aggregates use-case and browser diversity, records automated and manual
+accessibility evidence, defects, breaking revisions, unresolved risks, and a
+reviewer decision. Current promotion thresholds require at least two production
+projects, three production use-case families, Chromium/Firefox/WebKit evidence,
+recorded screen-reader, physical-touch, and Windows high-contrast passes, plus
+an approved human review. Threshold counts never promote a component
+automatically and do not demote an already-stable compatible API.

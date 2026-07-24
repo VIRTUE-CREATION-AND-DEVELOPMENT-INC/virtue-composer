@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { applyEdits, modify, parse as parseJsonc } from "jsonc-parser";
 import { minimatch } from "minimatch";
-import { blueprintRegistry, componentRegistry, composerVersion, compositionRegistry, contractVersion } from "@virtuecreation/composer-registry";
+import { blueprintRegistry, componentRegistry, componentStabilityEvidence, composerVersion, compositionRegistry, contractVersion } from "@virtuecreation/composer-registry";
 import { analyzeSource, componentName } from "./analysis.js";
 
 const cliRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -23,10 +23,17 @@ const enforcementDefaults = {
   sectionSemantics: "warning",
   layoutDivs: "warning",
   componentSelection: "warning",
+  trustBoundaries: "off",
   sourceAnalysis: "warning",
 };
 const enforcementSeverities = new Set(["off", "warning", "error"]);
 const selectionHints = componentRegistry.flatMap((target) => (target.selectionHints ?? []).map((hint) => ({ ...hint, target })));
+const trustBoundaryHints = componentRegistry.flatMap((target) => (target.security?.doctorHints ?? []).map((hint) => ({ ...hint, from: componentName(target), target })));
+const runtimeMethodology = {
+  basis: "Unminified ESM bytes for the component's own TypeScript-compiled module.",
+  excludes: ["transitive dependency bytes", "tree-shaking", "minification", "compression", "framework chunks", "consumer bundler behavior"],
+  interpretation: "Use for relative planning and regression review, not as an exact consumer bundle prediction.",
+};
 
 async function readJson(file) {
   return JSON.parse(await readFile(file, "utf8"));
@@ -168,7 +175,7 @@ export async function doctor(projectDirectory = ".", { strict = false } = {}) {
     const normalizedWrapper = wrapperRoot.split(path.sep).join("/");
     const isWrapper = relative === normalizedWrapper || relative.startsWith(`${normalizedWrapper}/`);
     if (source.includes(path.basename(foundationCss))) foundationReferenced = true;
-    const analysis = await analyzeSource({ source, absoluteFile: file, relativeFile: relative, isWrapper, importAlias: config?.importAlias ?? "@/components/composer", selectionHints });
+    const analysis = await analyzeSource({ source, absoluteFile: file, relativeFile: relative, isWrapper, importAlias: config?.importAlias ?? "@/components/composer", selectionHints, trustBoundaryHints });
     if (analysis.parsed) parsedFiles += 1;
     for (const name of analysis.usedNames) usedNames.add(name);
     for (const raw of analysis.findings) {
@@ -631,7 +638,7 @@ async function inspectUsage(root, config) {
     const isWrapper = relative === normalizedWrapper || relative.startsWith(`${normalizedWrapper}/`);
     if (isWrapper) continue;
     scannedFiles += 1;
-    const analysis = await analyzeSource({ source: await readFile(file, "utf8"), absoluteFile: file, relativeFile: relative, isWrapper: false, importAlias: config?.importAlias ?? "@/components/composer", selectionHints });
+    const analysis = await analyzeSource({ source: await readFile(file, "utf8"), absoluteFile: file, relativeFile: relative, isWrapper: false, importAlias: config?.importAlias ?? "@/components/composer", selectionHints, trustBoundaryHints });
     if (analysis.parsed) parsedFiles += 1;
     for (const name of analysis.usedNames) names.add(name);
     candidates.push(...analysis.candidates);
@@ -657,7 +664,27 @@ export async function inspect(projectDirectory = ".", { component, category, use
   }).map((record) => {
     const status = { available: true, installed: Boolean(manifest?.components?.includes(record.id)), wrapped: wrapperExists(wrapperDirectory, record), used: usage.names.has(componentName(record)) };
     return compact
-      ? { id: record.id, title: record.title, layer: record.layer, stability: record.stability, since: record.since, projectImport: record.projectImport, status }
+      ? {
+          id: record.id,
+          title: record.title,
+          layer: record.layer,
+          stability: record.stability,
+          since: record.since,
+          projectImport: record.projectImport,
+          decisionGrade: Boolean(record.guidance.decision),
+          runtime: record.runtime ? {
+            clientRequired: record.runtime.clientRequired,
+            measuredModuleBytes: record.runtime.measuredModuleBytes,
+            complexity: record.runtime.complexity,
+            lazyLoad: record.runtime.lazyLoad
+          } : null,
+          security: record.security ? {
+            dataSensitivity: record.security.dataSensitivity,
+            acceptsHtml: record.security.acceptsHtml,
+            warnings: record.security.warnings
+          } : null,
+          status
+        }
       : { ...record, status };
   });
 
@@ -672,6 +699,7 @@ export async function inspect(projectDirectory = ".", { component, category, use
     composerProject: existsSync(configFile),
     config,
     contractVersion,
+    runtimeMethodology,
     filters: { component: component ?? null, category: category ?? null, used, compact, candidates, files },
     summary: {
       available: componentRegistry.length,
@@ -689,6 +717,95 @@ export async function inspect(projectDirectory = ".", { component, category, use
   };
 }
 
+function evidenceCovers(source, componentId) {
+  return source.coverage.type === "all-registry-components" || source.coverage.componentIds.includes(componentId);
+}
+
+function manualEvidenceStatus(sources, key) {
+  const checks = sources.map((source) => source.manualAccessibility[key]);
+  if (checks.some((check) => check.status === "failed")) return { status: "failed", notes: checks.filter((check) => check.status === "failed").map((check) => check.notes) };
+  if (checks.some((check) => check.status === "passed")) return { status: "passed", notes: checks.filter((check) => check.status === "passed").map((check) => check.notes) };
+  return { status: "not-recorded", notes: [...new Set(checks.map((check) => check.notes))] };
+}
+
+export function stabilityReport(projectDirectory = ".", { component } = {}) {
+  const root = path.resolve(projectDirectory);
+  const query = component?.toLowerCase();
+  const matchingComponents = componentRegistry.filter((record) => !query || [record.id, record.title, componentName(record)].some((value) => value.toLowerCase() === query));
+  if (component && matchingComponents.length === 0) throw new Error(`Unknown Composer component "${component}". Run virtue-composer inspect --compact to list available components.`);
+  const policy = componentStabilityEvidence.promotionPolicy;
+  const records = matchingComponents.map((record) => {
+    const sources = componentStabilityEvidence.sources.filter((source) => evidenceCovers(source, record.id));
+    const productionSources = sources.filter((source) => source.kind === "production-adoption");
+    const productUseCases = [...new Set(productionSources.flatMap((source) => source.useCases))].sort();
+    const useCases = [...new Set(productionSources.flatMap((source) => source.componentUseCases?.[record.id] ?? []))].sort();
+    const productTypes = [...new Set(productionSources.map((source) => source.productType))].sort();
+    const browserFamilies = [...new Set(sources.flatMap((source) => source.browserFamilies))].sort();
+    const automatedAccessibility = [...new Set(sources.flatMap((source) => source.automatedAccessibility))].sort();
+    const manualAccessibility = Object.fromEntries(["screenReader", "physicalTouch", "windowsHighContrast"].map((key) => [key, manualEvidenceStatus(sources, key)]));
+    const defects = sources.flatMap((source) => source.defects.filter((defect) => defect.componentIds.includes(record.id)).map((defect) => ({ ...defect, sourceId: source.id })));
+    const breakingRevisions = sources.flatMap((source) => source.breakingRevisions.filter((revision) => revision.componentIds.includes(record.id)).map((revision) => ({ ...revision, sourceId: source.id })));
+    const unresolvedRisks = [...new Set(sources.flatMap((source) => source.unresolvedRisks))].sort();
+    const review = componentStabilityEvidence.reviews.find((candidate) => candidate.componentId === record.id) ?? null;
+    const thresholds = {
+      productionProjects: { actual: productionSources.length, required: policy.minimumProductionProjects, met: productionSources.length >= policy.minimumProductionProjects },
+      useCaseFamilies: { actual: useCases.length, required: policy.minimumUseCaseFamilies, met: useCases.length >= policy.minimumUseCaseFamilies },
+      browserFamilies: { actual: browserFamilies.length, required: policy.minimumBrowserFamilies, met: browserFamilies.length >= policy.minimumBrowserFamilies },
+      automatedAccessibility: { actual: automatedAccessibility.length, required: 1, met: automatedAccessibility.length > 0 },
+      manualAccessibility: Object.fromEntries(policy.requiredManualEvidence.map((key) => [key, { actual: manualAccessibility[key].status, required: "passed", met: manualAccessibility[key].status === "passed" }]))
+    };
+    const evidenceThresholdsMet = [
+      thresholds.productionProjects.met,
+      thresholds.useCaseFamilies.met,
+      thresholds.browserFamilies.met,
+      thresholds.automatedAccessibility.met,
+      ...Object.values(thresholds.manualAccessibility).map((threshold) => threshold.met)
+    ].every(Boolean);
+    const promotionGatePassed = evidenceThresholdsMet && review?.reviewerDecision === "approved";
+    return {
+      id: record.id,
+      title: record.title,
+      stability: record.stability,
+      evidence: {
+        sourceIds: sources.map((source) => source.id),
+        productionProjects: productionSources.length,
+        productTypes,
+        productUseCases,
+        useCases,
+        browserFamilies,
+        automatedAccessibility,
+        manualAccessibility,
+        defects,
+        breakingRevisions,
+        unresolvedRisks
+      },
+      promotion: {
+        automaticPromotion: false,
+        evidenceThresholdsMet,
+        humanReviewRequired: policy.humanReviewRequired,
+        promotionGatePassed,
+        thresholds,
+        review
+      }
+    };
+  });
+  return {
+    project: root,
+    schemaVersion: componentStabilityEvidence.schemaVersion,
+    policy,
+    summary: {
+      components: records.length,
+      productionSources: componentStabilityEvidence.sources.filter((source) => source.kind === "production-adoption").length,
+      fixtureSources: componentStabilityEvidence.sources.filter((source) => source.kind === "maintained-fixture").length,
+      withProductionEvidence: records.filter((record) => record.evidence.productionProjects > 0).length,
+      evidenceThresholdsMet: records.filter((record) => record.promotion.evidenceThresholdsMet).length,
+      approvedPromotionGates: records.filter((record) => record.promotion.promotionGatePassed).length,
+      pendingHumanReviews: records.filter((record) => record.promotion.review?.reviewerDecision === "pending").length
+    },
+    components: records
+  };
+}
+
 function printHuman(command, result) {
   if (command === "doctor") {
     console.log(`Virtue Composer Doctor${result.strict ? " (strict)" : ""}: ${result.ok ? "PASS" : "FAIL"}`);
@@ -700,7 +817,11 @@ function printHuman(command, result) {
   if (command === "inspect" || command === "report") {
     console.log(`Virtue Composer ${result.composerProject ? "detected" : "not detected"} at ${result.project}`);
     console.log(`${result.summary.available} available | ${result.summary.installed} installed | ${result.summary.wrapped} wrapped | ${result.summary.used} used | ${result.summary.returned} returned | contract v${result.contractVersion}`);
-    for (const component of result.components) console.log(`${component.id.padEnd(22)} ${(component.stability ?? "unknown").padEnd(12)} ${component.status.used ? "used" : component.status.wrapped ? "wrapped" : "available"}  ${component.projectImport}`);
+    for (const component of result.components) {
+      const runtime = component.runtime ? ` | ${component.runtime.measuredModuleBytes}B own-module, ${component.runtime.complexity}${component.runtime.clientRequired ? ", client" : ""}` : "";
+      const trust = component.security ? ` | trust:${component.security.dataSensitivity}${component.security.acceptsHtml ? ", HTML" : ""}` : "";
+      console.log(`${component.id.padEnd(22)} ${(component.stability ?? "unknown").padEnd(12)} ${component.status.used ? "used" : component.status.wrapped ? "wrapped" : "available"}  ${component.projectImport}${runtime}${trust}`);
+    }
     for (const candidate of result.candidates) {
       const install = candidate.recommendation.addCommand ? ` Next: ${candidate.recommendation.addCommand}.` : "";
       console.log(`${candidate.confidence.toUpperCase()} ${candidate.rule} ${candidate.file}:${candidate.line} ${candidate.message} Recommended: ${candidate.recommendation.title} (${candidate.recommendation.stability}).${install}`);
@@ -712,6 +833,17 @@ function printHuman(command, result) {
     console.log(`${result.summary.availableCompositions} compositions | ${result.summary.availableBlueprints} blueprints | ${result.summary.returnedCompositions} compositions returned | ${result.summary.returnedBlueprints} blueprints returned`);
     for (const composition of result.compositions) console.log(`${composition.id.padEnd(32)} ${(composition.pack ?? "core").padEnd(18)} ${composition.family.padEnd(14)} ${composition.status.installed ? "installed" : "available"}  ${composition.addCommand}`);
     for (const blueprint of result.blueprints) console.log(`${blueprint.id.padEnd(32)} blueprint      ${blueprint.status.installed ? "installed" : "available"}  ${blueprint.addCommand}`);
+    return;
+  }
+  if (command === "stability") {
+    console.log(`Virtue Composer stability evidence at ${result.project}`);
+    console.log(`${result.summary.components} components | ${result.summary.productionSources} production sources | ${result.summary.fixtureSources} fixture sources | ${result.summary.evidenceThresholdsMet} evidence thresholds met | ${result.summary.approvedPromotionGates} approved promotion gates`);
+    console.log("Counts never promote a component automatically; every promotion gate requires an approved human review.");
+    for (const component of result.components) {
+      const manual = Object.values(component.evidence.manualAccessibility).every((check) => check.status === "passed") ? "manual-pass" : "manual-incomplete";
+      const review = component.promotion.review ? `${component.promotion.review.recommendation}/${component.promotion.review.reviewerDecision}` : "unreviewed";
+      console.log(`${component.id.padEnd(28)} ${component.stability.padEnd(12)} ${String(component.evidence.productionProjects).padStart(2)} production  ${manual.padEnd(17)} ${review}`);
+    }
     return;
   }
   console.log(`Virtue Composer ${command === "init" ? "initialized" : "updated"} at ${result.project}`);
@@ -740,8 +872,8 @@ export async function run(argv) {
   const localOption = argv.find((arg) => arg === "--local" || arg.startsWith("--local="));
   const localPath = localOption?.includes("=") ? localOption.slice(localOption.indexOf("=") + 1) : undefined;
   const source = localOption ? "local" : argv.includes("--npm") ? "npm" : undefined;
-  if (!["init", "add", "upgrade", "inspect", "report", "doctor", "compositions", "compose"].includes(command)) {
-    console.log("Usage: virtue-composer <init|add|upgrade|inspect|report|doctor|compositions|compose> [project] [--npm|--local[=/path]] [--components=Button,Section] [--compositions=id,id] [--blueprint=id] [--pack=id] [--composition=value] [--family=value] [--query=value] [--all] [--component=value] [--category=value] [--used] [--compact] [--candidates] [--strict] [--source-root=path] [--wrapper-root=path] [--composition-root=path] [--foundation-css=path] [--import-alias=alias] [--json] [--force]");
+  if (!["init", "add", "upgrade", "inspect", "report", "doctor", "compositions", "compose", "stability"].includes(command)) {
+    console.log("Usage: virtue-composer <init|add|upgrade|inspect|report|doctor|compositions|compose|stability> [project] [--npm|--local[=/path]] [--components=Button,Section] [--compositions=id,id] [--blueprint=id] [--pack=id] [--composition=value] [--family=value] [--query=value] [--all] [--component=value] [--category=value] [--used] [--compact] [--candidates] [--strict] [--source-root=path] [--wrapper-root=path] [--composition-root=path] [--foundation-css=path] [--import-alias=alias] [--json] [--force]");
     return;
   }
   const inspectOptions = { component: option("--component"), category: option("--category"), used: argv.includes("--used") || command === "report", compact: argv.includes("--compact") || command === "report", candidates: argv.includes("--candidates"), files: command === "report" };
@@ -754,11 +886,13 @@ export async function run(argv) {
         ? await upgrade(directory, { source, localPath, components: option("--components"), all: argv.includes("--all") })
         : command === "inspect" || command === "report"
           ? await inspect(directory, inspectOptions)
-          : command === "compositions"
-            ? await inspectCompositions(directory, { composition: option("--composition"), family: option("--family"), pack: option("--pack"), query: option("--query"), blueprint: option("--blueprint"), compact: argv.includes("--compact") })
-            : command === "compose"
-              ? await compose(directory, { compositions: option("--compositions"), blueprint: option("--blueprint"), pack: option("--pack"), force })
-              : await doctor(directory, { strict: argv.includes("--strict") });
+          : command === "stability"
+            ? stabilityReport(directory, { component: option("--component") })
+            : command === "compositions"
+              ? await inspectCompositions(directory, { composition: option("--composition"), family: option("--family"), pack: option("--pack"), query: option("--query"), blueprint: option("--blueprint"), compact: argv.includes("--compact") })
+              : command === "compose"
+                ? await compose(directory, { compositions: option("--compositions"), blueprint: option("--blueprint"), pack: option("--pack"), force })
+                : await doctor(directory, { strict: argv.includes("--strict") });
   if (json) console.log(JSON.stringify(result, null, 2));
   else printHuman(command, result);
   if (command === "doctor" && !result.ok) process.exitCode = 1;

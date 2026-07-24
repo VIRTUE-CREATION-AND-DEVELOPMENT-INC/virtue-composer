@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://virtue.inc/schemas/composer-stability-evidence-v1.json",
+  "title": "Virtue Composer component stability evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "promotionPolicy", "sources", "reviews"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "1.0.0" },
+    "promotionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimumProductionProjects", "minimumUseCaseFamilies", "minimumBrowserFamilies", "requiredManualEvidence", "humanReviewRequired"],
+      "properties": {
+        "minimumProductionProjects": { "type": "integer", "minimum": 1 },
+        "minimumUseCaseFamilies": { "type": "integer", "minimum": 1 },
+        "minimumBrowserFamilies": { "type": "integer", "minimum": 1 },
+        "requiredManualEvidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "enum": ["screenReader", "physicalTouch", "windowsHighContrast"] },
+          "uniqueItems": true
+        },
+        "humanReviewRequired": { "const": true }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "product", "productType", "lifecycleMode", "composerVersion", "collectedOn", "coverage", "useCases", "browserFamilies", "browserEvidence", "automatedAccessibility", "manualAccessibility", "defects", "breakingRevisions", "unresolvedRisks", "notes"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "kind": { "enum": ["production-adoption", "maintained-fixture"] },
+          "product": { "type": "string", "minLength": 1 },
+          "productType": { "type": "string", "minLength": 1 },
+          "lifecycleMode": { "enum": ["bootstrap", "adopt", "evolve"] },
+          "composerVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+          "collectedOn": { "type": "string", "format": "date" },
+          "coverage": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["type", "componentIds"],
+                "properties": {
+                  "type": { "const": "component-list" },
+                  "componentIds": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+                    "uniqueItems": true
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["type"],
+                "properties": {
+                  "type": { "const": "all-registry-components" }
+                }
+              }
+            ]
+          },
+          "useCases": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          },
+          "componentUseCases": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 },
+              "uniqueItems": true
+            }
+          },
+          "browserFamilies": {
+            "type": "array",
+            "items": { "enum": ["chromium", "firefox", "webkit"] },
+            "uniqueItems": true
+          },
+          "browserEvidence": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          },
+          "automatedAccessibility": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          },
+          "manualAccessibility": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["screenReader", "physicalTouch", "windowsHighContrast"],
+            "properties": {
+              "screenReader": { "$ref": "#/$defs/manualCheck" },
+              "physicalTouch": { "$ref": "#/$defs/manualCheck" },
+              "windowsHighContrast": { "$ref": "#/$defs/manualCheck" }
+            }
+          },
+          "defects": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/defect" }
+          },
+          "breakingRevisions": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/breakingRevision" }
+          },
+          "unresolvedRisks": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          },
+          "notes": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "reviews": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["componentId", "recommendation", "reviewerDecision", "reviewerRole", "reviewedOn", "rationale"],
+        "properties": {
+          "componentId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "recommendation": { "enum": ["hold", "consider-beta", "consider-stable", "do-not-promote"] },
+          "reviewerDecision": { "enum": ["pending", "approved", "rejected"] },
+          "reviewerRole": { "type": "string", "minLength": 1 },
+          "reviewedOn": {
+            "type": ["string", "null"],
+            "format": "date"
+          },
+          "rationale": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "manualCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "notes"],
+      "properties": {
+        "status": { "enum": ["passed", "failed", "not-recorded"] },
+        "notes": { "type": "string", "minLength": 1 }
+      }
+    },
+    "defect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "severity", "status", "componentIds", "summary"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "severity": { "enum": ["low", "medium", "high", "critical"] },
+        "status": { "enum": ["open", "resolved", "accepted"] },
+        "componentIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "uniqueItems": true
+        },
+        "summary": { "type": "string", "minLength": 1 }
+      }
+    },
+    "breakingRevision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "componentIds", "summary"],
+      "properties": {
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "componentIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "uniqueItems": true
+        },
+        "summary": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

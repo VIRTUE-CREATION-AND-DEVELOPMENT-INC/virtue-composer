@@ -1,6 +1,6 @@
 {
   "name": "@virtuecreation/composer-registry",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Machine-readable component, composition, and blueprint contracts for Virtue Composer.",
   "author": "Virtue Creation <info@virtuesoftware.ca>",
   "license": "MIT",
@@ -26,9 +26,11 @@
     "./phase-5.json": "./components.phase-5.json",
     "./compositions.json": "./compositions.json",
     "./blueprints.json": "./blueprints.json",
+    "./stability-evidence.json": "./stability-evidence.json",
     "./schema.json": "./registry.schema.json",
     "./composition-schema.json": "./composition.schema.json",
     "./blueprint-schema.json": "./blueprint.schema.json",
+    "./stability-evidence-schema.json": "./stability-evidence.schema.json",
     "./config.schema.json": "./config.schema.json"
   },
   "files": [
@@ -39,14 +41,16 @@
     "components.phase-5.json",
     "compositions.json",
     "blueprints.json",
+    "stability-evidence.json",
     "templates/compositions",
     "config.schema.json",
     "registry.schema.json",
     "composition.schema.json",
-    "blueprint.schema.json"
+    "blueprint.schema.json",
+    "stability-evidence.schema.json"
   ],
   "scripts": {
-    "test": "node scripts/validate-registry.mjs && node scripts/sync-artifacts.mjs --check",
+    "test": "node scripts/validate-registry.mjs && node --test test/*.test.mjs && node scripts/sync-artifacts.mjs --check",
     "prepublishOnly": "npm test"
   }
 }

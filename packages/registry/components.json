@@ -469,11 +469,60 @@
     "stability": "stable",
     "since": "0.1.0",
     "guidance": {
-      "use": "Use when a project needs reusable dialog behavior with the registered state and accessibility contract.",
-      "avoid": "Avoid when content belongs in normal document flow or does not require managed focus and dismissal.",
-      "alternatives": ["drawer","popover","alert-dialog"],
+      "use": "Use for interruptive content that must move focus into a named modal surface and keep keyboard interaction contained until dismissal.",
+      "avoid": "Avoid for content that can remain in document flow, lightweight anchored help, destructive confirmation, or a persistent side task.",
+      "alternatives": [
+        "drawer",
+        "popover",
+        "alert-dialog"
+      ],
       "companions": [],
-      "responsive": "Keep content within the viewport while preserving focus trapping, dismissal, and touch access."
+      "responsive": "Keep the content region within the viewport, preserve the close control, and verify trap, Escape, and focus restoration at narrow widths.",
+      "decision": {
+        "nativeAlternative": "A native dialog element can be sufficient when the project owns complete focus, dismissal, inertness, and restoration behavior.",
+        "complexAlternative": "Use Drawer for a persistent edge task or AlertDialog for a destructive decision that requires an explicit response.",
+        "stateModel": "Supports controlled open/onOpenChange and uncontrolled defaultOpen state; the trigger is required by the 0.6 contract.",
+        "serverClientBoundary": "Client boundary required because Radix owns focus, portal, dismissal, and controlled open state.",
+        "serialization": "No value serialization; actions and submitted values remain project-owned.",
+        "focusOwnership": "Composer traps focus and returns it to the trigger; the project must provide a meaningful trigger and deliberate initial interactive content.",
+        "failureModes": [
+          "Opening without a meaningful restoration target leaves keyboard users in an ambiguous location.",
+          "Using Dialog for non-modal content creates unnecessary focus interruption.",
+          "Placing an independently modal surface inside the dialog can create competing focus owners."
+        ],
+        "compositions": [
+          "announcement-dismissible"
+        ]
+      }
+    },
+    "propContracts": {
+      "trigger": {
+        "kind": "react-node",
+        "description": "One rendered trigger element used as the focus-restoration target by the 0.6 contract."
+      },
+      "open": {
+        "kind": "boolean",
+        "description": "Controlled visibility. Pair with onOpenChange; defaultOpen is ignored after controlled state is supplied."
+      },
+      "actions": {
+        "kind": "react-node",
+        "description": "Rendered project-owned actions; Composer does not infer submit or mutation behavior."
+      }
+    },
+    "runtime": {
+      "clientRequired": true,
+      "engine": [
+        "@radix-ui/react-dialog",
+        "react"
+      ],
+      "measuredModuleBytes": 1533,
+      "complexity": "moderate",
+      "effectCount": 0,
+      "listenerModel": "Radix manages document-level focus, Escape, outside interaction, and trigger restoration while open.",
+      "portal": true,
+      "nativeAlternative": "Native dialog with project-owned focus and restoration behavior.",
+      "scaleGuidance": "Use one active modal owner at a time; do not render large repeated collections of dialogs.",
+      "lazyLoad": "optional"
     }
   },
   {
@@ -728,15 +777,19 @@
       "fields": {
         "kind": "descriptor-array",
         "itemType": "FormFieldDescriptor",
-        "description": "Field descriptors. Set selfLabeled: true on custom controls that render their own label, description, and error."
+        "description": "Field descriptors. Custom controls that render their own label, description, and error must set selfLabeled: true and own serialization."
       },
       "actions": {
         "kind": "react-node",
-        "description": "Rendered content placed before the submit button."
+        "description": "Rendered project-owned content placed before the submit button."
       },
       "errors": {
         "kind": "record",
-        "description": "Messages keyed by descriptor name; self-labeling controls receive errors through their own props."
+        "description": "External messages keyed by descriptor name; supplied values override internal server-result messages for the same field."
+      },
+      "onSubmit": {
+        "kind": "function",
+        "description": "Receives native FormData and the form event. It may return field errors and a message, but server validation and mutation authority stay outside Composer."
       }
     },
     "states": ["default","validation-errors","server-error","submitting","dependent-field","custom-control","self-labeled-control"],
@@ -748,11 +801,62 @@
     "stability": "stable",
     "since": "0.2.0",
     "guidance": {
-      "use": "Use when a project needs reusable form behavior with the registered state and accessibility contract.",
-      "avoid": "Avoid for display-only values or when a native control already satisfies the complete project contract.",
+      "use": "Use for descriptor-driven forms whose field rendering, pending protection, server error display, and dependent visibility benefit from one shared contract.",
+      "avoid": "Avoid when native semantic markup is clearer, when a form library already owns field registration, or when business-specific workflows do not fit descriptor fields.",
       "alternatives": [],
-      "companions": ["field","form-summary"],
-      "responsive": "Keep labels, errors, and controls readable at narrow widths and 200 percent zoom."
+      "companions": [
+        "field",
+        "form-summary"
+      ],
+      "responsive": "Keep labels, descriptions, validation links, controls, and submit actions readable at narrow widths and 200 percent zoom.",
+      "decision": {
+        "nativeAlternative": "Use a native form with local Composer field wrappers when descriptors add indirection without reuse.",
+        "complexAlternative": "Keep schema-driven, multi-step, autosaving, or server-action-specific orchestration in a project form layer that composes Composer controls.",
+        "stateModel": "Field defaults initialize local FormData-derived state; external errors and submitting remain authoritative when supplied.",
+        "serverClientBoundary": "Client boundary required for descriptor callbacks, dependency evaluation, error clearing, and pending submission state.",
+        "serialization": "Submits native FormData; custom self-labeled controls must own a stable name and native or hidden serialization contract.",
+        "focusOwnership": "Individual controls own focus; the project or FormSummary must move focus to actionable validation feedback after submission.",
+        "failureModes": [
+          "Passing descriptor callbacks across a Server Component boundary fails serialization.",
+          "Custom controls without selfLabeled or a native name duplicate labels or disappear from FormData.",
+          "Treating client errors as authoritative permits invalid or unauthorized server mutations."
+        ],
+        "compositions": [
+          "contact-form-split",
+          "auth-shell",
+          "resource-editor-detail"
+        ]
+      }
+    },
+    "runtime": {
+      "clientRequired": true,
+      "engine": [
+        "react"
+      ],
+      "measuredModuleBytes": 6922,
+      "complexity": "high",
+      "effectCount": 0,
+      "listenerModel": "One form-level change, reset, and optional submit handler coordinate field state and pending protection.",
+      "portal": false,
+      "nativeAlternative": "Native form markup with local Composer controls.",
+      "scaleGuidance": "Prefer focused forms; split very large conditional workflows into project-owned steps rather than hundreds of descriptors.",
+      "lazyLoad": "optional"
+    },
+    "security": {
+      "acceptsHtml": false,
+      "htmlPolicy": "React content is escaped by default; rendered custom controls and serverError nodes remain project-owned.",
+      "dataSensitivity": "personal",
+      "clientValidation": "Client errors, required state, honeypots, and disabled buttons are user experience aids, not a security boundary.",
+      "serverValidation": "Authenticate and authorize the mutation, validate every FormData field, normalize values, reject unexpected fields, and apply CSRF protections appropriate to the application.",
+      "secretPolicy": "Never place credentials, provider secrets, private keys, or privileged tokens in field descriptors, rendered errors, or client callbacks.",
+      "networkAuthority": "project-callback",
+      "persistenceAuthority": "project-callback",
+      "externalNavigation": "Composer performs no redirect; validate any project-owned post-submit destination.",
+      "commerceAuthority": "Pricing, inventory, tax, discount, payment, and order state must be recomputed and authorized on the server.",
+      "warnings": [
+        "A successful client callback does not prove the server accepted or authorized a mutation.",
+        "Returned exception messages can expose server details if project callbacks pass them through unchanged."
+      ]
     }
   },
   {
@@ -796,11 +900,85 @@
     "stability": "stable",
     "since": "0.2.0",
     "guidance": {
-      "use": "Use when a project needs reusable file upload behavior with the registered state and accessibility contract.",
-      "avoid": "Avoid for display-only values or when a native control already satisfies the complete project contract.",
-      "alternatives": [],
-      "companions": [],
-      "responsive": "Keep labels, errors, and controls readable at narrow widths and 200 percent zoom."
+      "use": "Use for an accessible native file picker plus drag-and-drop selection when the project owns upload transport, storage, scanning, and final validation.",
+      "avoid": "Avoid when the project needs direct-to-provider transport, resumable uploads, media-library selection, or an import preview workflow.",
+      "alternatives": [
+        "media-picker",
+        "upload-queue",
+        "import-panel"
+      ],
+      "companions": [
+        "upload-queue"
+      ],
+      "responsive": "Keep the native picker reachable without drag input, allow filenames and errors to wrap, and verify touch operation.",
+      "decision": {
+        "nativeAlternative": "A labeled native file input is the simplest option when drag-and-drop and selected-file presentation are unnecessary.",
+        "complexAlternative": "Use MediaField with MediaPicker or a project upload adapter when selection, existing assets, progress, retries, or storage policy are required.",
+        "stateModel": "Native file selection is uncontrolled; onFilesChange reports the current File list after client-side filtering.",
+        "serverClientBoundary": "Client boundary required for drag state and File objects, which cannot cross a Server Component boundary as serializable props.",
+        "serialization": "The native input can submit File values through FormData; File objects must not be serialized into JSON.",
+        "focusOwnership": "The native input owns keyboard focus; drop interactions must never be the only way to choose a file.",
+        "failureModes": [
+          "Relying on accept or maxSize as security validation permits spoofed or oversized uploads.",
+          "Reading files eagerly in the browser can create memory pressure for large selections.",
+          "Removing the native picker makes the control inaccessible to keyboard-only users."
+        ],
+        "compositions": [
+          "resource-editor-detail"
+        ]
+      }
+    },
+    "propContracts": {
+      "accept": {
+        "kind": "string",
+        "description": "Native picker hint only. It narrows the chooser but does not validate MIME type, extension, or file contents."
+      },
+      "maxSize": {
+        "kind": "number",
+        "description": "Client-side byte threshold for feedback only; repeat size and content validation on the server or upload service."
+      },
+      "onFilesChange": {
+        "kind": "function",
+        "description": "Receives browser File objects after selection; the project owns transport, cancellation, scanning, and persistence."
+      }
+    },
+    "runtime": {
+      "clientRequired": true,
+      "engine": [
+        "react"
+      ],
+      "measuredModuleBytes": 2299,
+      "complexity": "moderate",
+      "effectCount": 0,
+      "listenerModel": "Native input change plus drag enter, leave, over, and drop handlers on the root.",
+      "portal": false,
+      "nativeAlternative": "Labeled native file input.",
+      "scaleGuidance": "Keep selection counts and browser memory bounded; use a project upload queue for many or large files.",
+      "lazyLoad": "not-recommended"
+    },
+    "security": {
+      "acceptsHtml": false,
+      "htmlPolicy": "Labels, descriptions, filenames, and errors render as escaped React content.",
+      "dataSensitivity": "files",
+      "clientValidation": "accept and maxSize are chooser and feedback constraints only; filenames and browser MIME values are untrusted.",
+      "serverValidation": "Enforce authenticated authorization, size limits, content signatures, allowed media types, malware scanning, safe storage keys, and download headers on the server.",
+      "secretPolicy": "Never pass storage credentials, signed provider secrets, or privileged upload tokens through wrapper props or evidence.",
+      "networkAuthority": "none",
+      "persistenceAuthority": "none",
+      "externalNavigation": "Composer does not navigate or create download URLs.",
+      "commerceAuthority": "No commerce authority.",
+      "warnings": [
+        "Frontend validation does not make an upload safe.",
+        "File names, MIME types, dimensions, and embedded metadata can be attacker-controlled."
+      ],
+      "doctorHints": [
+        {
+          "rule": "jsx-prop-absent",
+          "prop": "accept",
+          "code": "file-type-policy",
+          "message": "Declare an accept policy for FileUpload, then enforce type, size, and file-content validation again on the server; accept is only a chooser hint."
+        }
+      ]
     }
   },
   {
@@ -868,11 +1046,60 @@
     "stability": "stable",
     "since": "0.2.0",
     "guidance": {
-      "use": "Use when a project needs reusable data table behavior with the registered state and accessibility contract.",
-      "avoid": "Avoid when project-specific business behavior would make the shared data contract misleading.",
-      "alternatives": ["data-grid","list-view"],
+      "use": "Use for a semantic table with a bounded row set, visible caption, project-rendered cells, and optional local column sorting.",
+      "avoid": "Avoid for virtualized collections, column resizing or pinning, bulk selection, spreadsheet interaction, or card-like content that is not tabular.",
+      "alternatives": [
+        "data-grid",
+        "list-view"
+      ],
       "companions": [],
-      "responsive": "Preserve reading order and keyboard access; contain intentional overflow inside the component boundary."
+      "responsive": "Preserve table semantics and contain intentional horizontal overflow without changing logical reading order.",
+      "decision": {
+        "nativeAlternative": "A native table is simpler when the project does not need descriptor columns or Composer sorting state.",
+        "complexAlternative": "Use DataGrid for application-scale selection, pinning, resizing, controlled remote state, or virtualization.",
+        "stateModel": "Supports controlled sort/onSortChange and uncontrolled defaultSort; rows and column descriptors remain caller-owned.",
+        "serverClientBoundary": "Client boundary required for local sorting and descriptor cell render functions.",
+        "serialization": "Rows and sort descriptors must be serializable before entering a client boundary; cell render callbacks must be declared in client code.",
+        "focusOwnership": "Sortable header buttons own focus; project-rendered interactive cells must maintain sensible tab order.",
+        "failureModes": [
+          "Using DataTable for non-tabular cards creates misleading row and column semantics.",
+          "Passing cell callbacks from a Server Component fails serialization.",
+          "Rendering an unbounded row set causes slow updates and unusable narrow-screen overflow."
+        ],
+        "compositions": [
+          "resource-index"
+        ]
+      }
+    },
+    "propContracts": {
+      "rows": {
+        "kind": "descriptor-array",
+        "itemType": "DataTableRow",
+        "description": "A bounded caller-owned row array with stable identifiers."
+      },
+      "columns": {
+        "kind": "descriptor-array",
+        "itemType": "DataTableColumn",
+        "description": "Column descriptors; custom cell render functions must be created inside a client boundary."
+      },
+      "sort": {
+        "kind": "record",
+        "description": "Controlled sort descriptor. Pair with onSortChange; defaultSort initializes only uncontrolled state."
+      }
+    },
+    "runtime": {
+      "clientRequired": true,
+      "engine": [
+        "react"
+      ],
+      "measuredModuleBytes": 2380,
+      "complexity": "moderate",
+      "effectCount": 0,
+      "listenerModel": "Interactive sort buttons only; no global listeners or portal.",
+      "portal": false,
+      "nativeAlternative": "Native semantic table.",
+      "scaleGuidance": "Use for bounded local datasets; move to pagination, server querying, or DataGrid before row counts become application-scale.",
+      "lazyLoad": "not-recommended"
     }
   },
   {

@@ -16,11 +16,82 @@
     "stability": "beta",
     "since": "0.4.0",
     "guidance": {
-      "use": "Use when a project needs reusable media picker behavior with the registered state and accessibility contract.",
-      "avoid": "Avoid for storage, delivery, transformation, or editorial policy owned by a project adapter.",
-      "alternatives": ["file-upload","image-gallery"],
-      "companions": [],
-      "responsive": "Keep controls touch accessible and media within the viewport without assuming a fixed aspect ratio."
+      "use": "Use for choosing one or more already-authorized media records from project-supplied results with accessible search, pagination, loading, and error states.",
+      "avoid": "Avoid when a native file input is enough, when users must upload new files only, or when Composer would need direct storage credentials or library-query authority.",
+      "alternatives": [
+        "file-upload",
+        "image-gallery"
+      ],
+      "companions": [
+        "media-field",
+        "upload-queue"
+      ],
+      "responsive": "Keep the dialog, search, results, pagination, and close controls operable with touch and keyboard at narrow widths.",
+      "decision": {
+        "nativeAlternative": "FileUpload is simpler for choosing a new local file without an existing asset library.",
+        "complexAlternative": "Use a project media manager when foldering, transforms, permissions, destructive actions, metadata editing, or provider querying belong in the surface.",
+        "stateModel": "Selection, query, and page each support controlled or initial-default state; dialog visibility is internal.",
+        "serverClientBoundary": "Client boundary required for dialog, command search, selection, and pagination callbacks; media records must be serializable.",
+        "serialization": "A name emits selected media IDs as repeated hidden fields; URLs and metadata are presentation data, not persistence authority.",
+        "focusOwnership": "The dialog traps focus and returns it to the picker trigger; results must retain stable IDs during query and pagination updates.",
+        "failureModes": [
+          "Passing unauthorized media records exposes assets the user should not discover.",
+          "Treating a selected URL as a trusted storage identifier permits confused-deputy writes.",
+          "Remote search without stable loading and error state causes duplicate or stale selection."
+        ],
+        "compositions": [
+          "resource-editor-detail",
+          "product-detail-gallery"
+        ]
+      }
+    },
+    "propContracts": {
+      "items": {
+        "kind": "descriptor-array",
+        "itemType": "MediaPickerItem",
+        "description": "Already-authorized serializable media descriptors; Composer does not fetch, filter permissions, or sign URLs."
+      },
+      "value": {
+        "kind": "array",
+        "itemType": "string",
+        "description": "Controlled selected media IDs. Pair with onValueChange; defaultValue initializes local selection."
+      },
+      "onLoadMore": {
+        "kind": "function",
+        "description": "Project callback for fetching more authorized results; Composer has no network or storage credentials."
+      }
+    },
+    "runtime": {
+      "clientRequired": true,
+      "engine": [
+        "@radix-ui/react-dialog",
+        "cmdk",
+        "react"
+      ],
+      "measuredModuleBytes": 4903,
+      "complexity": "high",
+      "effectCount": 0,
+      "listenerModel": "Dialog focus management, command keyboard search, selection, pagination, and optional load-more callbacks.",
+      "portal": true,
+      "nativeAlternative": "FileUpload for new local files.",
+      "scaleGuidance": "Page or incrementally load large libraries and keep result IDs stable; do not send the entire media catalog to the client.",
+      "lazyLoad": "recommended"
+    },
+    "security": {
+      "acceptsHtml": false,
+      "htmlPolicy": "Titles, alternate text, metadata nodes, and errors render through React; project-supplied metadata nodes remain project-owned.",
+      "dataSensitivity": "files",
+      "clientValidation": "Client filtering and disabled items do not enforce media authorization.",
+      "serverValidation": "Authorize every listed and submitted media ID, constrain signed URL lifetime and scope, and revalidate ownership before persistence.",
+      "secretPolicy": "Never provide storage credentials, signing secrets, or privileged provider tokens to the picker.",
+      "networkAuthority": "project-callback",
+      "persistenceAuthority": "none",
+      "externalNavigation": "Composer renders thumbnails but performs no external navigation; constrain remote image origins in the project.",
+      "commerceAuthority": "No commerce authority.",
+      "warnings": [
+        "Media IDs and URLs received from the browser are untrusted.",
+        "Client-visible catalogs can leak filenames, metadata, or assets even when selection is disabled."
+      ]
     }
   },
   {
@@ -304,11 +375,77 @@
     "stability": "beta",
     "since": "0.4.0",
     "guidance": {
-      "use": "Use when a project needs reusable import panel behavior with the registered state and accessibility contract.",
-      "avoid": "Avoid when project-specific business behavior would make the shared data contract misleading.",
-      "alternatives": [],
-      "companions": [],
-      "responsive": "Preserve reading order and keyboard access; contain intentional overflow inside the component boundary."
+      "use": "Use for a project-parsed tabular import review with a selected file, explicit row errors, preview, reset, and deliberate commit action.",
+      "avoid": "Avoid for direct file uploads, binary formats without a tabular preview, or imports whose mapping and validation require a specialized project workflow.",
+      "alternatives": [
+        "file-upload"
+      ],
+      "companions": [
+        "data-table",
+        "form-summary"
+      ],
+      "responsive": "Keep the file control and commit action reachable and contain the preview table as intentional overflow at narrow widths.",
+      "decision": {
+        "nativeAlternative": "FileUpload plus project validation is simpler when no preview or commit checkpoint is needed.",
+        "complexAlternative": "Use a project import wizard for column mapping, multi-stage validation, background jobs, rollback, or partial-commit policy.",
+        "stateModel": "The project owns selected File, parsed rows, errors, pending state, reset, and commit callbacks.",
+        "serverClientBoundary": "Client boundary required for File values and action callbacks; parsing can occur in a worker or on the server under project policy.",
+        "serialization": "Do not serialize File or arbitrary React preview nodes; send the original file or normalized project records through an explicit transport.",
+        "focusOwnership": "The native file input owns selection focus; the project should move focus to the error summary after failed validation.",
+        "failureModes": [
+          "Committing previewed client rows without server revalidation permits tampering.",
+          "Rendering unbounded previews can freeze the browser.",
+          "Treating CSV cells as formulas when exporting later can create spreadsheet injection."
+        ],
+        "compositions": [
+          "resource-editor-detail"
+        ]
+      }
+    },
+    "propContracts": {
+      "file": {
+        "kind": "record",
+        "description": "Browser File selected by the project; it is not serializable across a Server Component boundary."
+      },
+      "rows": {
+        "kind": "descriptor-array",
+        "itemType": "ImportRow",
+        "description": "Bounded preview rows only. The server must parse and validate the authoritative import independently."
+      },
+      "onCommit": {
+        "kind": "function",
+        "description": "Signals project-owned commit intent; Composer performs no upload, database write, or transaction."
+      }
+    },
+    "runtime": {
+      "clientRequired": true,
+      "engine": [
+        "react"
+      ],
+      "measuredModuleBytes": 2139,
+      "complexity": "moderate",
+      "effectCount": 0,
+      "listenerModel": "Native file input plus reset and commit callbacks; no global listeners.",
+      "portal": false,
+      "nativeAlternative": "FileUpload.",
+      "scaleGuidance": "Preview a bounded sample and move large parsing or imports to a worker or server job.",
+      "lazyLoad": "optional"
+    },
+    "security": {
+      "acceptsHtml": false,
+      "htmlPolicy": "Preview cells are React nodes supplied by the project; never construct them from unsanitized HTML.",
+      "dataSensitivity": "files",
+      "clientValidation": "The preview and error list are not authoritative validation and can be modified in the browser.",
+      "serverValidation": "Reparse the original file, enforce authorization, validate every row and column, cap file and row counts, and use transactional or idempotent commit rules.",
+      "secretPolicy": "Never put database credentials, storage secrets, or privileged import tokens in the file, preview rows, or callbacks.",
+      "networkAuthority": "project-callback",
+      "persistenceAuthority": "project-callback",
+      "externalNavigation": "No external navigation authority.",
+      "commerceAuthority": "Imported prices, inventory, orders, or discounts require domain-specific server validation and authorization.",
+      "warnings": [
+        "Client preview rows must never be the authoritative import payload.",
+        "CSV and spreadsheet content can contain formulas, oversized fields, malicious encodings, or unexpected delimiters."
+      ]
     }
   },
   {
@@ -593,11 +730,63 @@
     "stability": "beta",
     "since": "0.4.0",
     "guidance": {
-      "use": "Use when a project needs reusable honeypot field behavior with the registered state and accessibility contract.",
-      "avoid": "Avoid for display-only values or when a native control already satisfies the complete project contract.",
+      "use": "Use as one low-friction bot signal inside a form when the server explicitly checks the field and combines it with rate limiting and abuse controls.",
+      "avoid": "Avoid presenting it as spam protection by itself or relying on hidden client behavior as an authorization or validation boundary.",
       "alternatives": [],
-      "companions": [],
-      "responsive": "Keep labels, errors, and controls readable at narrow widths and 200 percent zoom."
+      "companions": [
+        "form"
+      ],
+      "responsive": "The field remains inert and unavailable to assistive technology; verify project CSS does not accidentally reveal or focus it.",
+      "decision": {
+        "nativeAlternative": "A project-owned visually hidden decoy field is equivalent when its server contract is documented and tested.",
+        "complexAlternative": "Use layered project abuse protection such as rate limits, behavioral signals, proof-of-work, or a privacy-reviewed challenge service.",
+        "stateModel": "Uncontrolled native text input that should remain empty for legitimate users.",
+        "serverClientBoundary": "Server-compatible presentation, but only a server handler can interpret the submitted value as an abuse signal.",
+        "serialization": "Submits a named text field through FormData; the server must know the exact configured name.",
+        "focusOwnership": "The inert container removes the field from focus and accessibility trees.",
+        "failureModes": [
+          "Ignoring the field on the server makes it inert markup with no abuse value.",
+          "Rejecting every filled value without layered signals can block password managers or assistive tooling.",
+          "Treating the honeypot as sufficient protection leaves automated submissions largely unmitigated."
+        ],
+        "compositions": [
+          "contact-form-split"
+        ]
+      }
+    },
+    "propContracts": {
+      "name": {
+        "kind": "string",
+        "description": "FormData key the server must check. Keep the configured name synchronized with server validation."
+      }
+    },
+    "runtime": {
+      "clientRequired": false,
+      "engine": [],
+      "measuredModuleBytes": 492,
+      "complexity": "low",
+      "effectCount": 0,
+      "listenerModel": "No listeners.",
+      "portal": false,
+      "nativeAlternative": "Project-owned inert decoy input.",
+      "scaleGuidance": "One field per form is sufficient; additional decoys do not replace rate limiting.",
+      "lazyLoad": "not-recommended"
+    },
+    "security": {
+      "acceptsHtml": false,
+      "htmlPolicy": "Label text is escaped by React.",
+      "dataSensitivity": "user-content",
+      "clientValidation": "The hidden field is only a signal and provides no client-side security.",
+      "serverValidation": "Check the exact field name on the server and combine the result with rate limiting, logging, and project abuse policy.",
+      "secretPolicy": "Do not encode secret detection rules or privileged tokens in the field name or markup.",
+      "networkAuthority": "none",
+      "persistenceAuthority": "none",
+      "externalNavigation": "No navigation authority.",
+      "commerceAuthority": "No commerce authority.",
+      "warnings": [
+        "A honeypot is not a substitute for server-side validation, authorization, throttling, or abuse monitoring.",
+        "Automated clients can detect and leave conventional honeypot fields empty."
+      ]
     }
   },
   {
@@ -843,11 +1032,77 @@
     "stability": "beta",
     "since": "0.4.0",
     "guidance": {
-      "use": "Use when a project needs reusable cart summary behavior with the registered state and accessibility contract.",
-      "avoid": "Avoid when project-specific business behavior would make the shared data contract misleading.",
-      "alternatives": [],
-      "companions": ["money"],
-      "responsive": "Preserve reading order and keyboard access; contain intentional overflow inside the component boundary."
+      "use": "Use to present project-calculated cart or order totals with semantic labels, a final total, optional note, and rendered checkout actions.",
+      "avoid": "Avoid computing prices, discounts, tax, shipping, inventory, payment status, or order authority inside the component.",
+      "alternatives": [
+        "detail-rows"
+      ],
+      "companions": [
+        "money",
+        "cart-line"
+      ],
+      "responsive": "Keep labels and values associated, allow long localized amounts and notes to wrap, and keep checkout actions reachable.",
+      "decision": {
+        "nativeAlternative": "A semantic section with a description list is sufficient for a one-off summary.",
+        "complexAlternative": "Use a project checkout summary when live shipping, tax, payment, financing, or jurisdiction-specific disclosures require domain orchestration.",
+        "stateModel": "Pure caller-owned presentation with no internal pricing or mutation state.",
+        "serverClientBoundary": "Server-compatible when rows and rendered values are serializable; interactive actions may introduce a project client boundary.",
+        "serialization": "Pass already-formatted rendered values or Money components backed by integer minor units; never derive authoritative totals from display strings.",
+        "focusOwnership": "Project-owned actions own focus; the summary itself introduces no focus management.",
+        "failureModes": [
+          "Trusting browser-calculated totals permits price and discount tampering.",
+          "Using floating-point major units creates rounding errors.",
+          "Displaying stale inventory or tax state as final misleads checkout users."
+        ],
+        "compositions": [
+          "cart-checkout-summary"
+        ]
+      }
+    },
+    "propContracts": {
+      "rows": {
+        "kind": "descriptor-array",
+        "itemType": "CartSummaryRow",
+        "description": "Presentation rows only; labels and rendered values must come from project-authorized pricing state."
+      },
+      "total": {
+        "kind": "react-node",
+        "description": "Rendered total display. It is not parsed, calculated, or treated as payment authority."
+      },
+      "actions": {
+        "kind": "react-node",
+        "description": "Rendered project checkout actions; Composer performs no checkout or payment request."
+      }
+    },
+    "runtime": {
+      "clientRequired": false,
+      "engine": [
+        "react"
+      ],
+      "measuredModuleBytes": 923,
+      "complexity": "low",
+      "effectCount": 0,
+      "listenerModel": "No listeners in Composer; rendered project actions may be interactive.",
+      "portal": false,
+      "nativeAlternative": "Semantic section and description list.",
+      "scaleGuidance": "Use for concise summaries, not itemized ledgers or long invoice histories.",
+      "lazyLoad": "not-recommended"
+    },
+    "security": {
+      "acceptsHtml": false,
+      "htmlPolicy": "Labels, values, notes, and actions are escaped React content unless the project deliberately supplies a different renderer.",
+      "dataSensitivity": "financial",
+      "clientValidation": "Displayed totals and disabled actions do not prove pricing, inventory, or checkout validity.",
+      "serverValidation": "Recalculate every amount from authoritative catalog, discount, tax, shipping, customer, and inventory data before creating a payment or order.",
+      "secretPolicy": "Never render payment credentials, provider secrets, private order tokens, or full sensitive payment data.",
+      "networkAuthority": "none",
+      "persistenceAuthority": "none",
+      "externalNavigation": "Project actions own checkout navigation and must validate return and redirect destinations.",
+      "commerceAuthority": "Presentation only; the server and payment provider own monetary and order authority.",
+      "warnings": [
+        "Browser-visible totals are untrusted input at the server boundary.",
+        "Money values should use integer minor units and explicit currency."
+      ]
     }
   },
   {
@@ -867,11 +1122,76 @@
     "stability": "beta",
     "since": "0.4.0",
     "guidance": {
-      "use": "Use when a project needs reusable discount code input behavior with the registered state and accessibility contract.",
-      "avoid": "Avoid for display-only values or when a native control already satisfies the complete project contract.",
-      "alternatives": [],
-      "companions": [],
-      "responsive": "Keep labels, errors, and controls readable at narrow widths and 200 percent zoom."
+      "use": "Use for collecting, applying, displaying, and removing a discount code through project-owned callbacks with explicit pending and feedback states.",
+      "avoid": "Avoid embedding discount eligibility, value calculation, stacking rules, or authorization in the browser.",
+      "alternatives": [
+        "input"
+      ],
+      "companions": [
+        "cart-summary",
+        "inline-message"
+      ],
+      "responsive": "Keep the label, input, apply or remove action, and feedback readable and reachable at narrow widths.",
+      "decision": {
+        "nativeAlternative": "A labeled Input and Button are simpler when applied-code and pending feedback do not need a shared contract.",
+        "complexAlternative": "Use a project promotion surface for automatic offers, multiple codes, gift cards, account entitlements, or jurisdiction-specific rules.",
+        "stateModel": "Input text may be controlled or initialized by defaultValue; appliedCode, pending, success, and error remain caller-owned.",
+        "serverClientBoundary": "Client boundary required for input and submit state; validation and discount calculation must execute through a project server boundary.",
+        "serialization": "onApply receives a trimmed string only; the server must normalize it and return authoritative cart state.",
+        "focusOwnership": "The input and buttons own focus; feedback is announced through status or alert roles.",
+        "failureModes": [
+          "Calculating discounts in the browser permits price manipulation.",
+          "Returning detailed rejection reasons can disclose private promotion rules.",
+          "Allowing duplicate pending submissions creates race conditions in cart state."
+        ],
+        "compositions": [
+          "cart-checkout-summary"
+        ]
+      }
+    },
+    "propContracts": {
+      "onApply": {
+        "kind": "function",
+        "description": "Receives the trimmed candidate code. The project must validate it on the server and replace cart state with the authoritative result."
+      },
+      "appliedCode": {
+        "kind": "string",
+        "description": "Caller-authoritative display value for the currently applied code."
+      },
+      "pending": {
+        "kind": "boolean",
+        "description": "Caller-owned mutation state used to block duplicate apply or remove actions."
+      }
+    },
+    "runtime": {
+      "clientRequired": true,
+      "engine": [
+        "react"
+      ],
+      "measuredModuleBytes": 1704,
+      "complexity": "moderate",
+      "effectCount": 0,
+      "listenerModel": "One local form submit, input change, and optional remove callback.",
+      "portal": false,
+      "nativeAlternative": "Input plus Button.",
+      "scaleGuidance": "Designed for one code at a time; use a project promotion manager for multiple instruments.",
+      "lazyLoad": "not-recommended"
+    },
+    "security": {
+      "acceptsHtml": false,
+      "htmlPolicy": "Code, success, and error text render as escaped content.",
+      "dataSensitivity": "financial",
+      "clientValidation": "Trimming, pending state, and disabled buttons do not validate discount eligibility.",
+      "serverValidation": "Normalize the code, authorize the cart and customer, enforce eligibility and stacking rules, rate limit guesses, and recalculate authoritative totals.",
+      "secretPolicy": "Do not expose private promotion rules, generation secrets, or internal campaign identifiers in client errors.",
+      "networkAuthority": "project-callback",
+      "persistenceAuthority": "project-callback",
+      "externalNavigation": "No navigation authority.",
+      "commerceAuthority": "The server owns code validity, discount value, eligibility, and final totals.",
+      "warnings": [
+        "Client-applied discounts are untrusted.",
+        "Verbose invalid-code responses can enable promotion enumeration."
+      ]
     }
   },
   {

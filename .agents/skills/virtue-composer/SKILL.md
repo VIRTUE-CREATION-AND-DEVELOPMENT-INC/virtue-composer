@@ -31,7 +31,7 @@ Before meaningful edits:
 
 1. Find the project root and read `AGENTS.md` plus local instructions.
 2. Read `virtue-composer.config.json`, `virtue-composer.manifest.json`, and `package.json` when present.
-3. For the full workflow, run `virtue-composer inspect . --used --compact --json` and `virtue-composer report . --candidates --json`, then request full records with `--component` before using an unfamiliar or ambiguous API. Read `propContracts`; a shared prop name such as `actions` does not imply a shared value shape. Use the CLI resolution in [references/cli-and-contract.md](references/cli-and-contract.md).
+3. For the full workflow, run `virtue-composer inspect . --used --compact --json` and `virtue-composer report . --candidates --json`, then request full records with `--component` before using an unfamiliar or ambiguous API. Read `propContracts`, `guidance.decision`, `runtime`, and `security` when present; a shared prop name such as `actions` does not imply a shared value shape. Use the CLI resolution in [references/cli-and-contract.md](references/cli-and-contract.md).
 4. Inspect the project wrappers and visual styling before choosing components.
 5. Read `skills/index.json` and applicable project skills when the Virtue skill matrix exists.
 
@@ -84,6 +84,10 @@ Upgrade must preserve existing wrapper files. Never replace project wrapper cust
 - Use `ResourceBoundary` to make loading, error, empty, and ready states explicit around fetched content.
 - Use `ProgressBar` for caller-managed numeric progress. Pass discrete workflow position for step or panel progress, or continuously update `value` for measured progress; Composer does not observe scrolling or workflow state.
 - Prefer existing Composer primitives over raw controls or one-off behavioral copies.
+- Prefer the simplest correct component. Treat `runtime.measuredModuleBytes`
+  as a relative own-module signal only; it excludes dependencies and consumer
+  bundling. Choose a client-heavy or portal-based component only when its
+  behavior contract is needed.
 - Add a new shared primitive only when multiple projects can reuse its behavior and accessibility contract. Follow [references/component-contribution.md](references/component-contribution.md).
 
 ### Select And Adapt Compositions
@@ -131,6 +135,10 @@ Composer replacements preserve behavior and accessibility, not bespoke appearanc
 - In `Form.fields`, set `selfLabeled: true` for custom controls that render their own label, description, and error. Give those controls their own `name`; give linked validation targets a stable `id`. Do not add hidden surrogate inputs when the Composer control supports native submission.
 - Keep components semantic and keyboard operable. Use `Tooltip` for unfamiliar icon controls and `VisuallyHidden` where a visible label would duplicate context.
 - Follow existing project design conventions. Composer is a foundation, not a visual theme.
+- Treat registry `security` records as trust-boundary guidance. Frontend
+  validation, disabled controls, `accept`, honeypots, totals, and browser state
+  never replace server authentication, authorization, validation, or domain
+  authority. Never place secrets in props, prompts, plans, or evidence.
 
 ## Enforcement
 
@@ -147,6 +155,11 @@ npm run build
 Use the scripts that actually exist in `package.json`; do not invent missing commands. When `composer:check` is absent, run `virtue-composer doctor . --strict`. Doctor errors block completion. Resolve candidate findings or document why the registered recommendation is intentionally not applicable; unresolved strict warnings block completion.
 
 Doctor's source rules are contract checks, not proof that every style-induced layout has been discovered. A `layout-div` result is advisory and CSS Module detection is best effort; a clean Doctor report means no findings within the reported scan coverage.
+
+For stability or promotion work, run
+`virtue-composer stability . --component=Name --json` and report production
+versus fixture evidence plus missing manual checks. Counts never authorize
+promotion without a recorded human review.
 
 For route-level, responsive, visual, overlay, form, or interaction work, run production browser QA at desktop and mobile widths. Check the console for runtime rendering failures, inspect submitted `FormData`, exercise validation-summary links and focus, and verify text fit, keyboard operation, dialog dismissal/focus return, loading and disabled states, and accessibility violations.
 
